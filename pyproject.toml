@@ -1,6 +1,6 @@
 [project]
-name = "TODO"
-description = "TODO"
+name = "prescriptions-refresh-job"
+description = "A job that refreshes Thoth's prescriptions"
 readme = "README.rst"
 requires-python = ">=3.8"
 license = {file = "LICENSE"}

@@ -1,7 +1,7 @@
-# Changelog for Thoth's Template GitHub Project
+# Changelog for Thoth's prescriptions refresh job
 
-## [0.1.0] - 2019-Sep-11 - goern
+## [0.0.0] - 2021-Aug-31 - fridex
 
 ### Added
 
-all the things that you see...
+* initial project import

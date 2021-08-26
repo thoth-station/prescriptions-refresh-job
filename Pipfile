@@ -1,0 +1,19 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+thoth-common = "*"
+attrs = "*"
+requests = "*"
+pyyaml = "*"
+gitpython = "*"
+click = "*"
+thoth-storages = "*"
+ogr = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.8"
