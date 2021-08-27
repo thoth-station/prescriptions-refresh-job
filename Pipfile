@@ -14,6 +14,8 @@ thoth-storages = "*"
 ogr = "*"
 
 [dev-packages]
+types-attrs = "*"
+types-requests = "*"
 
 [requires]
 python_version = "3.8"

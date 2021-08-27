@@ -23,7 +23,7 @@ from .gh_link import gh_link
 from .gh_release_notes import gh_release_notes
 
 __all__ = [
-    "gh_link",
-    "gh_archived",
-    "gh_release_notes",
+    gh_archived.__name__,
+    gh_link.__name__,
+    gh_release_notes.__name__,
 ]

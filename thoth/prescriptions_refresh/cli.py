@@ -76,7 +76,16 @@ def _print_version(ctx: click.Context, _, value: str):
     required=False,
     help="GitHub token to be used with GitHub.",
 )
-def cli(ctx: click.Context, prescriptions_repo: str, token: Optional[str], verbose: bool):
+@click.option(
+    "--labels",
+    metavar="LABEL1,LABEL2",
+    type=str,
+    envvar="THOTH_PRESCRIPTIONS_REFRESH_GITHUB_LABELS",
+    default=Prescriptions.DEFAULT_LABELS,
+    show_default=True,
+    help="Labels added to opened pull requests and issues..",
+)
+def cli(ctx: click.Context, prescriptions_repo: str, token: Optional[str], labels: Optional[str], verbose: bool):
     """Thoth's prescription-refresh command line interface."""
     if ctx:
         ctx.auto_envvar_prefix = "THOTH_PRESCRIPTIONS_REFRESH"
@@ -86,6 +95,7 @@ def cli(ctx: click.Context, prescriptions_repo: str, token: Optional[str], verbo
 
     Prescriptions.PRESCRIPTIONS_REPO = prescriptions_repo
     Prescriptions.GITHUB_TOKEN = token
+    Prescriptions.LABELS = [i for i in labels.split(",") if i]
 
     _LOGGER.debug("Debug mode is on")
     _LOGGER.info("Version: %s", __version__)
@@ -106,7 +116,7 @@ def gh_archived_command() -> None:
 
 
 @cli.command("gh-release-notes")
-def gh_archived_command() -> None:
+def gh_release_notes() -> None:
     """Check release notes for projects hosted on GitHub."""
     with Prescriptions() as prescriptions:
         handlers.gh_release_notes(prescriptions)

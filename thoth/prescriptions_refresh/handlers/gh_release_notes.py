@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-"""Check links to project release notes."""
+"""Check links to the project release notes."""
 
 import logging
 import requests
@@ -115,5 +115,7 @@ def gh_release_notes(prescriptions: "Prescriptions") -> None:
                     organization=organization,
                     repository=repository,
                 ),
-                commit_message=f"Project {project_name!r} hosts release notes on GitHub",
+                commit_message=f"Project '{project_name!r}' hosts release notes on GitHub",
             )
+
+        _LOGGER.info("No GitHub release notes detected for %r", project_name)

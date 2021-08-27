@@ -43,7 +43,7 @@ units:
     should_include:
       adviser_pipeline: true
     match:
-    - state:
+      state:
         resolved_dependencies:
         - name: {package_name}
     run:
@@ -80,7 +80,7 @@ def _get_urls(project_name: str) -> List[str]:
         url_candidates.append(package_info["package_url"])
 
     if package_info.get("project_urls"):
-        url_candidates.extend(package_info.get("project_urls").values())
+        url_candidates.extend(package_info["project_urls"].values())
 
     return url_candidates
 
@@ -149,6 +149,7 @@ def iter_gh_info(prescriptions: "Prescriptions") -> Generator[Tuple[str, str, st
             _LOGGER.error("Failed to parse GitHub link from %r, skipping...", prescription_path)
             continue
 
+        _LOGGER.debug("Using GitHub link %r", gh_link)
         parsed_url = urlparse(gh_link)
         parts = parsed_url.path.split("/")
         if len(parts) != 3:
@@ -193,6 +194,6 @@ def gh_link(knowledge: "Knowledge") -> None:
             knowledge.prescriptions.delete_prescription(
                 project_name,
                 _GH_LINK_PRESCRIPTION_NAME,
-                commit_message=f"GitHub URL for {project_name!r} does not look active anymore",
+                commit_message=f"GitHub URL for {project_name!r} is not active anymore",
                 nonexisting_ok=True,
             )

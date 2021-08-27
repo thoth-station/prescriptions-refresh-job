@@ -35,16 +35,18 @@ class Knowledge:
     prescriptions = attr.ib(type=Prescriptions, default=attr.Factory(Prescriptions))
     graph = attr.ib(type=GraphDatabase)
 
-    @graph.default
+    @graph.default  # type: ignore
     def _graph_default(self) -> "GraphDatabase":
         graph = GraphDatabase()
         graph.connect()
         return graph
 
     def __enter__(self) -> "Knowledge":
+        """Allow using Knowledge with the with statement."""
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:  # type: ignore
+        """Clean up once the work is done."""
         self.prescriptions.clean()
 
     def iter_projects(self) -> Generator[str, None, None]:

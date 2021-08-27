@@ -22,10 +22,10 @@ import os
 import shutil
 import tempfile
 import yaml
-from urllib.parse import urlparse
 from typing import Any
 from typing import Dict
 from typing import Generator
+from typing import List
 from typing import Optional
 from typing import Tuple
 
@@ -37,6 +37,11 @@ from ogr.services.github import GithubService
 from .exceptions import PrescriptionNotFound
 
 _LOGGER = logging.getLogger(__name__)
+_PR_BODY = """\
+This change was automatically generated using \
+[thoth-station/prescriptions-refresh-job](https://github.com/thoth-station/prescriptions-refresh-job). This periodic \
+job makes sure the repository is up to date. Visit [thoth-station.ninja](https://thoth-station.ninja) for more info.
+"""
 
 
 @attr.s(slots=True)
@@ -45,15 +50,19 @@ class Prescriptions:
 
     DEFAULT_PRESCRIPTIONS_REPO = os.getenv(
         "THOTH_PRESCRIPTIONS_REFRESH_REPO",
-        "https://github.com/thoth-station/prescriptions.git",
+        "git@github.com:thoth-station/prescriptions.git",
     )
     PRESCRIPTIONS_REPO: str = DEFAULT_PRESCRIPTIONS_REPO
-    GITHUB_TOKEN: str = ""
+
+    GITHUB_TOKEN: str = os.environ["THOTH_PRESCRIPTIONS_REFRESH_GITHUB_TOKEN"]
+
+    DEFAULT_LABELS: str = os.getenv("THOTH_PRESCRIPTIONS_REFRESH_GITHUB_LABELS", "bot")
+    LABELS: List[str] = [i for i in DEFAULT_LABELS.split(",") if i]
 
     repo = attr.ib(type=Repo)
     project = attr.ib(type=GithubProject)
 
-    @repo.default
+    @repo.default  # type: ignore
     def _repo_default(self) -> Repo:
         """Clone repository on instantiation."""
         _LOGGER.debug("Cloning prescriptions repo %r", self.PRESCRIPTIONS_REPO)
@@ -61,17 +70,12 @@ class Prescriptions:
         _LOGGER.debug("Cloned repository available at %r", repo.working_dir)
         return repo
 
-    @project.default
+    @project.default  # type: ignore
     def _project_default(self) -> GithubService:
         """Initialize OGR for handling GitHub pull-requests."""
-        parse_result = urlparse(self.PRESCRIPTIONS_REPO)
-        parts = parse_result.path.split("/")
-        parts = ["", "thoth-station", "prescriptions"]  # TODO
-        if len(parts) != 3:
-            raise ValueError(f"Failed to parse prescriptions repository from {self.PRESCRIPTIONS_REPO}")
+        _, parts = self.PRESCRIPTIONS_REPO.split(":", maxsplit=1)
+        organization, repo = parts.split("/", maxsplit=1)
 
-        organization = parts[1]
-        repo = parts[2]
         if repo.endswith(".git"):
             repo = repo[: -len(".git")]
 
@@ -82,9 +86,11 @@ class Prescriptions:
         ).get_project(namespace=organization, repo=repo)
 
     def __enter__(self) -> "Prescriptions":
+        """Allow using Prescriptions with the with statement."""
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:  # type: ignore
+        """Clean up once the work is done."""
         self.clean()
 
     def clean(self) -> None:
@@ -156,7 +162,8 @@ class Prescriptions:
             return None
 
         with open(prescription_path, "r") as prescription_file:
-            return yaml.safe_load(prescription_file)
+            result: Optional[Dict[str, Any]] = yaml.safe_load(prescription_file)
+            return result
 
     def delete_prescription(
         self,
@@ -179,19 +186,35 @@ class Prescriptions:
         _LOGGER.debug("Creating a pull request to delete prescription at %r", prescription_path)
 
         branch_name = f"pres-rm-{project_name}-{prescription_name}"
+        commit_message = "⚕️ " + (commit_message or f"Remove prescription {prescription_name!r} for {project_name!r}")
         self.repo.git.checkout("HEAD", b=branch_name)
         self.repo.index.remove([prescription_path], working_tree=True)
-        self.repo.index.commit(commit_message or f"Remove prescription {prescription_name!r} for {project_name!r}")
+        self.repo.index.commit(commit_message)
         # If this PR already exists, this will fail.
         self.repo.remote().push(branch_name)
         self.repo.git.checkout("master")
 
-        pr = self.project.create_pr(
-            title=commit_message,
-            body="This change was automatically generated",
-            target_branch=self.project.default_branch,
-            source_branch=branch_name,
-        )
+        try:
+            pr = self.project.create_pr(
+                title=commit_message,
+                body="This change was automatically generated",
+                target_branch=self.project.default_branch,
+                source_branch=branch_name,
+            )
+        except Exception as exc:
+            github_errors = getattr(exc, "_GithubException__data", {}).get("errors")
+            if github_errors and github_errors[0].get("message").startswith("A pull request already exists for"):
+                _LOGGER.warning(github_errors[0]["message"])
+                return False
+            _LOGGER.exception("Failed to create a pull request")
+            return False
+
+        try:
+            for label in self.LABELS:
+                _LOGGER.debug("Adding label %r", label)
+                pr.add_label(label)
+        except Exception:
+            _LOGGER.exception("Failed to add labels to the pull request")
 
         _LOGGER.info("Opened pull request #%s: %s", pr.id, commit_message)
         return True
@@ -221,19 +244,35 @@ class Prescriptions:
             prescription_file.write(content)
 
         branch_name = f"pres-{project_name}-{prescription_name}"
+        commit_message = "💊 " + (commit_message or f"Add prescription {prescription_name!r} for {project_name!r}")
         self.repo.git.checkout("HEAD", b=branch_name)
         self.repo.index.add([prescription_path])
-        self.repo.index.commit(commit_message or f"Add prescription {prescription_name!r} for {project_name!r}")
+        self.repo.index.commit(commit_message)
         # If this PR already exists, this will fail.
         self.repo.remote().push(branch_name)
         self.repo.git.checkout("master")
 
-        pr = self.project.create_pr(
-            title=commit_message,
-            body="This change was automatically generated",
-            target_branch=self.project.default_branch,
-            source_branch=branch_name,
-        )
+        try:
+            pr = self.project.create_pr(
+                title=commit_message,
+                body=_PR_BODY,
+                target_branch=self.project.default_branch,
+                source_branch=branch_name,
+            )
+        except Exception as exc:
+            github_errors = getattr(exc, "_GithubException__data", {}).get("errors")
+            if github_errors and github_errors[0].get("message").startswith("A pull request already exists for"):
+                _LOGGER.warning(github_errors[0]["message"])
+                return False
+            _LOGGER.exception("Failed to create a pull request")
+            return False
+
+        try:
+            for label in self.LABELS:
+                _LOGGER.debug("Adding label %r", label)
+                pr.add_label(label)
+        except Exception:
+            _LOGGER.exception("Failed to add labels to the pull request")
 
         _LOGGER.info("Opened pull request #%s: %s", pr.id, commit_message)
         return True

@@ -18,9 +18,9 @@
 """Exceptions hierarchy in Thoth's prescriptions-refresh."""
 
 
-class PrescriptionsRefreshException(Exception):
+class PrescriptionsRefreshException(Exception):  # noqa: N818
     """A base class for prescription exception hierarchy."""
 
 
-class PrescriptionNotFound(Exception):
+class PrescriptionNotFound(Exception):  # noqa: N818
     """Raised when the given prescription is not found."""

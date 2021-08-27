@@ -56,7 +56,10 @@ def gh_archived(prescriptions: "Prescriptions") -> None:
 
         response = requests.get(
             f"https://api.github.com/repos/{organization}/{repository}",
-            headers={"Accept": "application/vnd.github.v3+json"},
+            headers={
+                "Accept": "application/vnd.github.v3+json",
+                "Authorization": f"token {prescriptions.GITHUB_TOKEN}",
+            },
         )
         if response.status_code == 404:
             _LOGGER.warning("Repository %r not found", gh_link)
@@ -86,12 +89,12 @@ def gh_archived(prescriptions: "Prescriptions") -> None:
                     prescription_name=prescription_name,
                     gh_link=gh_link,
                 ),
-                commit_message=f"Repository for {project_name} is marked as archived on GitHub",
+                commit_message=f"Repository for {project_name!r} is marked as archived on GitHub",
             )
         else:
             prescriptions.delete_prescription(
                 project_name,
                 _GH_LINK_PRESCRIPTION_NAME,
-                commit_message=f"Repository for {project_name} is no longer marked as archived on GitHub",
+                commit_message=f"Repository for {project_name!r} is no longer marked as archived on GitHub",
                 nonexisting_ok=True,
             )
