@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-# project template
-# Copyright(C) 2021 Red Hat, Inc.
+# thoth-prescriptions-refresh
+# Copyright(C) 2021 Fridolin Pokorny
 #
 # This program is free software: you can redistribute it and / or modify
 # it under the terms of the GNU General Public License as published by
@@ -15,9 +15,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-"""This is the main script of the template project."""
+"""Exceptions hierarchy in Thoth's prescriptions-refresh."""
 
-from template.version import __version__
 
-if __name__ == "__main__":
-    print(f"A template project with Thoth integration, v{__version__}.")
+class PrescriptionsRefreshException(Exception):  # noqa: N818
+    """A base class for prescription exception hierarchy."""
+
+
+class PrescriptionNotFound(Exception):  # noqa: N818
+    """Raised when the given prescription is not found."""
