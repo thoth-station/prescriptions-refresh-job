@@ -117,5 +117,6 @@ def gh_release_notes(prescriptions: "Prescriptions") -> None:
                 ),
                 commit_message=f"Project {project_name!r} hosts release notes on GitHub",
             )
+            continue
 
         _LOGGER.info("No GitHub release notes detected for %r", project_name)
