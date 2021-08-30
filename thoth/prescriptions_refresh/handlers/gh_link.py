@@ -49,8 +49,8 @@ units:
     run:
       justification:
       - type: INFO
-        message: "Package '{package_name}' is hosted on GitHub"
-        link: "{gh_url}"
+        message: Package '{package_name}' is hosted on GitHub
+        link: {gh_url}
         package_name: {package_name}
 """
 
