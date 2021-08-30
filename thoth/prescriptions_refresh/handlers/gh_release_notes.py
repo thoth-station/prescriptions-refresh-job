@@ -38,7 +38,7 @@ units:
     match:
       state:
         resolved_dependencies:
-          name: {package_name}
+        - name: {package_name}
     run:
       release_notes:
         organization: {organization}
@@ -115,7 +115,7 @@ def gh_release_notes(prescriptions: "Prescriptions") -> None:
                     organization=organization,
                     repository=repository,
                 ),
-                commit_message=f"Project '{project_name!r}' hosts release notes on GitHub",
+                commit_message=f"Project {project_name!r} hosts release notes on GitHub",
             )
 
         _LOGGER.info("No GitHub release notes detected for %r", project_name)

@@ -43,8 +43,8 @@ units:
     run:
       justification:
       - type: WARNING
-        message: "Package '{package_name}' is marked as archived on GitHub"
-        link: "{gh_link}"
+        message: Package '{package_name}' is marked as archived on GitHub
+        link: {gh_link}
         package_name: {package_name}
 """
 
