@@ -151,7 +151,7 @@ def gh_release_notes() -> None:
 
 
 @cli.command("scorecards")
-def gh_archived_command() -> None:
+def scorecards() -> None:
     """Check for scorecards published by OSSF."""
     with Prescriptions() as prescriptions:
         handlers.scorecards(prescriptions)

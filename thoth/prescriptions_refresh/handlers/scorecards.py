@@ -17,14 +17,13 @@
 
 """Check scorecards computed by Open Source Security Foundation."""
 
-import json
 import logging
-import os
 from typing import Any
 from typing import Dict
 
-import requests
 from typing import TYPE_CHECKING
+
+from google.cloud import bigquery
 
 from .gh_link import iter_gh_info
 
@@ -33,16 +32,6 @@ if TYPE_CHECKING:
 
 
 _LOGGER = logging.getLogger(__name__)
-
-# This link can be obtained using cURL -- this way we do not need gcloud packages
-# installed and a simple GET request can obtain the latest scorecards available.
-#   curl -X GET "https://storage.googleapis.com/storage/v1/b/<bucket>/o/<object_key>"
-# Specifically, for scorecards:
-#   curl -X GET "https://storage.googleapis.com/storage/v1/b/ossf-scorecards/o/latest.json"
-_DEFAULT_SCORECARDS_GS_URL = (
-    "https://storage.googleapis.com/download/storage/v1/b/ossf-scorecards/o/latest.json?alt=media"
-)
-_SCORECARDS_GS_URL = os.getenv("SCORECARDS_GS_URL", _DEFAULT_SCORECARDS_GS_URL)
 
 _SCORECARDS_WRAP_GENERIC_UNIT = """\
 units:
@@ -779,20 +768,14 @@ _SCORECARDS_HANDLERS = {
 
 def scorecards(prescriptions: "Prescriptions") -> None:
     """Check scorecards computed by OSSF and create corresponding prescriptions."""
-    _LOGGER.info("Downloading the scorecards database from Google Storage")
-    # response = requests.get(_SCORECARDS_GS_URL)
-    # response.raise_for_status()
-    # for entry in response.text.splitlines():
-
-    with open("/tmp/latest.json") as f:
-        entries = f.read()
-
     # Parse and prepare scorecards in advance.
-    _LOGGER.info("Parsing scorecards available")
+    _LOGGER.info("Querying scorecards available in BigQuery")
+    client = bigquery.Client()
+    query_job = client.query("""SELECT * FROM openssf.scorecardcron.scorecard""")
+
     scorecards_dict = {}
-    for entry in entries.splitlines():
-        scorecards_entry = json.loads(entry)
-        repo = scorecards_entry["Repo"]
+    for row in query_job:
+        repo = row["Repo"]
 
         if repo.startswith("github.com/"):
             repo = repo[len("github.com/") :]
@@ -808,11 +791,11 @@ def scorecards(prescriptions: "Prescriptions") -> None:
             _LOGGER.debug(
                 "Skipping scorecard for repo %r from %r: cannot parse organization and repository",
                 parts,
-                scorecards_entry["Repo"],
+                row["Repo"],
             )
             continue
 
-        scorecards_dict[tuple(parts)] = scorecards_entry
+        scorecards_dict[tuple(parts)] = dict(row)
 
     _LOGGER.info("Mapping available scorecards to prescriptions")
     for project_name, organization, repository in iter_gh_info(prescriptions):
