@@ -115,6 +115,34 @@ def gh_archived_command() -> None:
         handlers.gh_archived(prescriptions)
 
 
+@cli.command("gh-forked")
+def gh_forked_command() -> None:
+    """Check for forks."""
+    with Prescriptions() as prescriptions:
+        handlers.gh_forked(prescriptions)
+
+
+@cli.command("gh-popularity")
+def gh_popularity() -> None:
+    """Compute popularity of projects."""
+    with Prescriptions() as prescriptions:
+        handlers.gh_popularity(prescriptions)
+
+
+@cli.command("gh-updated")
+def gh_updated() -> None:
+    """Check when projects were last updated."""
+    with Prescriptions() as prescriptions:
+        handlers.gh_updated(prescriptions)
+
+
+@cli.command("gh-contributors")
+def gh_contributors() -> None:
+    """Check number of collaborators on GitHub."""
+    with Prescriptions() as prescriptions:
+        handlers.gh_contributors(prescriptions)
+
+
 @cli.command("gh-release-notes")
 def gh_release_notes() -> None:
     """Check release notes for projects hosted on GitHub."""
