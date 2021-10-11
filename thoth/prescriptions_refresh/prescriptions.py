@@ -19,6 +19,7 @@
 
 import logging
 import os
+import random
 import shutil
 import tempfile
 import yaml
@@ -42,6 +43,8 @@ This change was automatically generated using \
 [thoth-station/prescriptions-refresh-job](https://github.com/thoth-station/prescriptions-refresh-job). This periodic \
 job makes sure the repository is up to date. Visit [thoth-station.ninja](https://thoth-station.ninja) for more info.
 """
+
+_RANDOMIZE = bool(int(os.getenv("THOTH_PRESCRIPTIONS_REFRESH_RANDOMIZE", 0)))
 
 
 @attr.s(slots=True)
@@ -101,7 +104,12 @@ class Prescriptions:
 
     def iter_prescriptions_yaml(self) -> Generator[Tuple[str, Dict[str, Any]], None, None]:
         """Iterate over prescription YAML files available in the cloned repository."""
-        for root, _, files in os.walk(self.repo.working_dir):
+        all_files = list(os.walk(self.repo.working_dir))
+        if _RANDOMIZE:
+            _LOGGER.error("Randomizing prescriptions walk")
+            random.shuffle(all_files)
+
+        for root, _, files in all_files:
             for f in files:
                 if not f.endswith((".yaml", ".yml")):
                     continue
