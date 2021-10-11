@@ -19,11 +19,19 @@
 
 
 from .gh_archived import gh_archived
+from .gh_contributors import gh_contributors
+from .gh_forked import gh_forked
 from .gh_link import gh_link
+from .gh_popularity import gh_popularity
 from .gh_release_notes import gh_release_notes
+from .gh_updated import gh_updated
 
 __all__ = [
     gh_archived.__name__,
+    gh_contributors.__name__,
+    gh_forked.__name__,
     gh_link.__name__,
+    gh_popularity.__name__,
     gh_release_notes.__name__,
+    gh_updated.__name__,
 ]
