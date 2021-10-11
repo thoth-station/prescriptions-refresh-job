@@ -18,5 +18,5 @@
 """Thoth's prescriptions refresh job."""
 
 __title__ = "thoth-prescriptions-refresh"
-__version__ = "0.0.2"
+__version__ = "0.0.3"
 __author__ = "Fridolin Pokorny <fridolin@redhat.com>"
