@@ -1,5 +1,14 @@
 # Changelog for Thoth's prescriptions refresh job
 
+## Release 0.0.3 (2021-10-11T20:17:01)
+### Features
+* Adjust help message to respect implementation
+* Remove unused ignore comments reported by mypy
+* Create a pool of tokens that can be used to obtain data from GitHub API
+* Randomize prescriptions walk if configured so
+* :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
+* Implement handlers used to aggregate projects stats from GitHub
+
 ## Release 0.0.2 (2021-09-12T20:07:18)
 ### Features
 * Add missing continue causing misleading info message printed
