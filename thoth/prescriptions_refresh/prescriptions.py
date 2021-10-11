@@ -97,7 +97,7 @@ class Prescriptions:
         res = [t.strip() for t in tokens.split(",")]
         return res
 
-    def get_github_token(self) -> str:
+    def get_github_token(self) -> Any:
         """Get a random GitHub token from pool."""
         return random.choice(self.github_tokens)
 

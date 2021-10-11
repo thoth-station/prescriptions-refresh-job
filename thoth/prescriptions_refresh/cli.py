@@ -74,7 +74,7 @@ def _print_version(ctx: click.Context, _, value: str):
     type=str,
     envvar="THOTH_PRESCRIPTIONS_REFRESH_GITHUB_TOKEN",
     required=False,
-    help="GitHub token to be used with GitHub.",
+    help="GitHub token to be used with GitHub, multiple can be supplied delimited by comma or new line.",
 )
 @click.option(
     "--labels",
