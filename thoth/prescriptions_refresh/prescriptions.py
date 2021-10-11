@@ -64,7 +64,7 @@ class Prescriptions:
     github_tokens = attr.ib(type=List[str])
     project = attr.ib(type=GithubProject)
 
-    @repo.default  # type: ignore
+    @repo.default
     def _repo_default(self) -> Repo:
         """Clone repository on instantiation."""
         _LOGGER.debug("Cloning prescriptions repo %r", self.PRESCRIPTIONS_REPO)
@@ -72,7 +72,7 @@ class Prescriptions:
         _LOGGER.debug("Cloned repository available at %r", repo.working_dir)
         return repo
 
-    @project.default  # type: ignore
+    @project.default
     def _project_default(self) -> GithubService:
         """Initialize OGR for handling GitHub pull-requests."""
         _, parts = self.PRESCRIPTIONS_REPO.split(":", maxsplit=1)
