@@ -94,7 +94,6 @@ def cli(ctx: click.Context, prescriptions_repo: str, token: Optional[str], label
         _LOGGER.setLevel(logging.DEBUG)
 
     Prescriptions.PRESCRIPTIONS_REPO = prescriptions_repo
-    Prescriptions.GITHUB_TOKEN = token
     Prescriptions.LABELS = [i for i in labels.split(",") if i]
 
     _LOGGER.debug("Debug mode is on")

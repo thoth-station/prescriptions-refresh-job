@@ -62,7 +62,7 @@ def gh_updated(prescriptions: "Prescriptions") -> None:
             f"https://api.github.com/repos/{organization}/{repository}/commits",
             headers={
                 "Accept": "application/vnd.github.v3+json",
-                "Authorization": f"token {prescriptions.GITHUB_TOKEN}",
+                "Authorization": f"token {prescriptions.get_github_token()}",
             },
             params={"per_page": 1},
         )
