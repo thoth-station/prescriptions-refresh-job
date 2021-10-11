@@ -74,7 +74,7 @@ def _print_version(ctx: click.Context, _, value: str):
     type=str,
     envvar="THOTH_PRESCRIPTIONS_REFRESH_GITHUB_TOKEN",
     required=False,
-    help="GitHub token to be used with GitHub.",
+    help="GitHub token to be used with GitHub, multiple can be supplied delimited by comma or new line.",
 )
 @click.option(
     "--labels",
@@ -94,7 +94,6 @@ def cli(ctx: click.Context, prescriptions_repo: str, token: Optional[str], label
         _LOGGER.setLevel(logging.DEBUG)
 
     Prescriptions.PRESCRIPTIONS_REPO = prescriptions_repo
-    Prescriptions.GITHUB_TOKEN = token
     Prescriptions.LABELS = [i for i in labels.split(",") if i]
 
     _LOGGER.debug("Debug mode is on")

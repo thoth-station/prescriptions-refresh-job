@@ -57,15 +57,14 @@ class Prescriptions:
     )
     PRESCRIPTIONS_REPO: str = DEFAULT_PRESCRIPTIONS_REPO
 
-    GITHUB_TOKEN: str = os.environ["THOTH_PRESCRIPTIONS_REFRESH_GITHUB_TOKEN"]
-
     DEFAULT_LABELS: str = os.getenv("THOTH_PRESCRIPTIONS_REFRESH_GITHUB_LABELS", "bot")
     LABELS: List[str] = [i for i in DEFAULT_LABELS.split(",") if i]
 
     repo = attr.ib(type=Repo)
+    github_tokens = attr.ib(type=List[str])
     project = attr.ib(type=GithubProject)
 
-    @repo.default  # type: ignore
+    @repo.default
     def _repo_default(self) -> Repo:
         """Clone repository on instantiation."""
         _LOGGER.debug("Cloning prescriptions repo %r", self.PRESCRIPTIONS_REPO)
@@ -73,7 +72,7 @@ class Prescriptions:
         _LOGGER.debug("Cloned repository available at %r", repo.working_dir)
         return repo
 
-    @project.default  # type: ignore
+    @project.default
     def _project_default(self) -> GithubService:
         """Initialize OGR for handling GitHub pull-requests."""
         _, parts = self.PRESCRIPTIONS_REPO.split(":", maxsplit=1)
@@ -83,10 +82,24 @@ class Prescriptions:
             repo = repo[: -len(".git")]
 
         return GithubService(
-            token=self.GITHUB_TOKEN,
+            token=self.get_github_token(),
             github_app_id=os.getenv("GITHUB_APP_ID"),
             github_app_private_key_path=os.getenv("GITHUB_PRIVATE_KEY_PATH"),
         ).get_project(namespace=organization, repo=repo)
+
+    @github_tokens.default
+    def _github_tokens_default(self) -> List[str]:
+        """Initialize GitHub tokens passed."""
+        tokens = os.getenv("THOTH_PRESCRIPTIONS_REFRESH_GITHUB_TOKEN")
+        if not tokens:
+            raise NotImplementedError("One or multiple GitHub tokens expected to run prescriptions-refresh-job")
+        tokens = tokens.replace("\n", ",")  # Allow also new line delimiters.
+        res = [t.strip() for t in tokens.split(",")]
+        return res
+
+    def get_github_token(self) -> Any:
+        """Get a random GitHub token from pool."""
+        return random.choice(self.github_tokens)
 
     def __enter__(self) -> "Prescriptions":
         """Allow using Prescriptions with the with statement."""

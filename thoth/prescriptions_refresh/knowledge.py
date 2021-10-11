@@ -35,7 +35,7 @@ class Knowledge:
     prescriptions = attr.ib(type=Prescriptions, default=attr.Factory(Prescriptions))
     graph = attr.ib(type=GraphDatabase)
 
-    @graph.default  # type: ignore
+    @graph.default
     def _graph_default(self) -> "GraphDatabase":
         graph = GraphDatabase()
         graph.connect()
