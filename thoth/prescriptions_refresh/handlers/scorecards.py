@@ -771,20 +771,11 @@ def scorecards(prescriptions: "Prescriptions") -> None:
     # Parse and prepare scorecards in advance.
     _LOGGER.info("Querying scorecards available in BigQuery")
     client = bigquery.Client()
-    query_job = client.query("""SELECT * FROM openssf.scorecardcron.scorecard""")
+    query_job = client.query('SELECT * FROM openssf.scorecardcron.scorecard WHERE starts_with(Repo, "github.com")')
 
     scorecards_dict = {}
     for row in query_job:
-        repo = row["Repo"]
-
-        if repo.startswith("github.com/"):
-            repo = repo[len("github.com/") :]
-        else:
-            _LOGGER.debug("Skipping scorecard entry %r: not a GitHub repository", repo)
-            continue
-
-        if repo.endswith("/"):
-            repo = repo[:-1]
+        repo = row["Repo"].rstrip("/")
 
         parts = repo.split("/")
         if len(parts) != 2:
