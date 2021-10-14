@@ -12,6 +12,7 @@ gitpython = "*"
 click = "*"
 thoth-storages = "*"
 ogr = "*"
+google-cloud-bigquery = "*"
 
 [dev-packages]
 types-attrs = "*"

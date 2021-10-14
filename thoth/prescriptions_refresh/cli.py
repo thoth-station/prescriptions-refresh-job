@@ -149,4 +149,11 @@ def gh_release_notes() -> None:
         handlers.gh_release_notes(prescriptions)
 
 
+@cli.command("scorecards")
+def scorecards() -> None:
+    """Check for scorecards published by OSSF."""
+    with Prescriptions() as prescriptions:
+        handlers.scorecards(prescriptions)
+
+
 __name__ == "__main__" and cli()
