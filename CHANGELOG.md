@@ -1,5 +1,10 @@
 # Changelog for Thoth's prescriptions refresh job
 
+## Release 0.1.0 (2021-10-20T02:36:37)
+* Query only GitHub repos in Scorecards BigQuery
+* Use BigQuery to obtain prescriptions
+* Add prescriptions related to Security Scorecards
+
 ## Release 0.0.3 (2021-10-11T20:17:01)
 ### Features
 * Adjust help message to respect implementation
