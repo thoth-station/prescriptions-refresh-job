@@ -18,6 +18,7 @@
 """Thoth's handlers for prescriptions refresh job."""
 
 
+from .cve_warning import cve_warning
 from .gh_archived import gh_archived
 from .gh_contributors import gh_contributors
 from .gh_forked import gh_forked
@@ -28,6 +29,7 @@ from .gh_updated import gh_updated
 from .scorecards import scorecards
 
 __all__ = [
+    cve_warning.__name__,
     gh_archived.__name__,
     gh_contributors.__name__,
     gh_forked.__name__,

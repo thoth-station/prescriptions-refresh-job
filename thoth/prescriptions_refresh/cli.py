@@ -156,4 +156,11 @@ def scorecards() -> None:
         handlers.scorecards(prescriptions)
 
 
+@cli.command("cve-warning")
+def cve_warning() -> None:
+    """Warn if projects are known to have a lot of vulnerabilities.."""
+    with Prescriptions() as prescriptions:
+        handlers.cve_warning(prescriptions)
+
+
 __name__ == "__main__" and cli()
