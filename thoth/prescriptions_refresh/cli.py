@@ -163,4 +163,11 @@ def cve_warning() -> None:
         handlers.cve_warning(prescriptions)
 
 
+@cli.command("quay-security")
+def quay_security() -> None:
+    """Check container images with predictable stacks for security related aspects."""
+    with Prescriptions() as prescriptions:
+        handlers.quay_security(prescriptions)
+
+
 __name__ == "__main__" and cli()

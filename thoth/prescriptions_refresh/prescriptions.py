@@ -67,7 +67,7 @@ class Prescriptions:
     @repo.default
     def _repo_default(self) -> Repo:
         """Clone repository on instantiation."""
-        _LOGGER.debug("Cloning prescriptions repo %r", self.PRESCRIPTIONS_REPO)
+        _LOGGER.info("Cloning prescriptions repo %r", self.PRESCRIPTIONS_REPO)
         repo = Repo.clone_from(self.PRESCRIPTIONS_REPO, tempfile.mkdtemp(), depth=1)
         _LOGGER.debug("Cloned repository available at %r", repo.working_dir)
         return repo
@@ -164,6 +164,11 @@ class Prescriptions:
     def get_prescription_path(self, project_name: str, prescription_name: str) -> str:
         """Get path to a prescriptions directory for the given project."""
         path = os.path.join(self.repo.working_dir, "prescriptions")
+
+        if project_name.startswith("_"):
+            # Prefix _ donates "generic" prescriptions.
+            return os.path.join(path, project_name, prescription_name)
+
         if len(project_name) > 2:
             path = os.path.join(path, f"{project_name[:2]}_")
 
@@ -261,6 +266,7 @@ class Prescriptions:
             return False
 
         prescription_path = self.get_prescription_path(project_name, prescription_name)
+        os.makedirs(os.path.dirname(prescription_path), exist_ok=True)
         with open(prescription_path, "w") as prescription_file:
             prescription_file.write(content)
 

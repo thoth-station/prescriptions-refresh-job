@@ -26,6 +26,7 @@ from .gh_link import gh_link
 from .gh_popularity import gh_popularity
 from .gh_release_notes import gh_release_notes
 from .gh_updated import gh_updated
+from .quay_security import quay_security
 from .scorecards import scorecards
 
 __all__ = [
@@ -37,5 +38,6 @@ __all__ = [
     gh_popularity.__name__,
     gh_release_notes.__name__,
     gh_updated.__name__,
+    quay_security.__name__,
     scorecards.__name__,
 ]
