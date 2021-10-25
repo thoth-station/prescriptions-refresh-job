@@ -163,4 +163,11 @@ def cve_warning() -> None:
         handlers.cve_warning(prescriptions)
 
 
+@cli.command("advisory-db")
+def advisory_db() -> None:
+    """Obtain CVE information from PyPA/advisory-db."""
+    with Prescriptions() as prescriptions:
+        handlers.advisory_db(prescriptions)
+
+
 __name__ == "__main__" and cli()

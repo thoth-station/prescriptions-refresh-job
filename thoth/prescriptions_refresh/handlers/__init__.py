@@ -19,6 +19,7 @@
 
 
 from .cve_warning import cve_warning
+from .advisory_db import advisory_db
 from .gh_archived import gh_archived
 from .gh_contributors import gh_contributors
 from .gh_forked import gh_forked
@@ -30,6 +31,7 @@ from .scorecards import scorecards
 
 __all__ = [
     cve_warning.__name__,
+    advisory_db.__name__,
     gh_archived.__name__,
     gh_contributors.__name__,
     gh_forked.__name__,
