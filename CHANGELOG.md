@@ -1,5 +1,12 @@
 # Changelog for Thoth's prescriptions refresh job
 
+## Release 0.2.0 (2021-10-25T21:06:16)
+* Add handler for security information from Quay on predictable stacks
+* :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
+* :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
+* :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
+* Introduce a task that flags projects with a lot of CVE vulnerabilities
+
 ## Release 0.1.0 (2021-10-20T02:36:37)
 * Query only GitHub repos in Scorecards BigQuery
 * Use BigQuery to obtain prescriptions
