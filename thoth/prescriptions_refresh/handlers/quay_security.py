@@ -100,7 +100,8 @@ units:
 def _get_configured_image_names() -> Generator[str, None, None]:
     """Get a list of container images configured via environment variables."""
     if not _CONFIGURED_IMAGES:
-        return []
+        yield from ()
+        return None
 
     for line in _CONFIGURED_IMAGES.splitlines():
         line = line.strip()
@@ -175,7 +176,7 @@ def _quay_get_security_info(image_name: str, container_id: str) -> List[Dict[str
 
 
 def _create_prescriptions(
-    prescriptions: "Prescriptions", image: str, container_id: str, tag: str, vulnerabilities: List[Dict[str, Any]]
+    prescriptions: "Prescriptions", image: str, tag: str, vulnerabilities: List[Dict[str, Any]]
 ) -> None:
     """Create prescriptions for the vulnerabilities listed."""
     if not vulnerabilities:
@@ -197,7 +198,7 @@ def _create_prescriptions(
         units += _QUAY_SECURITY_JUSTIFICATION.format(
             prescription_name=f"{prescription_name}Vuln{idx}",
             image=f"{_QUAY_URL}/{_QUAY_NAMESPACE_NAME}/{image}:{tag}",
-            message=vulnerability["Description"].replace('"', '\\"'),
+            message=vulnerability["Description"].replace("\\", "\\\\").replace('"', '\\"'),
             link=vulnerability["Link"],
             cve_name=vulnerability["Name"],
         )
@@ -222,7 +223,7 @@ def quay_security(prescriptions: "Prescriptions") -> None:
             _LOGGER.info("Obtaining security-related information for %r in tag %r", image, tag)
             vulnerabilities = _quay_get_security_info(image, container_id)
             if vulnerabilities:
-                _create_prescriptions(prescriptions, image, container_id, tag, vulnerabilities)
+                _create_prescriptions(prescriptions, image, tag, vulnerabilities)
 
     prescriptions.create_prescription(
         project_name="_containers",
