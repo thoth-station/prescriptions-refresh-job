@@ -167,7 +167,7 @@ def _quay_get_security_info(image_name: str, container_id: str) -> List[Dict[str
     response.raise_for_status()
 
     vulnerabilities = []
-    for feature in response.json().get("data", {}).get("Layer").get("Features"):
+    for feature in ((response.json().get("data") or {}).get("Layer") or {}).get("Features") or []:
         if feature["Vulnerabilities"]:
             vulnerabilities.extend(feature["Vulnerabilities"])
 
