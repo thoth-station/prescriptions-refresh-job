@@ -58,7 +58,8 @@ _QUAY_SECURITY_JUSTIFICATION = """\
     run:
       justification:
       - type: WARNING
-        message: "{message}"
+        message: >-
+          {message}
         link: {link}
   - name: {prescription_name}QuaySecurityErrorWrap
     type: wrap
@@ -72,7 +73,8 @@ _QUAY_SECURITY_JUSTIFICATION = """\
     run:
       justification:
       - type: ERROR
-        message: "{message}"
+        message: >-
+          {message}
         link: {link}
         cve_name: {cve_name}
 """
