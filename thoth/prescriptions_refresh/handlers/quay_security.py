@@ -42,7 +42,27 @@ _QUAY_NAMESPACE_PUBLIC = bool(int(os.getenv("THOTH_PRESCRIPTIONS_REFRESH_QUAY_PS
 _CONFIGURED_IMAGES = os.getenv("THOTH_PRESCRIPTIONS_REFRESH_CONFIGURED_IMAGES")
 _QUAY_URL = os.getenv("THOTH_PRESCRIPTIONS_REFRESH_QUAY_URL", "quay.io")
 
-_QUAY_SECURITY_JUSTIFICATION = """\
+_QUAY_SECURITY_BOOT = """\
+  - name: {prescription_name}QuaySecurityErrorBoot
+    type: boot
+    should_include:
+      adviser_pipeline: true
+      recommendation_types:
+      - security
+      runtime_environments:
+        base_images:
+        - {image}
+    run:
+      stack_info:
+      - type: ERROR
+        message: >-
+          {message}
+        link: {link}
+      not_acceptable: >-
+        The base image used has a CVE: {cve_name}
+"""
+
+_QUAY_SECURITY_WRAP = """\
   - name: {prescription_name}QuaySecurityWarningWrap
     type: wrap
     should_include:
@@ -52,21 +72,6 @@ _QUAY_SECURITY_JUSTIFICATION = """\
       - performance
       - stable
       - testing
-      runtime_environments:
-        base_images:
-        - {image}
-    run:
-      justification:
-      - type: WARNING
-        message: >-
-          {message}
-        link: {link}
-  - name: {prescription_name}QuaySecurityErrorWrap
-    type: wrap
-    should_include:
-      adviser_pipeline: true
-      recommendation_types:
-      - security
       runtime_environments:
         base_images:
         - {image}
@@ -191,16 +196,35 @@ def _create_prescriptions(
 
     # Remove duplicates.
     cve_seen: Set[str] = set()
-    units = "units:\n  wraps:\n"
+    units = "units:\n  boots:\n"
     for idx, vulnerability in enumerate(vulnerabilities):
         if vulnerability["Name"] in cve_seen:
             continue
 
+        vulnerability_description = vulnerability["Description"].replace("\\", "\\\\").replace('"', '\\"')
         cve_seen.add(vulnerability["Name"])
-        units += _QUAY_SECURITY_JUSTIFICATION.format(
+
+        units += _QUAY_SECURITY_BOOT.format(
             prescription_name=f"{prescription_name}Vuln{idx}",
             image=f"{_QUAY_URL}/{_QUAY_NAMESPACE_NAME}/{image}:{tag}",
-            message=vulnerability["Description"].replace("\\", "\\\\").replace('"', '\\"'),
+            message=f"Found {vulnerability['Name']} in the base image used: {vulnerability_description}",
+            link=vulnerability["Link"],
+            cve_name=vulnerability["Name"],
+        )
+
+    units += "  wraps:\n"
+    cve_seen.clear()
+    for idx, vulnerability in enumerate(vulnerabilities):
+        if vulnerability["Name"] in cve_seen:
+            continue
+
+        vulnerability_description = vulnerability["Description"].replace("\\", "\\\\").replace('"', '\\"')
+        cve_seen.add(vulnerability["Name"])
+
+        units += _QUAY_SECURITY_WRAP.format(
+            prescription_name=f"{prescription_name}Vuln{idx}",
+            image=f"{_QUAY_URL}/{_QUAY_NAMESPACE_NAME}/{image}:{tag}",
+            message=vulnerability_description,
             link=vulnerability["Link"],
             cve_name=vulnerability["Name"],
         )
