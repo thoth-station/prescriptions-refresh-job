@@ -28,6 +28,7 @@ from .gh_release_notes import gh_release_notes
 from .gh_updated import gh_updated
 from .quay_security import quay_security
 from .scorecards import scorecards
+from .thoth_community import thoth_community
 
 __all__ = [
     cve_warning.__name__,
@@ -40,4 +41,5 @@ __all__ = [
     gh_updated.__name__,
     quay_security.__name__,
     scorecards.__name__,
+    thoth_community.__name__,
 ]
