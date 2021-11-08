@@ -1,5 +1,14 @@
 # Changelog for Thoth's prescriptions refresh job
 
+## Release 0.3.0 (2021-11-08T19:58:45)
+* :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
+* Create boot for gating CVE issues in the runtime environment
+* :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
+* Make the message multi-line to conform yamllint
+* Correctly escape backslash before serializing to YAML
+* Features can be null
+* Use generators instead of loading all the container images at once
+
 ## Release 0.2.0 (2021-10-25T21:06:16)
 * Add handler for security information from Quay on predictable stacks
 * :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
