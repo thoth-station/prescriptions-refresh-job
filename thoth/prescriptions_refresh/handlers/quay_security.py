@@ -142,7 +142,7 @@ def _get_image_containers(image_name: str) -> Generator[Tuple[str, str], None, N
     )
     response.raise_for_status()
 
-    for container_image in response.json()["images"]:
+    for container_image in sorted(response.json()["images"], key=lambda i: i["id"]):
         if container_image.get("uploading", False):
             _LOGGER.warning(
                 "Skipping container image %r with id %r as it is currently being uploaded",
