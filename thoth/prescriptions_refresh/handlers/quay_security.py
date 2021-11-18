@@ -89,6 +89,8 @@ units:
   boots:
   - name: QuaySecurityTimestampInfoBoot
     type: boot
+    metadata:
+      datetime: '{datetime}'
     should_include:
       adviser_pipeline: true
       runtime_environments:
