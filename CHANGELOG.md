@@ -1,5 +1,13 @@
 # Changelog for Thoth's prescriptions refresh job
 
+## Release 0.4.0 (2021-11-22T19:00:52)
+* Compute alternatives to container images with vulnerabilities
+* :bomb: use https based url in the pre-commit
+* :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
+* Keep datetime in the Quay security timestamp boot in metadata
+* Sort response from Quay API to keep prescription changes consistent
+* Add handler computing Thoth statistics
+
 ## Release 0.3.0 (2021-11-08T19:58:45)
 * :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
 * Create boot for gating CVE issues in the runtime environment
