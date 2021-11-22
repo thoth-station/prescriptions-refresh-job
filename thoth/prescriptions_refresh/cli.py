@@ -170,4 +170,11 @@ def quay_security() -> None:
         handlers.quay_security(prescriptions)
 
 
+@cli.command("thoth-community")
+def thoth_community() -> None:
+    """Compute Thoth community statistics."""
+    with Prescriptions() as prescriptions:
+        handlers.thoth_community(prescriptions)
+
+
 __name__ == "__main__" and cli()

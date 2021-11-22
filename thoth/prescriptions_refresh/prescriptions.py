@@ -38,11 +38,6 @@ from ogr.services.github import GithubService
 from .exceptions import PrescriptionNotFound
 
 _LOGGER = logging.getLogger(__name__)
-_PR_BODY = """\
-This change was automatically generated using \
-[thoth-station/prescriptions-refresh-job](https://github.com/thoth-station/prescriptions-refresh-job). This periodic \
-job makes sure the repository is up to date. Visit [thoth-station.ninja](https://thoth-station.ninja) for more info.
-"""
 
 _RANDOMIZE = bool(int(os.getenv("THOTH_PRESCRIPTIONS_REFRESH_RANDOMIZE", 0)))
 
@@ -50,6 +45,13 @@ _RANDOMIZE = bool(int(os.getenv("THOTH_PRESCRIPTIONS_REFRESH_RANDOMIZE", 0)))
 @attr.s(slots=True)
 class Prescriptions:
     """A base class implementing core prescriptions-refresh handler functionality."""
+
+    PR_BODY = """\
+This change was automatically generated using \
+[thoth-station/prescriptions-refresh-job](https://github.com/thoth-station/prescriptions-refresh-job). \
+This periodic job makes sure the repository is up to date. \
+Visit [thoth-station.ninja](https://thoth-station.ninja) for more info.
+"""
 
     DEFAULT_PRESCRIPTIONS_REPO = os.getenv(
         "THOTH_PRESCRIPTIONS_REFRESH_REPO",
@@ -282,7 +284,7 @@ class Prescriptions:
         try:
             pr = self.project.create_pr(
                 title=commit_message,
-                body=_PR_BODY,
+                body=self.PR_BODY,
                 target_branch=self.project.default_branch,
                 source_branch=branch_name,
             )
