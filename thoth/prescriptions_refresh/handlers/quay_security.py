@@ -158,7 +158,15 @@ def _get_image_containers(image_name: str) -> Generator[Tuple[str, str], None, N
         f"https://{_QUAY_URL}/api/v1/repository/{_QUAY_NAMESPACE_NAME}/{image_name}/image",
         headers={"Authorization": f"Bearer {_QUAY_TOKEN}"},
     )
-    response.raise_for_status()
+    if response.status_code != 200:
+        _LOGGER.error(
+            "Failed to obtain available containers for image %r (%d): %s",
+            image_name,
+            response.status_code,
+            response.text,
+        )
+        yield from ()
+        return
 
     for container_image in sorted(response.json()["images"], key=lambda i: str(i["id"])):
         if container_image.get("uploading", False):
@@ -192,7 +200,15 @@ def _quay_get_security_info(image_name: str, container_id: str) -> List[Dict[str
         headers={"Authorization": f"Bearer {_QUAY_TOKEN}"},
         params={"vulnerabilities": True},
     )
-    response.raise_for_status()
+    if response.status_code != 200:
+        _LOGGER.error(
+            "Failed to obtain security information for image %r with container id %r (%d): %s",
+            image_name,
+            container_id,
+            response.status_code,
+            response.text,
+        )
+        return []
 
     vulnerabilities = []
     for feature in ((response.json().get("data") or {}).get("Layer") or {}).get("Features") or []:
