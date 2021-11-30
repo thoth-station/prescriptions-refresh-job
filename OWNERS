@@ -1,9 +1,11 @@
 # See the OWNERS docs at https://go.k8s.io/owners
 
 approvers:
-  - goern
+  - codificat
   - fridex
+  - goern
 reviewers:
-  - pacospace
+  - codificat
   - harshad16
   - kpostoffice
+  - pacospace
