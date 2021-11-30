@@ -212,6 +212,8 @@ def _create_vulnerability_prescriptions(image: str, tag: str, vulnerabilities: L
     for part in map(str.capitalize, image.split("-")):
         prescription_name += part
 
+    prescription_name += "".join(c for c in tag if c.isalnum())
+
     # Remove duplicates.
     cve_seen: Set[str] = set()
     boot_units = ""
