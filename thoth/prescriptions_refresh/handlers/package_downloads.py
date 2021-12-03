@@ -34,6 +34,10 @@ if TYPE_CHECKING:
 
 _LOGGER = logging.getLogger(__name__)
 
+_PYPI_POPULARITY_LOW = int(os.getenv("THOTH_PRESCRIPTIONS_REFRESH_PYPI_POPULARITY_LOW", 20))
+_PYPI_POPULARITY_MODERATE = int(os.getenv("THOTH_PRESCRIPTIONS_REFRESH_PYPI_POPULARITY_MODERATE", 100))
+_PYPI_POPULARITY_HIGH = int(os.getenv("THOTH_PRESCRIPTIONS_REFRESH_PYPI_POPULARITY_HIGH", 1000))
+
 _PACKAGE_DOWNLOADS_PRESCRIPTION_NAME = "package_downloads.yaml"
 _PACKAGE_DOWNLOADS_PRESCRIPTION_CONTENT = """\
 units:
@@ -49,7 +53,29 @@ units:
     run:
       justification:
       - type: INFO
-        message: Project '{package_name}' is in the top {popularity_level}% most downloaded packages on PyPI in the last six months, with {downloads_count} downloads.
+        message: |
+            Project '{package_name}' is in the top {popularity_level}% most downloaded packages on PyPI in the last six months, with {downloads_count} downloads.
+            Project versions popularity:
+            {popularity_per_version_summary}
+        link: {package_link}
+        package_name: {package_name}
+"""
+_PACKAGE_DOWNLOADS_PRESCRIPTION_NAME_PER_VERSION = "package_downloads_per_version.yaml"
+_PACKAGE_DOWNLOADS_PER_VERSION_PRESCRIPTION_CONTENT = """\
+units:
+  wraps:
+  - name: {prescription_name}
+    type: wrap
+    should_include:
+      adviser_pipeline: true
+    match:
+      state:
+        resolved_dependencies:
+        - name: {package_name}
+    run:
+      justification:
+      - type: INFO
+        message: Project '{package_name}' version {package_version} had a {popularity_level} popularity level on PyPI in the last six months, with {downloads_count} downloads.
         link: {package_link}
         package_name: {package_name}
 """
@@ -89,6 +115,16 @@ def _popularity_level(packages_total_downloads: Dict[str, int], package_name: st
     return downloads, percentile
 
 
+def _downloads_to_popularity(downloads: int) -> str:
+    """Return the popularity of a package according to its number of downloads"""
+    if downloads < _PYPI_POPULARITY_LOW:
+        return "low"
+    if downloads >= _PYPI_POPULARITY_LOW and downloads < _PYPI_POPULARITY_MODERATE:
+        return "moderate"
+    if downloads >= _PYPI_POPULARITY_MODERATE and downloads < _PYPI_POPULARITY_HIGH:
+        return "high"
+
+
 def pypi_downloads(prescriptions: "Prescriptions") -> None:
     """Retrieve the number of downloads for PyPI packages"""
     _LOGGER.info("Querying number of package downloads available in BigQuery")
@@ -126,8 +162,17 @@ def pypi_downloads(prescriptions: "Prescriptions") -> None:
             prescription_name += part
         prescription_name += "PackagePopularityWrap"
 
-        downloads_count, popularity_level = _popularity_level(packages_total_downloads)
+        downloads_count, popularity_level = _popularity_level(packages_total_downloads, project_name)
         package_link = os.path.join("https://pypi.org/project/", project_name)
+
+        package_versions_downloads = {
+            (package[0], package[1]): downloads
+            for package, downloads in packages_downloads_dict.items()
+            if package[0] == project_name
+        }
+        popularity_per_version_summary = ""
+        for package_version, downloads in package_versions_downloads:
+            popularity_per_version_summary += f"'{package_version[0]}' version {package_version[1]} has a {_downloads_to_popularity(downloads)} popularity with {downloads} downloads in the last six months. \n"
 
         prescriptions.create_prescription(
             project_name=project_name,
@@ -138,5 +183,25 @@ def pypi_downloads(prescriptions: "Prescriptions") -> None:
                 popularity_level=popularity_level,
                 downloads_count=downloads_count,
                 package_link=package_link,
+                popularity_per_version_summary=popularity_per_version_summary,
             ),
         )
+
+        for package_version, downloads_count in package_versions_downloads.items():
+            prescription_name_per_version = ""
+            for part in map(str.capitalize, package_version[0].split("-")):
+                prescription_name_per_version += part
+            prescription_name_per_version += f"{package_version[1]}PackagePopularityPerVersionWrap"
+
+            prescriptions.create_prescription(
+                project_name=project_name,
+                prescription_name=_PACKAGE_DOWNLOADS_PRESCRIPTION_NAME,
+                content=_PACKAGE_DOWNLOADS_PRESCRIPTION_CONTENT.format(
+                    package_name=project_name,
+                    prescription_name=prescription_name_per_version,
+                    package_version=package_version[1],
+                    popularity_level=_downloads_to_popularity(downloads_count),
+                    downloads_count=downloads_count,
+                    package_link=package_link,
+                ),
+            )
