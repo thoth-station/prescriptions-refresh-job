@@ -35,7 +35,7 @@ if TYPE_CHECKING:
 _LOGGER = logging.getLogger(__name__)
 
 _PACKAGE_DOWNLOADS_PRESCRIPTION_NAME = "package_downloads.yaml"
-_PACKAGE_DOWNLOADS_PRESCRIPTION_CONTENT = """
+_PACKAGE_DOWNLOADS_PRESCRIPTION_CONTENT = """\
 units:
   wraps:
   - name: {prescription_name}
@@ -89,7 +89,7 @@ def _popularity_level(packages_total_downloads: Dict[str, int], package_name: st
     return downloads, percentile
 
 
-def package_downloads(prescriptions: "Prescriptions") -> None:
+def pypi_downloads(prescriptions: "Prescriptions") -> None:
     """Retrieve the number of downloads for PyPI packages"""
     _LOGGER.info("Querying number of package downloads available in BigQuery")
     client = bigquery.Client()
@@ -107,10 +107,9 @@ def package_downloads(prescriptions: "Prescriptions") -> None:
     rows = query_job.results()
     packages_downloads_dict = {}
     for row in rows:
-        if packages_downloads_dict[(row.file.project, row.file.version)] in packages_downloads_dict.keys():
-            packages_downloads_dict[(row.file.project, row.file.version)] += 1
-        else:
-            packages_downloads_dict[(row.file.project, row.file.version)] = 1
+        packages_downloads_dict[(row.file.project, row.file.version)] = (
+            packages_downloads_dict.get((row.file.project, row.file.version), 0) + 1
+        )
 
     concatenated_package_version_dict = {
         package[0] + " " + package[1]: downloads for package, downloads in packages_downloads_dict.items()
