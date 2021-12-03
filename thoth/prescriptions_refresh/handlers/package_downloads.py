@@ -119,10 +119,11 @@ def _downloads_to_popularity(downloads: int) -> str:
     """Return the popularity of a package according to its number of downloads"""
     if downloads < _PYPI_POPULARITY_LOW:
         return "low"
-    if downloads >= _PYPI_POPULARITY_LOW and downloads < _PYPI_POPULARITY_MODERATE:
+    if downloads < _PYPI_POPULARITY_MODERATE:
         return "moderate"
-    if downloads >= _PYPI_POPULARITY_MODERATE and downloads < _PYPI_POPULARITY_HIGH:
+    if downloads < _PYPI_POPULARITY_HIGH:
         return "high"
+    return "very high"
 
 
 def pypi_downloads(prescriptions: "Prescriptions") -> None:
