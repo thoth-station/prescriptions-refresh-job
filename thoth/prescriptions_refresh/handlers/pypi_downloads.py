@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-"""Retrieve the number of downloads from PyPI for a given package"""
+"""Retrieve the number of downloads from PyPI for a given package."""
 
 
 from datetime import datetime
@@ -38,7 +38,9 @@ _PYPI_POPULARITY_LOW = int(os.getenv("THOTH_PRESCRIPTIONS_REFRESH_PYPI_POPULARIT
 _PYPI_POPULARITY_MODERATE = int(os.getenv("THOTH_PRESCRIPTIONS_REFRESH_PYPI_POPULARITY_MODERATE", 100))
 _PYPI_POPULARITY_HIGH = int(os.getenv("THOTH_PRESCRIPTIONS_REFRESH_PYPI_POPULARITY_HIGH", 1000))
 
-_PACKAGE_DOWNLOADS_PRESCRIPTION_NAME = "package_downloads.yaml"
+_PYPI_DOWNLOADS_TIME_INTERVAL = int(os.getenv("THOTH_PRESCRIPTIONS_REFRESH_PYPI_DOWNLOADS_TIME_INTERVAL", 180))
+
+_PACKAGE_DOWNLOADS_PRESCRIPTION_NAME = "pypi_downloads.yaml"
 _PACKAGE_DOWNLOADS_PRESCRIPTION_CONTENT = """\
 units:
   wraps:
@@ -53,14 +55,11 @@ units:
     run:
       justification:
       - type: INFO
-        message: |
-            Project '{package_name}' is in the top {popularity_level}% most downloaded packages on PyPI in the last six months, with {downloads_count} downloads.
-            Project versions popularity:
-            {popularity_per_version_summary}
+        message: Project '{package_name}' is in the top {popularity_level}% most downloaded packages on PyPI in the last six months, with {downloads_count} downloads. Project versions popularity: \n {popularity_per_version_summary}
         link: {package_link}
         package_name: {package_name}
 """
-_PACKAGE_DOWNLOADS_PRESCRIPTION_NAME_PER_VERSION = "package_downloads_per_version.yaml"
+_PACKAGE_DOWNLOADS_PRESCRIPTION_NAME_PER_VERSION = "pypi_downloads_per_version.yaml"
 _PACKAGE_DOWNLOADS_PER_VERSION_PRESCRIPTION_CONTENT = """\
 units:
   wraps:
@@ -82,7 +81,7 @@ units:
 
 
 def _packages_total_downloads(package_downloads: Dict[Tuple[str, str], int]) -> Dict[str, int]:
-    """Compute popularity of packages given their number of downloads"""
+    """Compute popularity of packages given their number of downloads."""
     project_popularity_dict = {}
     for project, downloads in package_downloads.items():
         if project_popularity_dict[project[0]] in project_popularity_dict.keys():
@@ -96,7 +95,7 @@ def _packages_total_downloads(package_downloads: Dict[Tuple[str, str], int]) -> 
 def _plot_statistics(
     package_downloads: Dict[Any, int], plots_path: Optional[str] = ".", includes_versions: Optional[bool] = False
 ) -> None:
-    """Plot downloads statistics for packages"""
+    """Plot downloads statistics for packages."""
 
     plt.bar(package_downloads.keys(), package_downloads.values())
     plt.suptitle("Number of downloads per package")
@@ -109,14 +108,14 @@ def _plot_statistics(
 
 
 def _popularity_level(packages_total_downloads: Dict[str, int], package_name: str) -> Tuple(str, str):
-    """Compute the popularity level of a package"""
+    """Compute the popularity level of a package."""
     downloads = sorted(list(packages_total_downloads.values()))
     percentile = downloads.index(packages_total_downloads[package_name]) / len(downloads) * 100
     return downloads, percentile
 
 
 def _downloads_to_popularity(downloads: int) -> str:
-    """Return the popularity of a package according to its number of downloads"""
+    """Return the popularity of a package according to its number of downloads."""
     if downloads < _PYPI_POPULARITY_LOW:
         return "low"
     if downloads < _PYPI_POPULARITY_MODERATE:
@@ -127,7 +126,7 @@ def _downloads_to_popularity(downloads: int) -> str:
 
 
 def pypi_downloads(prescriptions: "Prescriptions") -> None:
-    """Retrieve the number of downloads for PyPI packages"""
+    """Retrieve the number of downloads for PyPI packages."""
     _LOGGER.info("Querying number of package downloads available in BigQuery")
 
     client = bigquery.Client()
@@ -139,11 +138,11 @@ def pypi_downloads(prescriptions: "Prescriptions") -> None:
     job_config = bigquery.QueryJobConfig()
     job_config.destination = f"{dataset_id_full}.destination_table"
 
-    query = """
+    query = f"""
     SELECT *
     FROM `bigquery-public-data.pypi.file_downloads`
     WHERE DATE(timestamp)
-        BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 180 DAY)
+        BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL {_PYPI_DOWNLOADS_TIME_INTERVAL} DAY)
         AND CURRENT_DATE()
     """
     query_job = client.query(query=query, job_config=job_config)
@@ -155,13 +154,15 @@ def pypi_downloads(prescriptions: "Prescriptions") -> None:
             packages_downloads_dict.get((row.file.project, row.file.version), 0) + 1
         )
 
-    concatenated_package_version_dict = {
-        package[0] + " " + package[1]: downloads for package, downloads in packages_downloads_dict.items()
-    }
+    # plot statistics:
 
-    _LOGGER.info("Creating plots of the number of downloads per package and per package version")
-    _plot_statistics(packages_downloads_dict)
-    _plot_statistics(concatenated_package_version_dict, includes_versions=True)
+    # concatenated_package_version_dict = {
+    #     package[0] + " " + package[1]: downloads for package, downloads in packages_downloads_dict.items()
+    # }
+
+    # _LOGGER.info("Creating plots of the number of downloads per package and per package version")
+    # _plot_statistics(packages_downloads_dict)
+    # _plot_statistics(concatenated_package_version_dict, includes_versions=True)
 
     packages_total_downloads = _packages_total_downloads(packages_downloads_dict)
     for project_name in prescriptions.iter_projects():
@@ -171,7 +172,7 @@ def pypi_downloads(prescriptions: "Prescriptions") -> None:
         prescription_name += "PackagePopularityWrap"
 
         downloads_count, popularity_level = _popularity_level(packages_total_downloads, project_name)
-        package_link = os.path.join("https://pypi.org/project/", project_name)
+        package_link = f"https://pypi.org/project/{project_name}"
 
         package_versions_downloads = {
             (package[0], package[1]): downloads
