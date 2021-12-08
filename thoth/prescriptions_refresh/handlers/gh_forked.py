@@ -76,10 +76,7 @@ def gh_forked(prescriptions: "Prescriptions") -> None:
         is_forked = response.json().get("fork", False)
 
         if is_forked:
-            prescription_name = ""
-            for part in map(str.capitalize, project_name.split("-")):
-                prescription_name += part
-            prescription_name += "GitHubForkedWrap"
+            prescription_name = prescriptions.get_prescription_name("GitHubForkedWrap", project_name)
 
             prescriptions.create_prescription(
                 project_name=project_name,

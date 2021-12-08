@@ -181,6 +181,17 @@ Visit [thoth-station.ninja](https://thoth-station.ninja) for more info.
         """Get prescription name from its path."""
         return os.path.basename(prescription_path)
 
+    @staticmethod
+    def get_prescription_name(wrap_name: str, *items: str) -> str:
+        """Generate prescription name."""
+        result = ""
+
+        for item in items:
+            for part in map(str.capitalize, item.split("-")):
+                result += part.replace(":", "").replace(".", "")
+
+        return result + wrap_name
+
     def get_prescription(self, project_name: str, prescription_name: str) -> Optional[Dict[str, Any]]:
         """Get a prescription for the given project."""
         prescription_path = os.path.join(

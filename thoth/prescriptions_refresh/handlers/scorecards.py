@@ -69,9 +69,7 @@ def _handle_code_review(
         return
 
     prescription_name = "CodeReview"
-    for part in map(str.capitalize, project_name.split("-")):
-        prescription_name += part
-    prescription_name += "ScoreCardsWrap"
+    prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
     if scorecards_entry["Pass"]:
         justification_type = "INFO"
@@ -109,9 +107,7 @@ def _handle_active(
         return
 
     prescription_name = "Active"
-    for part in map(str.capitalize, project_name.split("-")):
-        prescription_name += part
-    prescription_name += "ScoreCardsWrap"
+    prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
     if scorecards_entry["Pass"]:
         justification_type = "INFO"
@@ -149,9 +145,7 @@ def _handle_automatic_dependency_update(
         return
 
     prescription_name = "AutomaticDependencyUpdate"
-    for part in map(str.capitalize, project_name.split("-")):
-        prescription_name += part
-    prescription_name += "ScoreCardsWrap"
+    prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
     if scorecards_entry["Pass"]:
         justification_type = "INFO"
@@ -189,9 +183,7 @@ def _handle_branch_protection(
         return
 
     prescription_name = "BranchProtection"
-    for part in map(str.capitalize, project_name.split("-")):
-        prescription_name += part
-    prescription_name += "ScoreCardsWrap"
+    prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
     if scorecards_entry["Pass"]:
         justification_type = "INFO"
@@ -229,9 +221,7 @@ def _handle_token_permissions(
         return
 
     prescription_name = "TokenPermissions"
-    for part in map(str.capitalize, project_name.split("-")):
-        prescription_name += part
-    prescription_name += "ScoreCardsWrap"
+    prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
     if scorecards_entry["Pass"]:
         justification_type = "INFO"
@@ -272,9 +262,7 @@ def _handle_security_policy(
         return
 
     prescription_name = "SecurityPolicy"
-    for part in map(str.capitalize, project_name.split("-")):
-        prescription_name += part
-    prescription_name += "ScoreCardsWrap"
+    prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
     if scorecards_entry["Pass"]:
         justification_type = "INFO"
@@ -312,9 +300,7 @@ def _handle_signed_releases(
         return
 
     prescription_name = "SignedReleases"
-    for part in map(str.capitalize, project_name.split("-")):
-        prescription_name += part
-    prescription_name += "ScoreCardsWrap"
+    prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
     if scorecards_entry["Pass"]:
         justification_type = "INFO"
@@ -352,9 +338,7 @@ def _handle_signed_tags(
         return
 
     prescription_name = "SignedTags"
-    for part in map(str.capitalize, project_name.split("-")):
-        prescription_name += part
-    prescription_name += "ScoreCardsWrap"
+    prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
     if scorecards_entry["Pass"]:
         justification_type = "INFO"
@@ -392,9 +376,7 @@ def _handle_fuzzing(
         return
 
     prescription_name = "Fuzzing"
-    for part in map(str.capitalize, project_name.split("-")):
-        prescription_name += part
-    prescription_name += "ScoreCardsWrap"
+    prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
     if scorecards_entry["Pass"]:
         justification_type = "INFO"
@@ -432,9 +414,7 @@ def _handle_vulnerabilities(
         return
 
     prescription_name = "Vulnerabilities"
-    for part in map(str.capitalize, project_name.split("-")):
-        prescription_name += part
-    prescription_name += "ScoreCardsWrap"
+    prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
     if scorecards_entry["Pass"]:
         justification_type = "INFO"
@@ -477,9 +457,7 @@ def _handle_packaging(
         return
 
     prescription_name = "Packaging"
-    for part in map(str.capitalize, project_name.split("-")):
-        prescription_name += part
-    prescription_name += "ScoreCardsWrap"
+    prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
     if scorecards_entry["Pass"]:
         justification_type = "INFO"
@@ -517,9 +495,7 @@ def _handle_binary_artifacts(
         return
 
     prescription_name = "BinaryArtifacts"
-    for part in map(str.capitalize, project_name.split("-")):
-        prescription_name += part
-    prescription_name += "ScoreCardsWrap"
+    prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
     if scorecards_entry["Pass"]:
         justification_type = "INFO"
@@ -557,9 +533,7 @@ def _handle_cii_best_practices(
         return
 
     prescription_name = "CIIBestPractices"
-    for part in map(str.capitalize, project_name.split("-")):
-        prescription_name += part
-    prescription_name += "ScoreCardsWrap"
+    prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
     if scorecards_entry["Pass"]:
         justification_type = "INFO"
@@ -597,9 +571,7 @@ def _handle_pinned_dependencies(
         return
 
     prescription_name = "PinnedDependencies"
-    for part in map(str.capitalize, project_name.split("-")):
-        prescription_name += part
-    prescription_name += "ScoreCardsWrap"
+    prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
     if scorecards_entry["Pass"]:
         justification_type = "INFO"
@@ -637,9 +609,7 @@ def _handle_contributors(
         return
 
     prescription_name = "Contributors"
-    for part in map(str.capitalize, project_name.split("-")):
-        prescription_name += part
-    prescription_name += "ScoreCardsWrap"
+    prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
     if scorecards_entry["Pass"]:
         justification_type = "INFO"
@@ -677,9 +647,7 @@ def _handle_ci_tests(
         return
 
     prescription_name = "CITests"
-    for part in map(str.capitalize, project_name.split("-")):
-        prescription_name += part
-    prescription_name += "ScoreCardsWrap"
+    prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
     if scorecards_entry["Pass"]:
         justification_type = "INFO"
@@ -717,9 +685,7 @@ def _handle_sast(
         return
 
     prescription_name = "SAST"
-    for part in map(str.capitalize, project_name.split("-")):
-        prescription_name += part
-    prescription_name += "ScoreCardsWrap"
+    prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
     if scorecards_entry["Pass"]:
         justification_type = "INFO"

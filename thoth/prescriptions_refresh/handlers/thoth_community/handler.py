@@ -145,17 +145,6 @@ def _clean_old_stats(repo: "Repo") -> None:
             repo.index.remove(to_remove)
 
 
-def _get_prescription_name(*items: str) -> str:
-    """Generate prescription name."""
-    result = ""
-
-    for item in items:
-        for part in map(str.capitalize, item.split("-")):
-            result += part.replace(":", "").replace(".", "")
-
-    return result
-
-
 def thoth_community(prescriptions: "Prescriptions") -> None:
     """Compute community statistics in Thoth - how Thoth users use packages."""
     adviser_store = AdvisersResultsStore()
@@ -175,7 +164,7 @@ def thoth_community(prescriptions: "Prescriptions") -> None:
         # Default packages packages.
         for package_name, _ in stats.counter_package_names.most_common(_TOP_PACKAGE_NAMES):
             prescription = PRESCRIPTION_TOP_PACKAGE_NAMES.format(
-                prescription_name=_get_prescription_name(package_name),
+                prescription_name=prescriptions.get_prescription_name("", package_name),
                 package_name=package_name,
             )
             change.add_prescription(package_name, f"{_PRESCRIPTION_NAME_PREFIX}_package_names.yaml", prescription)
@@ -183,7 +172,7 @@ def thoth_community(prescriptions: "Prescriptions") -> None:
         for info, _ in stats.counter_package_versions.most_common(_TOP_PACKAGE_VERSIONS):
             package_name, package_version = info
             prescription = PRESCRIPTION_TOP_PACKAGE_VERSIONS.format(
-                prescription_name=_get_prescription_name(package_name, package_version),
+                prescription_name=prescriptions.get_prescription_name("", package_name, package_version),
                 package_name=package_name,
                 package_version=package_version,
             )
@@ -194,7 +183,7 @@ def thoth_community(prescriptions: "Prescriptions") -> None:
         # Dev packages.
         for package_name, _ in stats.counter_dev_package_names.most_common(_TOP_DEV_PACKAGE_NAMES):
             prescription = PRESCRIPTION_TOP_DEV_PACKAGE_NAMES.format(
-                prescription_name=_get_prescription_name(package_name),
+                prescription_name=prescriptions.get_prescription_name("", package_name),
                 package_name=package_name,
             )
             change.add_prescription(package_name, f"{_PRESCRIPTION_NAME_PREFIX}_dev_package_names.yaml", prescription)
@@ -202,7 +191,7 @@ def thoth_community(prescriptions: "Prescriptions") -> None:
         for info, _ in stats.counter_dev_package_versions.most_common(_TOP_DEV_PACKAGE_VERSIONS):
             package_name, package_version = info
             prescription = PRESCRIPTION_TOP_DEV_PACKAGE_VERSIONS.format(
-                prescription_name=_get_prescription_name(package_name, package_version),
+                prescription_name=prescriptions.get_prescription_name("", package_name, package_version),
                 package_name=package_name,
                 package_version=package_version,
             )
@@ -214,7 +203,7 @@ def thoth_community(prescriptions: "Prescriptions") -> None:
         for base_image, _ in stats.counter_base_images.most_common(_TOP_BASE_IMAGES):
             base_image_name = base_image.rsplit("/", maxsplit=1)[-1]
             prescription = PRESCRIPTION_TOP_BASE_IMAGES.format(
-                prescription_name=_get_prescription_name(base_image_name),
+                prescription_name=prescriptions.get_prescription_name("", base_image_name),
                 base_image=base_image,
             )
             change.add_prescription(
@@ -226,7 +215,7 @@ def thoth_community(prescriptions: "Prescriptions") -> None:
             base_image_name = base_image.rsplit("/", maxsplit=1)[-1]
 
             prescription = PRESCRIPTION_TOP_BASE_IMAGE_VERSIONS.format(
-                prescription_name=_get_prescription_name(base_image_name, base_image_version),
+                prescription_name=prescriptions.get_prescription_name("", base_image_name, base_image_version),
                 base_image=base_image,
                 base_image_version=base_image_version,
             )
@@ -239,7 +228,7 @@ def thoth_community(prescriptions: "Prescriptions") -> None:
         # Python version.
         for python_version, _ in stats.counter_python_versions.most_common(_TOP_PYTHON_VERSIONS):
             prescription = PRESCRIPTION_TOP_PYTHON_VERSIONS.format(
-                prescription_name=_get_prescription_name("Python", python_version),
+                prescription_name=prescriptions.get_prescription_name("", "Python", python_version),
                 python_version=python_version,
             )
             change.add_prescription(
@@ -253,7 +242,9 @@ def thoth_community(prescriptions: "Prescriptions") -> None:
             operating_system_name, operating_system_version = operating_system
 
             prescription = PRESCRIPTION_TOP_OPERATING_SYSTEMS.format(
-                prescription_name=_get_prescription_name(operating_system_name, operating_system_version),
+                prescription_name=prescriptions.get_prescription_name(
+                    "", operating_system_name, operating_system_version
+                ),
                 operating_system_name=operating_system_name,
                 operating_system_version=operating_system_version,
             )

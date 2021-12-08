@@ -94,10 +94,7 @@ def gh_updated(prescriptions: "Prescriptions") -> None:
             )
             continue
 
-        prescription_name = ""
-        for part in map(str.capitalize, project_name.split("-")):
-            prescription_name += part
-        prescription_name += "GitHubUpdatedAtWrap"
+        prescription_name = prescriptions.get_prescription_name("GitHubUpdatedAtWrap", project_name)
 
         prescriptions.create_prescription(
             project_name=project_name,

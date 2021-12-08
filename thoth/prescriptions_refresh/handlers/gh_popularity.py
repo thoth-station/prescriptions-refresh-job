@@ -101,10 +101,7 @@ def gh_popularity(prescriptions: "Prescriptions") -> None:
 
         popularity_score, message_type = _compute_popularity(response.json())
 
-        prescription_name = ""
-        for part in map(str.capitalize, project_name.split("-")):
-            prescription_name += part
-        prescription_name += "GitHubPopularityWrap"
+        prescription_name = prescriptions.get_prescription_name("GitHubPopularityWrap", project_name)
 
         prescriptions.create_prescription(
             project_name=project_name,

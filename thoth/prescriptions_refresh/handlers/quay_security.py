@@ -224,9 +224,7 @@ def _create_vulnerability_prescriptions(image: str, tag: str, vulnerabilities: L
         # No vulnerabilities, noop.
         return "", ""
 
-    prescription_name: str = ""
-    for part in map(str.capitalize, image.split("-")):
-        prescription_name += part
+    prescription_name = Prescriptions.get_prescription_name("", image)
 
     prescription_name += "".join(c for c in tag if c.isalnum())
 
@@ -277,9 +275,7 @@ def _create_alternatives_prescriptions(vulnerabilities_found: Dict[str, Dict[str
 
         for i, vuln_tag in enumerate(vulnerable_tags):
             for j, tag in enumerate(not_vulnerable_tags):
-                prescription_name = ""
-                for part in map(str.capitalize, image.split("-")):
-                    prescription_name += part
+                prescription_name = Prescriptions.get_prescription_name("", image)
 
                 _LOGGER.info(
                     "Computed a vulnerability-free alternative for '%s:%s' which is '%s:%s'",

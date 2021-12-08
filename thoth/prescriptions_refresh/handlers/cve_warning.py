@@ -57,10 +57,7 @@ def cve_warning(prescriptions: "Prescriptions") -> None:
 
     for project_name in prescriptions.iter_projects():
         if len(graph.get_python_cve_records_all(project_name)) >= _CVE_WARNING_COUNT:
-            prescription_name = ""
-            for part in map(str.capitalize, project_name.split("-")):
-                prescription_name += part
-            prescription_name += "CVEWarningWrap"
+            prescription_name = prescriptions.get_prescription_name("CVEWarningWrap", project_name)
 
             prescriptions.create_prescription(
                 project_name=project_name,
