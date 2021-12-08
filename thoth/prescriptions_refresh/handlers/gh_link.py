@@ -172,10 +172,7 @@ def gh_link(knowledge: "Knowledge") -> None:
     for project_name in knowledge.iter_projects():
         gh_url = _get_gh_url(project_name)
         if gh_url:
-            prescription_name = ""
-            for part in map(str.capitalize, project_name.split("-")):
-                prescription_name += part
-            prescription_name += "GitHubURLWrap"
+            prescription_name = Prescriptions.get_prescription_name("GitHubURLWrap", project_name)
 
             prescription_content = _GH_LINK_PRESCRIPTION_CONTENT.format(
                 package_name=project_name,

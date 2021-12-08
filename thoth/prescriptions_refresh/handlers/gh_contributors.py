@@ -80,10 +80,7 @@ def gh_contributors(prescriptions: "Prescriptions") -> None:
         # XXX: GitHub API provides information about contributions. We might want to take number
         # of contributions into account here.
         if len(response.json()) < _CONTRIBUTORS_COUNT:
-            prescription_name = ""
-            for part in map(str.capitalize, project_name.split("-")):
-                prescription_name += part
-            prescription_name += "GitHubContributorsWrap"
+            prescription_name = prescriptions.get_prescription_name("GitHubContributorsWrap", project_name)
 
             prescriptions.create_prescription(
                 project_name=project_name,

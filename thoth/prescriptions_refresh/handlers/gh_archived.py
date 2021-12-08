@@ -76,10 +76,7 @@ def gh_archived(prescriptions: "Prescriptions") -> None:
         is_archived = response.json().get("archived", False)
 
         if is_archived:
-            prescription_name = ""
-            for part in map(str.capitalize, project_name.split("-")):
-                prescription_name += part
-            prescription_name += "GitHubArchivedWrap"
+            prescription_name = prescriptions.get_prescription_name("GitHubArchivedWrap", project_name)
 
             prescriptions.create_prescription(
                 project_name=project_name,

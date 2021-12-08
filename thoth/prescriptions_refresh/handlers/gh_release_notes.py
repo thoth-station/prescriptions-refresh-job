@@ -68,10 +68,7 @@ def gh_release_notes(prescriptions: "Prescriptions") -> None:
         version = next(reversed(response.json()["releases"]))
         _LOGGER.debug("Checking version %r of %r", version, project_name)
 
-        prescription_name = ""
-        for part in map(str.capitalize, project_name.split("-")):
-            prescription_name += part
-        prescription_name += "GitHubReleaseNotesWrap"
+        prescription_name = prescriptions.get_prescription_name("GitHubReleaseNotesWrap", project_name)
 
         # Try without `v' prefix.
         release_url = f"https://github.com/{organization}/{repository}/releases/tag/{version}"
