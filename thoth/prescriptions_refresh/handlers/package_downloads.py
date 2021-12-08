@@ -129,19 +129,26 @@ def _downloads_to_popularity(downloads: int) -> str:
 def pypi_downloads(prescriptions: "Prescriptions") -> None:
     """Retrieve the number of downloads for PyPI packages"""
     _LOGGER.info("Querying number of package downloads available in BigQuery")
-    client = bigquery.Client()
 
-    query_job = client.query(
-        """
+    client = bigquery.Client()
+    dataset_id = "pypi_downloads"
+    dataset_id_full = f"{client.project}.{dataset_id}"
+    dataset = bigquery.Dataset(dataset_id_full)
+    dataset = client.create_dataset(dataset)
+
+    job_config = bigquery.QueryJobConfig()
+    job_config.destination = f"{dataset_id_full}.destination_table"
+
+    query = """
     SELECT *
     FROM `bigquery-public-data.pypi.file_downloads`
     WHERE DATE(timestamp)
         BETWEEN DATE_SUB(CURRENT_DATE(), INTERVAL 180 DAY)
         AND CURRENT_DATE()
     """
-    )
+    query_job = client.query(query=query, job_config=job_config)
 
-    rows = query_job.results()
+    rows = query_job.result()
     packages_downloads_dict = {}
     for row in rows:
         packages_downloads_dict[(row.file.project, row.file.version)] = (
