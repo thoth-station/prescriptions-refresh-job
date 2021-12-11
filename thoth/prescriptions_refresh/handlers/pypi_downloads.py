@@ -55,7 +55,7 @@ units:
     run:
       justification:
       - type: INFO
-        message: Project '{package_name}' is in the top {popularity_level}% most downloaded packages on PyPI in the last six months, with {downloads_count} downloads. Project versions popularity: \n {popularity_per_version_summary}
+        message: Project '{package_name}' is in the top {popularity_level}% most downloaded packages on PyPI in the last 180 days, with {downloads_count} downloads. The most downloaded package version is {most_downloaded_version} with {max_downloads} downloads.
         link: {package_link}
         package_name: {package_name}
 """
@@ -71,10 +71,11 @@ units:
       state:
         resolved_dependencies:
         - name: {package_name}
+          version: "=={package_version}"
     run:
       justification:
       - type: INFO
-        message: Project '{package_name}' version {package_version} had a {popularity_level} popularity level on PyPI in the last six months, with {downloads_count} downloads.
+        message: Project '{package_name}' version {package_version} had a {popularity_level} popularity level on PyPI in the last 180 days, with {downloads_count} downloads.
         link: {package_link}
         package_name: {package_name}
 """
@@ -176,9 +177,12 @@ def pypi_downloads(prescriptions: "Prescriptions") -> None:
             for package, downloads in packages_downloads_dict.items()
             if package[0] == project_name
         }
-        popularity_per_version_summary = ""
-        for package_version, downloads in package_versions_downloads:
-            popularity_per_version_summary += f"'{package_version[0]}' version {package_version[1]} has a {_downloads_to_popularity(downloads)} popularity with {downloads} downloads in the last six months. \n"
+        most_downloaded_version = (
+            max(package_versions_downloads, key=package_versions_downloads.get)[0]
+            + "version"
+            + max(package_versions_downloads, key=package_versions_downloads.get)[1]
+        )
+        max_downloads = max(package_versions_downloads.values())
 
         prescriptions.create_prescription(
             project_name=project_name,
@@ -189,7 +193,8 @@ def pypi_downloads(prescriptions: "Prescriptions") -> None:
                 popularity_level=popularity_level,
                 downloads_count=downloads_count,
                 package_link=package_link,
-                popularity_per_version_summary=popularity_per_version_summary,
+                most_downloaded_version=most_downloaded_version,
+                max_downloads=max_downloads,
             ),
         )
 
