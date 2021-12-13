@@ -32,10 +32,8 @@ from typing import Set
 from typing import Tuple
 from collections import defaultdict
 from itertools import chain
-from typing import TYPE_CHECKING
 
-if TYPE_CHECKING:
-    from thoth.prescriptions_refresh.prescriptions import Prescriptions
+from thoth.prescriptions_refresh.prescriptions import Prescriptions
 
 _LOGGER = logging.getLogger(__name__)
 _QUAY_TOKEN = os.getenv("THOTH_PRESCRIPTIONS_REFRESH_QUAY_TOKEN")
