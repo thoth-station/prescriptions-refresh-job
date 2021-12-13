@@ -200,7 +200,7 @@ def pypi_downloads(prescriptions: "Prescriptions") -> None:
 
         for package_version, downloads_count in package_versions_downloads.items():
             prescription_name_per_version = prescriptions.get_prescription_name(
-                f"{package_version[1]}PackagePopularityPerVersionWrap", package_version[0]
+                "PackagePopularityPerVersionWrap", package_version[0], package_version[1],
             )
 
             prescriptions.create_prescription(
