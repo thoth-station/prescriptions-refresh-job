@@ -257,7 +257,7 @@ def _do_maintainer_joined_warning(prescriptions: "Prescriptions", project_name: 
     prescriptions.delete_prescription(
         project_name,
         _PYPI_PROJECT_MAINTAINER_JOINED_AGE_PRESCRIPTION_NAME,
-        commit_message=f"Project {project_name!r} has a maintainers who are on PyPI for a longer period of time",
+        commit_message=f"Project {project_name!r} has maintainers who are on PyPI for a longer period of time",
         nonexisting_ok=True,
     )
 
