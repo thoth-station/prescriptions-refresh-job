@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-"""Warn users if a project has low number of maintainers or maintainers maintain small number of projects"""
+"""Warn users if a project has low number of maintainers or maintainers maintain small number of projects."""
 
 
 import logging
