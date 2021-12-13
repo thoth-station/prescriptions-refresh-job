@@ -53,7 +53,7 @@ units:
 
 
 def pypi_release(prescriptions: "Prescriptions") -> None:
-    """Warn if the project hos no recent releases."""
+    """Warn if the project has no recent releases."""
     today = datetime.datetime.now()
 
     for project_name in prescriptions.iter_projects():
