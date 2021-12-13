@@ -23,8 +23,9 @@ from datetime import datetime
 from collections import Counter
 from datetime import date
 from datetime import timedelta
-from typing import Tuple
 from typing import Counter as CounterType
+from typing import Optional
+from typing import Tuple
 from typing import TYPE_CHECKING
 
 import attr
@@ -76,7 +77,9 @@ class ThothCommunityStats:
     counter_base_images = attr.ib(type=CounterType[str], factory=Counter, init=False)
     counter_base_image_versions = attr.ib(type=CounterType[Tuple[str, str]], factory=Counter, init=False)
     counter_python_versions = attr.ib(type=CounterType[str], factory=Counter, init=False)
-    counter_operating_systems = attr.ib(type=CounterType[Tuple[str, str]], factory=Counter, init=False)
+    counter_operating_systems = attr.ib(
+        type=CounterType[Tuple[Optional[str], Optional[str]]], factory=Counter, init=False
+    )
 
     def aggregate(self, adviser_store: AdvisersResultsStore) -> None:
         """Aggregate Thoth community statistics."""
