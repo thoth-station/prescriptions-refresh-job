@@ -54,7 +54,11 @@ units:
     run:
       justification:
       - type: INFO
-        message: Project '{package_name}' is in the top {popularity_level}% most downloaded packages on PyPI in the last 180 days, with {downloads_count} downloads. The most downloaded package version is {most_downloaded_version} with {max_downloads} downloads.
+        message: >-
+            Project '{package_name}' is in the top {popularity_level}%
+            most downloaded packages on PyPI in the last 180 days,
+            with {downloads_count} downloads.
+            The most downloaded package version is {most_downloaded_version} with {max_downloads} downloads.
         link: {package_link}
         package_name: {package_name}
 """
@@ -74,7 +78,9 @@ units:
     run:
       justification:
       - type: INFO
-        message: Project '{package_name}' version {package_version} had a {popularity_level} popularity level on PyPI in the last 180 days, with {downloads_count} downloads.
+        message: >-
+            Project '{package_name}' version {package_version} had a {popularity_level} popularity level
+            on PyPI in the last 180 days, with {downloads_count} downloads.
         link: {package_link}
         package_name: {package_name}
 """
@@ -82,7 +88,7 @@ units:
 
 def _packages_total_downloads(package_downloads: Dict[Tuple[str, str], int]) -> Dict[str, int]:
     """Compute popularity of packages given their number of downloads."""
-    project_popularity_dict = {}
+    project_popularity_dict: Dict[str, int] = {}
     for project, downloads in package_downloads.items():
         if project_popularity_dict[project[0]] in project_popularity_dict.keys():
             project_popularity_dict[project[0]] += downloads
@@ -93,7 +99,9 @@ def _packages_total_downloads(package_downloads: Dict[Tuple[str, str], int]) -> 
 
 
 def _plot_statistics(
-    package_downloads: Dict[Any, int], plots_path: Optional[str] = ".", includes_versions: Optional[bool] = False
+    package_downloads: Dict[Any, int],
+    plots_path: str = ".",
+    includes_versions: Optional[bool] = False,
 ) -> None:
     """Plot downloads statistics for packages."""
     import matplotlib.pyplot as plt
@@ -108,11 +116,11 @@ def _plot_statistics(
         plt.savefig(os.path.join(plots_path, f"package_downloads_{datetime.now()}.png"))
 
 
-def _popularity_level(packages_total_downloads: Dict[str, int], package_name: str) -> Tuple(str, str):
+def _popularity_level(packages_total_downloads: Dict[str, int], package_name: str) -> Tuple[str, str]:
     """Compute the popularity level of a package."""
     downloads = sorted(list(packages_total_downloads.values()))
     percentile = downloads.index(packages_total_downloads[package_name]) / len(downloads) * 100
-    return downloads, percentile
+    return str(max(downloads)), str(percentile)
 
 
 def _downloads_to_popularity(downloads: int) -> str:
@@ -149,7 +157,7 @@ def pypi_downloads(prescriptions: "Prescriptions") -> None:
     query_job = client.query(query=query, job_config=job_config)
 
     rows = query_job.result()
-    packages_downloads_dict = {}
+    packages_downloads_dict: Dict[Tuple[str, str], int] = {}
     for row in rows:
         packages_downloads_dict[(row.file.project, row.file.version)] = (
             packages_downloads_dict.get((row.file.project, row.file.version), 0) + 1
@@ -177,12 +185,10 @@ def pypi_downloads(prescriptions: "Prescriptions") -> None:
             for package, downloads in packages_downloads_dict.items()
             if package[0] == project_name
         }
-        most_downloaded_version = (
-            max(package_versions_downloads, key=package_versions_downloads.get)[0]
-            + "version"
-            + max(package_versions_downloads, key=package_versions_downloads.get)[1]
+        max_downloaded_version_name, max_downloaded_version_downloads_count = max(
+            zip(package_versions_downloads.keys(), package_versions_downloads.values())
         )
-        max_downloads = max(package_versions_downloads.values())
+        most_downloaded_version = max_downloaded_version_name[0] + "version" + max_downloaded_version_name[1]
 
         prescriptions.create_prescription(
             project_name=project_name,
@@ -194,13 +200,13 @@ def pypi_downloads(prescriptions: "Prescriptions") -> None:
                 downloads_count=downloads_count,
                 package_link=package_link,
                 most_downloaded_version=most_downloaded_version,
-                max_downloads=max_downloads,
+                max_downloads=max_downloaded_version_downloads_count,
             ),
         )
 
-        for package_version, downloads_count in package_versions_downloads.items():
+        for package_version, version_downloads_count in package_versions_downloads.items():
             prescription_name_per_version = prescriptions.get_prescription_name(
-                f"{package_version[1]}PackagePopularityPerVersionWrap", package_version[0]
+                "PackagePopularityPerVersionWrap", package_version[0], package_version[1]
             )
 
             prescriptions.create_prescription(
@@ -210,8 +216,8 @@ def pypi_downloads(prescriptions: "Prescriptions") -> None:
                     package_name=project_name,
                     prescription_name=prescription_name_per_version,
                     package_version=package_version[1],
-                    popularity_level=_downloads_to_popularity(downloads_count),
-                    downloads_count=downloads_count,
+                    popularity_level=_downloads_to_popularity(int(version_downloads_count)),
+                    downloads_count=version_downloads_count,
                     package_link=package_link,
                 ),
             )
