@@ -55,10 +55,10 @@ units:
       justification:
       - type: INFO
         message: >-
-            Project '{package_name}' is in the top {popularity_level}%
-            most downloaded packages on PyPI in the last 180 days,
-            with {downloads_count} downloads.
-            The most downloaded package version is {most_downloaded_version} with {max_downloads} downloads.
+          Project '{package_name}' is in the top {popularity_level}%
+          most downloaded packages on PyPI in the last {days} days,
+          with {downloads_count} downloads.
+          The most downloaded package version is {most_downloaded_version} with {max_downloads} downloads.
         link: {package_link}
         package_name: {package_name}
 """
@@ -79,8 +79,8 @@ units:
       justification:
       - type: INFO
         message: >-
-            Project '{package_name}' version {package_version} had a {popularity_level} popularity level
-            on PyPI in the last 180 days, with {downloads_count} downloads.
+          Project '{package_name}' version {package_version} had a {popularity_level} popularity level
+          on PyPI in the last {days} days, with {downloads_count} downloads.
         link: {package_link}
         package_name: {package_name}
 """
@@ -194,6 +194,7 @@ def pypi_downloads(prescriptions: "Prescriptions") -> None:
             project_name=project_name,
             prescription_name=_PACKAGE_DOWNLOADS_PRESCRIPTION_NAME,
             content=_PACKAGE_DOWNLOADS_PRESCRIPTION_CONTENT.format(
+                days=_PYPI_DOWNLOADS_TIME_INTERVAL,
                 package_name=project_name,
                 prescription_name=prescription_name,
                 popularity_level=popularity_level,
@@ -211,8 +212,9 @@ def pypi_downloads(prescriptions: "Prescriptions") -> None:
 
             prescriptions.create_prescription(
                 project_name=project_name,
-                prescription_name=_PACKAGE_DOWNLOADS_PRESCRIPTION_NAME,
-                content=_PACKAGE_DOWNLOADS_PRESCRIPTION_CONTENT.format(
+                prescription_name=_PACKAGE_DOWNLOADS_PRESCRIPTION_NAME_PER_VERSION,
+                content=_PACKAGE_DOWNLOADS_PER_VERSION_PRESCRIPTION_CONTENT.format(
+                    days=_PYPI_DOWNLOADS_TIME_INTERVAL,
                     package_name=project_name,
                     prescription_name=prescription_name_per_version,
                     package_version=package_version[1],
