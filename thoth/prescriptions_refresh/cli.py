@@ -184,4 +184,11 @@ def pypi_downloads() -> None:
         handlers.pypi_downloads(prescriptions)
 
 
+@cli.command("pypi-maintainers")
+def pypi_maintainers() -> None:
+    """Warn about projects that do not have good maintainer base."""
+    with Prescriptions() as prescriptions:
+        handlers.pypi_maintainers(prescriptions)
+
+
 __name__ == "__main__" and cli()
