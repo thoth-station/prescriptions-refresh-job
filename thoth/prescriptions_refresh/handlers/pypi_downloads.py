@@ -55,7 +55,7 @@ units:
     run:
       justification:
       - type: INFO
-        message: >
+        message: >-
             Project '{package_name}' is in the top {popularity_level}%
             most downloaded packages on PyPI in the last 180 days,
             with {downloads_count} downloads.
@@ -79,7 +79,7 @@ units:
     run:
       justification:
       - type: INFO
-        message: >
+        message: >-
             Project '{package_name}' version {package_version} had a {popularity_level} popularity level
             on PyPI in the last 180 days, with {downloads_count} downloads.
         link: {package_link}
