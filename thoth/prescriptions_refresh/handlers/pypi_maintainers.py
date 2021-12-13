@@ -171,7 +171,7 @@ def _do_maintainer_projects(prescriptions: "Prescriptions", project_name: str, m
 
         if len(maintainer_projects) >= _PYPI_MAINTAINER_PROJECTS_COUNT:
             _LOGGER.info(
-                "Project %r is maintainer by %r who has at least %d projects maintained",
+                "Project %r is maintained by %r who has at least %d projects maintained",
                 project_name,
                 maintainer,
                 _PYPI_MAINTAINER_PROJECTS_COUNT,
