@@ -15,7 +15,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
-"""Warn if the project hos no recent releases."""
+"""Warn if the project has no recent releases."""
 
 import datetime
 import logging
