@@ -233,7 +233,7 @@ def _do_maintainer_joined_warning(prescriptions: "Prescriptions", project_name: 
 
         if (today - maintainer_join_date).days >= _PYPI_MAINTAINER_JOINED_AGE_DAYS:
             _LOGGER.info(
-                "Project %r is maintainer by %r who was registered on PyPI more than %d days ago",
+                "Project %r is maintained by %r who was registered on PyPI more than %d days ago",
                 project_name,
                 maintainer,
                 _PYPI_MAINTAINER_JOINED_AGE_DAYS,
