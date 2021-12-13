@@ -13,6 +13,7 @@ click = "*"
 thoth-storages = "*"
 ogr = "*"
 google-cloud-bigquery = "*"
+python-dateutil = "*"
 
 [dev-packages]
 types-attrs = "*"
