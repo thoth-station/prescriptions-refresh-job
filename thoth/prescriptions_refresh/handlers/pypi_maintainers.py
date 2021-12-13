@@ -263,7 +263,7 @@ def _do_maintainer_joined_warning(prescriptions: "Prescriptions", project_name: 
 
 
 def pypi_maintainers(prescriptions: "Prescriptions") -> None:
-    """Warn users if a project has low number of maintainers or maintainers maintain small number of projects"""
+    """Warn users if a project has low number of maintainers or maintainers maintain small number of projects."""
     for project_name in prescriptions.iter_projects():
         _LOGGER.debug("Computing warnings for PyPI maintainers for %r", project_name)
         maintainers = _list_maintainers(project_name)
