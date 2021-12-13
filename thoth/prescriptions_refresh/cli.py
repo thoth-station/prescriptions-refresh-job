@@ -177,4 +177,11 @@ def thoth_community() -> None:
         handlers.thoth_community(prescriptions)
 
 
+@cli.command("pypi-downloads")
+def pypi_downloads() -> None:
+    """Compute downloads statistics for a package from PyPI."""
+    with Prescriptions() as prescriptions:
+        handlers.pypi_downloads(prescriptions)
+
+
 __name__ == "__main__" and cli()
