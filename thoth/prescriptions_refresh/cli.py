@@ -191,4 +191,11 @@ def pypi_maintainers() -> None:
         handlers.pypi_maintainers(prescriptions)
 
 
+@cli.command("pypi-release")
+def pypi_release() -> None:
+    """Warn about packages that haven't been released for some time."""
+    with Prescriptions() as prescriptions:
+        handlers.pypi_release(prescriptions)
+
+
 __name__ == "__main__" and cli()
