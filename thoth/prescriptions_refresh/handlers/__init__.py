@@ -26,6 +26,7 @@ from .gh_link import gh_link
 from .gh_popularity import gh_popularity
 from .gh_release_notes import gh_release_notes
 from .gh_updated import gh_updated
+from .pypi_downloads import pypi_downloads
 from .quay_security import quay_security
 from .scorecards import scorecards
 from .thoth_community import thoth_community
@@ -39,6 +40,7 @@ __all__ = [
     gh_popularity.__name__,
     gh_release_notes.__name__,
     gh_updated.__name__,
+    pypi_downloads.__name__,
     quay_security.__name__,
     scorecards.__name__,
     thoth_community.__name__,
