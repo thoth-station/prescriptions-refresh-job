@@ -21,7 +21,6 @@
 from datetime import datetime
 from google.cloud import bigquery
 import logging
-import matplotlib.pyplot as plt
 import os
 from typing import TYPE_CHECKING
 from typing import Any
@@ -97,6 +96,7 @@ def _plot_statistics(
     package_downloads: Dict[Any, int], plots_path: Optional[str] = ".", includes_versions: Optional[bool] = False
 ) -> None:
     """Plot downloads statistics for packages."""
+    import matplotlib.pyplot as plt
 
     plt.bar(package_downloads.keys(), package_downloads.values())
     plt.suptitle("Number of downloads per package")
