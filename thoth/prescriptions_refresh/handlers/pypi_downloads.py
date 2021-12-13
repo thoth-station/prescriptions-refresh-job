@@ -184,12 +184,10 @@ def pypi_downloads(prescriptions: "Prescriptions") -> None:
             for package, downloads in packages_downloads_dict.items()
             if package[0] == project_name
         }
-        most_downloaded_version = (
-            max(package_versions_downloads, key=package_versions_downloads.get)[0]  # type: ignore
-            + "version"
-            + max(package_versions_downloads, key=package_versions_downloads.get)[1]  # type: ignore
+        max_downloaded_version_name, max_downloaded_version_downloads_count = max(
+            zip(package_versions_downloads.keys(), package_versions_downloads.values())
         )
-        max_downloads = max(package_versions_downloads.values())
+        most_downloaded_version = max_downloaded_version_name[0] + "version" + max_downloaded_version_name[1]
 
         prescriptions.create_prescription(
             project_name=project_name,
@@ -201,13 +199,13 @@ def pypi_downloads(prescriptions: "Prescriptions") -> None:
                 downloads_count=downloads_count,
                 package_link=package_link,
                 most_downloaded_version=most_downloaded_version,
-                max_downloads=max_downloads,
+                max_downloads=max_downloaded_version_downloads_count,
             ),
         )
 
         for package_version, version_downloads_count in package_versions_downloads.items():
             prescription_name_per_version = prescriptions.get_prescription_name(
-                f"{package_version[1]}PackagePopularityPerVersionWrap", package_version[0]
+                "PackagePopularityPerVersionWrap", package_version[0], package_version[1]
             )
 
             prescriptions.create_prescription(
