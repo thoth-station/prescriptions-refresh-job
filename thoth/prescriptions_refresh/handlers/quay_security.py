@@ -338,7 +338,7 @@ def quay_security(prescriptions: "Prescriptions") -> None:
             prescriptions.create_prescription(
                 project_name=project_name,
                 prescription_name="quay_security_alternatives.yaml",
-                content=f"units:\n  wraps:\n\n{units_alternatives}",
+                content=f"units:\n  wraps:\n{units_alternatives}",
                 commit_message=f"Computed vulnerability-free alternatives for {image!r}",
             )
 
