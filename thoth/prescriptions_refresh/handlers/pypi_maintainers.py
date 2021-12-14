@@ -55,7 +55,7 @@ units:
       justification:
       - type: WARNING
         message: >-
-          Project {package_name} is maintained by maintainers that maintain small
+          Project '{package_name}' is maintained by maintainers that maintain small
           number of projects on PyPI (less than {maintainer_projects_count})
         link: https://pypi.org/project/{package_name}/
         package_name: {package_name}
@@ -77,7 +77,7 @@ units:
     run:
       justification:
       - type: WARNING
-        message: Project {package_name} has low number of maintainers on PyPI (less than {project_maintainers_count})
+        message: Project '{package_name}' has low number of maintainers on PyPI (less than {project_maintainers_count})
         link: https://pypi.org/project/{package_name}/
         package_name: {package_name}
 """
@@ -100,7 +100,7 @@ units:
       justification:
       - type: WARNING
         message: >-
-          Project {package_name} has maintainers that joined PyPI
+          Project '{package_name}' has maintainers that joined PyPI
           recently (less than {maintainers_join_days} days ago)
         link: https://pypi.org/project/{package_name}/
         package_name: {package_name}
