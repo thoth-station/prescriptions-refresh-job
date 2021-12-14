@@ -50,7 +50,7 @@ units:
       state:
         resolved_dependencies:
         - name: {package_name}
-          index_url: "https://pypi.org/simple"
+          index_url: https://pypi.org/simple
     run:
       justification:
       - type: WARNING
@@ -73,7 +73,7 @@ units:
       state:
         resolved_dependencies:
         - name: {package_name}
-          index_url: "https://pypi.org/simple"
+          index_url: https://pypi.org/simple
     run:
       justification:
       - type: WARNING
@@ -95,7 +95,7 @@ units:
       state:
         resolved_dependencies:
         - name: {package_name}
-          index_url: "https://pypi.org/simple"
+          index_url: https://pypi.org/simple
     run:
       justification:
       - type: WARNING
