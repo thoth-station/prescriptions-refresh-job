@@ -205,7 +205,7 @@ Visit [thoth-station.ninja](https://thoth-station.ninja) for more info.
 
         for item in items:
             for part in map(str.capitalize, item.split("-")):
-                result += part.replace(":", "").replace(".", "")
+                result += part.replace(":", "x").replace(".", "x")
 
         return result + wrap_name
 
