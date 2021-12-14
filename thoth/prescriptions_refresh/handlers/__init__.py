@@ -26,6 +26,7 @@ from .gh_link import gh_link
 from .gh_popularity import gh_popularity
 from .gh_release_notes import gh_release_notes
 from .gh_updated import gh_updated
+from .pypi_artifact_size import pypi_artifact_size
 from .pypi_downloads import pypi_downloads
 from .pypi_maintainers import pypi_maintainers
 from .pypi_release import pypi_release
@@ -42,6 +43,7 @@ __all__ = [
     gh_popularity.__name__,
     gh_release_notes.__name__,
     gh_updated.__name__,
+    pypi_artifact_size.__name__,
     pypi_downloads.__name__,
     pypi_maintainers.__name__,
     pypi_release.__name__,

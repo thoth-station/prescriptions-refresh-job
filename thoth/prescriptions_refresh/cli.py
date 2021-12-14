@@ -177,6 +177,13 @@ def thoth_community() -> None:
         handlers.thoth_community(prescriptions)
 
 
+@cli.command("pypi-artifact-size")
+def pypi_artifact_size() -> None:
+    """Compute size of artifact eventually downloaded."""
+    with Prescriptions() as prescriptions:
+        handlers.pypi_artifact_size(prescriptions)
+
+
 @cli.command("pypi-downloads")
 def pypi_downloads() -> None:
     """Compute downloads statistics for a package from PyPI."""
