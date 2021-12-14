@@ -38,7 +38,8 @@ units:
       state:
         resolved_dependencies:
         - name: {package_name}
-          index_url: "https://pypi.org/simple"
+          version: {package_version}
+          index_url: https://pypi.org/simple
     run:
       justification:
       - type: INFO
