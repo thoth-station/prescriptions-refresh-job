@@ -170,6 +170,13 @@ def quay_security() -> None:
         handlers.quay_security(prescriptions)
 
 
+@cli.command("quay-image-size")
+def quay_image_size() -> None:
+    """Propagate information about container image size to users."""
+    with Prescriptions() as prescriptions:
+        handlers.quay_image_size(prescriptions)
+
+
 @cli.command("thoth-community")
 def thoth_community() -> None:
     """Compute Thoth community statistics."""

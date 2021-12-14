@@ -99,6 +99,23 @@ Visit [thoth-station.ninja](https://thoth-station.ninja) for more info.
         res = [t.strip() for t in tokens.split(",")]
         return res
 
+    @staticmethod
+    def get_artifact_size_str(artifact_size: int) -> str:
+        """Get size of an artifact in a human-readable form."""
+        suffix = "B"
+        artifact_size_float = float(artifact_size)
+        if artifact_size_float >= 1024:
+            artifact_size_float /= 1024
+            suffix = "KiB"
+        if artifact_size_float >= 1024:
+            artifact_size_float /= 1024
+            suffix = "MiB"
+        if artifact_size_float >= 1024:
+            artifact_size_float /= 1024
+            suffix = "GiB"
+
+        return f"{artifact_size_float:0.2f}{suffix}"
+
     def get_github_token(self) -> Any:
         """Get a random GitHub token from pool."""
         return random.choice(self.github_tokens)

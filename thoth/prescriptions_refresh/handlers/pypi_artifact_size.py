@@ -51,23 +51,6 @@ units:
 """
 
 
-def _get_artifact_size_str(artifact_size: int) -> str:
-    """Get size of artifact in a human-readable form."""
-    suffix = "B"
-    artifact_size_float = float(artifact_size)
-    if artifact_size_float >= 1024:
-        artifact_size_float /= 1024
-        suffix = "KiB"
-    if artifact_size_float >= 1024:
-        artifact_size_float /= 1024
-        suffix = "MiB"
-    if artifact_size_float >= 1024:
-        artifact_size_float /= 1024
-        suffix = "GiB"
-
-    return f"{artifact_size_float:0.2f}{suffix}"
-
-
 def pypi_artifact_size(prescriptions: "Prescriptions") -> None:
     """Produce messages that show artifact size."""
     for project_name in prescriptions.iter_projects():
@@ -94,7 +77,7 @@ def pypi_artifact_size(prescriptions: "Prescriptions") -> None:
                 content=_PYPI_ARTIFACT_SIZE_PRESCRIPTION_CONTENT.format(
                     package_name=project_name,
                     package_version=package_version,
-                    artifact_size=_get_artifact_size_str(artifact_size),
+                    artifact_size=prescriptions.get_artifact_size_str(artifact_size),
                     prescription_name=prescriptions.get_prescription_name(
                         "PyPIArtifactSizeWrap", project_name, package_version
                     ),

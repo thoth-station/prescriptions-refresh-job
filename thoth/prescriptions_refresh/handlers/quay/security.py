@@ -18,7 +18,6 @@
 """Check security related information in predictable stacks container images."""
 
 import logging
-import os
 
 import requests
 from thoth.common.helpers import datetime2datetime_str
@@ -26,7 +25,6 @@ from thoth.common.helpers import datetime2datetime_str
 from typing import Any
 from typing import DefaultDict
 from typing import Dict
-from typing import Generator
 from typing import List
 from typing import Set
 from typing import Tuple
@@ -34,13 +32,14 @@ from collections import defaultdict
 from itertools import chain
 
 from thoth.prescriptions_refresh.prescriptions import Prescriptions
+from .common import get_configured_image_names
+from .common import get_ps_s2i_image_names
+from .common import get_image_containers
+from .common import QUAY_TOKEN
+from .common import QUAY_NAMESPACE_NAME
+from .common import QUAY_URL
 
 _LOGGER = logging.getLogger(__name__)
-_QUAY_TOKEN = os.getenv("THOTH_PRESCRIPTIONS_REFRESH_QUAY_TOKEN")
-_QUAY_NAMESPACE_NAME = os.getenv("THOTH_PRESCRIPTIONS_REFRESH_QUAY_PS_NAMESPACE_NAME", "thoth-station")
-_QUAY_NAMESPACE_PUBLIC = bool(int(os.getenv("THOTH_PRESCRIPTIONS_REFRESH_QUAY_PS_NAMESPACE_PUBLIC", 1)))
-_CONFIGURED_IMAGES = os.getenv("THOTH_PRESCRIPTIONS_REFRESH_CONFIGURED_IMAGES")
-_QUAY_URL = os.getenv("THOTH_PRESCRIPTIONS_REFRESH_QUAY_URL", "quay.io")
 
 _QUAY_SECURITY_BOOT = """\
   - name: {prescription_name}QuaySecurityErrorBoot
@@ -122,80 +121,11 @@ units:
 """
 
 
-def _get_configured_image_names() -> Generator[str, None, None]:
-    """Get a list of container images configured via environment variables."""
-    if not _CONFIGURED_IMAGES:
-        yield from ()
-        return None
-
-    for line in _CONFIGURED_IMAGES.splitlines():
-        line = line.strip()
-        if not line or line.startswith("#"):
-            continue
-
-        yield line
-
-
-def _get_ps_s2i_image_names() -> Generator[str, None, None]:
-    """List all the predictable stack container image names."""
-    response = requests.get(
-        f"https://{_QUAY_URL}/api/v1/repository",
-        headers={"Authorization": f"Bearer {_QUAY_TOKEN}"},
-        params={"public": _QUAY_NAMESPACE_PUBLIC, "namespace": _QUAY_NAMESPACE_NAME},
-    )
-    response.raise_for_status()
-
-    for repository in response.json()["repositories"]:
-        if repository["name"].startswith(("ps-", "s2i-")):
-            yield repository["name"]
-
-
-def _get_image_containers(image_name: str) -> Generator[Tuple[str, str], None, None]:
-    """List all containers ids for the given image."""
-    response = requests.get(
-        f"https://{_QUAY_URL}/api/v1/repository/{_QUAY_NAMESPACE_NAME}/{image_name}/image",
-        headers={"Authorization": f"Bearer {_QUAY_TOKEN}"},
-    )
-    if response.status_code != 200:
-        _LOGGER.error(
-            "Failed to obtain available containers for image %r (%d): %s",
-            image_name,
-            response.status_code,
-            response.text,
-        )
-        yield from ()
-        return
-
-    for container_image in sorted(response.json()["images"], key=lambda i: str(i["id"])):
-        if container_image.get("uploading", False):
-            _LOGGER.warning(
-                "Skipping container image %r with id %r as it is currently being uploaded",
-                image_name,
-                container_image["id"],
-            )
-            continue
-
-        for tag in container_image["tags"]:
-            if tag.startswith("v"):
-                break
-        else:
-            if container_image["tags"]:  # Skip warning for layers.
-                _LOGGER.warning(
-                    "Skipping container image %r with id %r as no version tag found: %r",
-                    image_name,
-                    container_image["id"],
-                    container_image["tags"],
-                )
-            continue
-
-        yield container_image["id"], tag
-
-
 def _quay_get_security_info(image_name: str, container_id: str) -> List[Dict[str, Any]]:
     """Obtain security related information for the given container specified by the given container id."""
     response = requests.get(
-        f"https://{_QUAY_URL}/api/v1/repository/{_QUAY_NAMESPACE_NAME}/{image_name}/image/{container_id}/security",
-        headers={"Authorization": f"Bearer {_QUAY_TOKEN}"},
+        f"https://{QUAY_URL}/api/v1/repository/{QUAY_NAMESPACE_NAME}/{image_name}/image/{container_id}/security",
+        headers={"Authorization": f"Bearer {QUAY_TOKEN}"},
         params={"vulnerabilities": True},
     )
     if response.status_code != 200:
@@ -239,7 +169,7 @@ def _create_vulnerability_prescriptions(image: str, tag: str, vulnerabilities: L
 
         boot_units += _QUAY_SECURITY_BOOT.format(
             prescription_name=f"{prescription_name}Vuln{idx}",
-            image=f"{_QUAY_URL}/{_QUAY_NAMESPACE_NAME}/{image}:{tag}",
+            image=f"{QUAY_URL}/{QUAY_NAMESPACE_NAME}/{image}:{tag}",
             message=f"Found {vulnerability['Name']} in the base image used: {vulnerability_description}",
             link=vulnerability["Link"],
             cve_name=vulnerability["Name"],
@@ -255,7 +185,7 @@ def _create_vulnerability_prescriptions(image: str, tag: str, vulnerabilities: L
 
         wrap_units += _QUAY_SECURITY_WRAP.format(
             prescription_name=f"{prescription_name}Vuln{idx}",
-            image=f"{_QUAY_URL}/{_QUAY_NAMESPACE_NAME}/{image}:{tag}",
+            image=f"{QUAY_URL}/{QUAY_NAMESPACE_NAME}/{image}:{tag}",
             message=vulnerability_description,
             link=vulnerability["Link"],
             cve_name=vulnerability["Name"],
@@ -286,7 +216,7 @@ def _create_alternatives_prescriptions(vulnerabilities_found: Dict[str, Dict[str
                     prescription_name=f"{prescription_name}V{i}N{j}",
                     image=f"{image}:{vuln_tag}",
                     image_alternative=f"{image}:{tag}",
-                    link=f"https://{_QUAY_URL}/repository/thoth-station/{image}",
+                    link=f"https://{QUAY_URL}/repository/thoth-station/{image}",
                 )
 
     return units
@@ -294,18 +224,18 @@ def _create_alternatives_prescriptions(vulnerabilities_found: Dict[str, Dict[str
 
 def quay_security(prescriptions: "Prescriptions") -> None:
     """Check security related information in predictable stacks container images."""
-    if not _QUAY_TOKEN:
+    if not QUAY_TOKEN:
         raise ValueError("No Token to Quay API provided")
 
     datetime = datetime2datetime_str()
 
-    for image in sorted(chain(_get_ps_s2i_image_names(), _get_configured_image_names())):
+    for image in sorted(chain(get_ps_s2i_image_names(), get_configured_image_names())):
         boots_vulnerabilities = ""
         wraps_vulnerabilities = ""
         units_alternatives = ""
         vulnerabilities_found: DefaultDict[str, Dict[str, bool]] = defaultdict(dict)
 
-        for container_id, tag in _get_image_containers(image):
+        for container_id, tag in get_image_containers(image):
             _LOGGER.info("Obtaining security-related information for %r in tag %r", image, tag)
             vulnerabilities = _quay_get_security_info(image, container_id)
             if vulnerabilities:
@@ -346,9 +276,9 @@ def quay_security(prescriptions: "Prescriptions") -> None:
         project_name="_containers",
         prescription_name="quay_security.yaml",
         content=_QUAY_SECURITY_TIMESTAMP.format(
-            quay_namespace=_QUAY_NAMESPACE_NAME,
-            quay_url=_QUAY_URL,
+            quay_namespace=QUAY_NAMESPACE_NAME,
+            quay_url=QUAY_URL,
             datetime=datetime,
         ),
-        commit_message=f"Security scans from Quay.io has been successfully updated for {_QUAY_NAMESPACE_NAME}",
+        commit_message=f"Security scans from Quay.io has been successfully updated for {QUAY_NAMESPACE_NAME}",
     )
