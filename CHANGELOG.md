@@ -1,5 +1,46 @@
 # Changelog for Thoth's prescriptions refresh job
 
+## Release 0.5.0 (2021-12-15T16:50:52)
+* Apply solver rules to package versions used to generate prescriptions
+* Put character between version numbers in pipeline unit names to avoid conflicts
+* Propagate information about container images from Quay
+* Avoid empty line in prescriptions computing container image alternatives
+* Do not quote index_url as pre-commit complains about it
+* Fix version range specifier for matching Python versions
+* Be consistent with quoting names and versions
+* Artifact size is computed per package version
+* Introduce handler for computing PyPI artifact size
+* Parametrize message with constant supplied
+* Relock after rebase
+* Update thoth/prescriptions_refresh/handlers/pypi_release.py
+* Update thoth/prescriptions_refresh/handlers/pypi_release.py
+* Warn if a package has no recent releases
+* Fix docstring
+* Fix typo in /pypi_maintainers.py
+* Fix typo in /pypi_maintainers.py
+* Fix typo in /pypi_maintainers.py
+* Fix typo in /pypi_maintainers.py
+* Compute prescriptions that check maintainers on PyPI
+* Add pypi_downloads to __init__.py
+* :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
+* Fix max dictionary value
+* Add dashes to prescription messages
+* Fix errors in pre-commit for pypi_downloads.py
+* Do a local import for matplotlib
+* Minor fix in typing (#70)
+* Add a handler for package downloads information (#65)
+* Add Maya to OWNERS
+* Fix obtaining prescription name
+* :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
+* Add a general method to Prescriptions to generate prescription names
+* :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
+* :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
+* Add Pep to OWNERS file
+* Do not fail if Quay returns status code other than 200
+* Add also tag part to prescription name in Quay security
+* :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
+* Use double quotes to make pre-commit happy
+
 ## Release 0.4.0 (2021-11-22T19:00:52)
 * Compute alternatives to container images with vulnerabilities
 * :bomb: use https based url in the pre-commit
