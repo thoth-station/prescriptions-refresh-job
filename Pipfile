@@ -14,6 +14,7 @@ thoth-storages = "*"
 ogr = "*"
 google-cloud-bigquery = "*"
 python-dateutil = "*"
+thoth-python = "*"
 
 [dev-packages]
 types-attrs = "*"

@@ -18,18 +18,22 @@
 """Inform users about large artifacts on PyPI."""
 
 import logging
+import os
 from typing import TYPE_CHECKING
 
 import requests
+from packaging.specifiers import SpecifierSet
+from thoth.storages import GraphDatabase
+from thoth.python.package_version import Version
 
 if TYPE_CHECKING:
     from thoth.prescriptions_refresh.prescriptions import Prescriptions
 
 _LOGGER = logging.getLogger(__name__)
+# Report only 3MiB+
+_PYPI_ARTIFACT_REPORT_SIZE = int(os.getenv("THOTH_PRESCRIPTIONS_REFRESH_PYPI_ARTIFACT_REPORT_SIZE", 3 * 1024 * 1024))
 _PYPI_ARTIFACT_SIZE_PRESCRIPTION_NAME = "pypi_artifact_size.yaml"
 _PYPI_ARTIFACT_SIZE_PRESCRIPTION_CONTENT = """\
-units:
-  wraps:
   - name: {prescription_name}
     type: wrap
     should_include:
@@ -53,6 +57,10 @@ units:
 
 def pypi_artifact_size(prescriptions: "Prescriptions") -> None:
     """Produce messages that show artifact size."""
+    graph = GraphDatabase()
+    graph.connect()
+
+    report_size_str = prescriptions.get_artifact_size_str(_PYPI_ARTIFACT_REPORT_SIZE)
     for project_name in prescriptions.iter_projects():
         _LOGGER.debug("Checking PyPI release information for project %r", project_name)
         response = requests.get(f"https://pypi.org/pypi/{project_name}/json")
@@ -65,22 +73,62 @@ def pypi_artifact_size(prescriptions: "Prescriptions") -> None:
             )
             continue
 
+        solver_rules = graph.get_python_rule_all(package_name=project_name, count=None)
+
+        content = ""
         for package_version, release_info in response.json()["releases"].items():
             if not release_info:
                 _LOGGER.warning("No release information found for %r in version %r", project_name, package_version)
                 continue
 
-            artifact_size = max(i["size"] for i in release_info)
-            prescriptions.create_prescription(
-                project_name=project_name,
-                prescription_name=_PYPI_ARTIFACT_SIZE_PRESCRIPTION_NAME,
-                content=_PYPI_ARTIFACT_SIZE_PRESCRIPTION_CONTENT.format(
+            version = Version(package_version)
+            if version.is_legacy_version:
+                _LOGGER.warning(
+                    "Skipping version %r: the version identifier is a legacy version identifier", package_version
+                )
+                continue
+
+            for solver_rule in solver_rules:
+                if solver_rule["index_url"] not in ("https://pypi.org/simple", None):
+                    _LOGGER.debug("Solver rule skipped as it does not apply to PyPI: %r", solver_rule)
+                    continue
+
+                if not solver_rule["version_range"] or package_version in SpecifierSet(solver_rule["version_range"]):
+                    _LOGGER.info(
+                        "Skipping adding version %r of %r as it matches solver rule configured: %r",
+                        package_version,
+                        project_name,
+                        solver_rule,
+                    )
+                    break
+            else:
+                artifact_size = max(i["size"] for i in release_info)
+
+                if artifact_size < _PYPI_ARTIFACT_REPORT_SIZE:
+                    _LOGGER.info(
+                        "Artifact size for %r in version %s has less than %s: not creating prescription for it",
+                        project_name,
+                        package_version,
+                        report_size_str,
+                    )
+                    continue
+
+                content += _PYPI_ARTIFACT_SIZE_PRESCRIPTION_CONTENT.format(
                     package_name=project_name,
                     package_version=package_version,
                     artifact_size=prescriptions.get_artifact_size_str(artifact_size),
                     prescription_name=prescriptions.get_prescription_name(
                         "PyPIArtifactSizeWrap", project_name, package_version
                     ),
-                ),
-                commit_message=f"Artifact size info for package {project_name!r} in version {package_version!r}",
-            )
+                )
+
+        if not content:
+            _LOGGER.warning("No PyPI artifact size related prescriptions were computed for %r", project_name)
+            continue
+
+        prescriptions.create_prescription(
+            project_name=project_name,
+            prescription_name=_PYPI_ARTIFACT_SIZE_PRESCRIPTION_NAME,
+            content=f"units:\n  wraps:\n{content}",
+            commit_message=f"Artifact size info from PyPI for package {project_name!r}",
+        )
