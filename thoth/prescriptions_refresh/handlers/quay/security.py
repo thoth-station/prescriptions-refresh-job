@@ -75,7 +75,7 @@ _QUAY_SECURITY_WRAP = """\
         base_images:
         - {image}
     run:
-      justification:
+      stack_info:
       - type: ERROR
         message: >-
           {message}
