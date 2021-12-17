@@ -177,6 +177,13 @@ def quay_image_size() -> None:
         handlers.quay_image_size(prescriptions)
 
 
+@cli.command("thoth-image-analysis")
+def thoth_image_analysis() -> None:
+    """Create prescriptions from container images analysis results."""
+    with Prescriptions() as prescriptions:
+        handlers.thoth_image_analysis(prescriptions)
+
+
 @cli.command("thoth-community")
 def thoth_community() -> None:
     """Compute Thoth community statistics."""

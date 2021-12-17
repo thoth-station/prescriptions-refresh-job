@@ -26,6 +26,7 @@ from .gh_link import gh_link
 from .gh_popularity import gh_popularity
 from .gh_release_notes import gh_release_notes
 from .gh_updated import gh_updated
+from .image_analysis import thoth_image_analysis
 from .pypi_artifact_size import pypi_artifact_size
 from .pypi_downloads import pypi_downloads
 from .pypi_maintainers import pypi_maintainers
@@ -52,4 +53,5 @@ __all__ = [
     quay_security.__name__,
     scorecards.__name__,
     thoth_community.__name__,
+    thoth_image_analysis.__name__,
 ]
