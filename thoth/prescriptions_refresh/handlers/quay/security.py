@@ -58,7 +58,7 @@ _QUAY_SECURITY_BOOT = """\
           {message}
         link: {link}
       not_acceptable: >-
-        The base image used has a CVE: {cve_name}
+        The base image used has a CVE {cve_name} - see {link}
 """
 
 _QUAY_SECURITY_WRAP = """\
@@ -75,12 +75,11 @@ _QUAY_SECURITY_WRAP = """\
         base_images:
         - {image}
     run:
-      justification:
-      - type: ERROR
+      stack_info:
+      - type: WARNING
         message: >-
           {message}
         link: {link}
-        cve_name: {cve_name}
 """
 
 _QUAY_ALTERNATIVE_WRAP = """\
@@ -92,7 +91,7 @@ _QUAY_ALTERNATIVE_WRAP = """\
         base_images:
         - {image}
     run:
-      justification:
+      stack_info:
       - type: INFO
         message: >-
           Consider using {image_alternative!r} as vulnerability-free alternative to {image!r}
@@ -164,13 +163,12 @@ def _create_vulnerability_prescriptions(image: str, tag: str, vulnerabilities: L
         if vulnerability["Name"] in cve_seen:
             continue
 
-        vulnerability_description = vulnerability["Description"].replace("\\", "\\\\").replace('"', '\\"')
         cve_seen.add(vulnerability["Name"])
 
         boot_units += _QUAY_SECURITY_BOOT.format(
             prescription_name=f"{prescription_name}Vuln{idx}",
             image=f"{QUAY_URL}/{QUAY_NAMESPACE_NAME}/{image}:{tag}",
-            message=f"Found {vulnerability['Name']} in the base image used: {vulnerability_description}",
+            message=f"Found vulnerability {vulnerability['Name']!r} in the base image used",
             link=vulnerability["Link"],
             cve_name=vulnerability["Name"],
         )
@@ -180,15 +178,13 @@ def _create_vulnerability_prescriptions(image: str, tag: str, vulnerabilities: L
         if vulnerability["Name"] in cve_seen:
             continue
 
-        vulnerability_description = vulnerability["Description"].replace("\\", "\\\\").replace('"', '\\"')
         cve_seen.add(vulnerability["Name"])
 
         wrap_units += _QUAY_SECURITY_WRAP.format(
             prescription_name=f"{prescription_name}Vuln{idx}",
             image=f"{QUAY_URL}/{QUAY_NAMESPACE_NAME}/{image}:{tag}",
-            message=vulnerability_description,
+            message=f"Found vulnerability {vulnerability['Name']!r} in the base image used",
             link=vulnerability["Link"],
-            cve_name=vulnerability["Name"],
         )
 
     return boot_units, wrap_units
@@ -216,7 +212,7 @@ def _create_alternatives_prescriptions(vulnerabilities_found: Dict[str, Dict[str
                     prescription_name=f"{prescription_name}V{i}N{j}",
                     image=f"{image}:{vuln_tag}",
                     image_alternative=f"{image}:{tag}",
-                    link=f"https://{QUAY_URL}/repository/thoth-station/{image}",
+                    link=f"https://{QUAY_URL}/repository/{QUAY_NAMESPACE_NAME}/{image}",
                 )
 
     return units
