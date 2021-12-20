@@ -48,3 +48,45 @@ Environment variables available to run and test the job:
     Prescriptions repository URL.
 - **THOTH_PRESCRIPTIONS_REFRESH_SUBCOMMAND**
     Command options for prescriptions-refresh-job CLI.
+=======
+Running the job locally
+=======================
+
+To experiment with changes, it is possible to run the job locally:
+
+.. code-block:: console
+
+  # Install requirements:
+  pipenv install --dev
+
+  # To run handlers that reach out to Quay.io:
+  export THOTH_PRESCRIPTIONS_REFRESH_QUAY_TOKEN=<quay-token>
+
+  # To open pull-requests or run handlers that reach out to GitHub API:
+  export THOTH_PRESCRIPTIONS_REFRESH_GITHUB_TOKEN=<github-token>
+
+  # To run handlers that work with BigQuery
+  GOOGLE_APPLICATION_CREDENTIALS=<bigquery.json>
+
+  PYTHONPATH=. pipenv run python3 ./thoth-prescriptions-refresh --help
+
+The job automatically uses Git SSH keys configured, so you need to have proper
+Git+SSH setup on your machine.
+
+GitHub token can be obtained in `Personal access token
+<https://github.com/settings/tokens>`__ section of your Developer settings.
+
+See `Create OAuth access token
+<https://docs.projectquay.io/use_quay.html#_create_oauth_access_token>`__ to
+obtain token used for Quay API.
+
+Follow `Authorizing API requests
+<https://cloud.google.com/bigquery/docs/authorization>`__ section of BigQuery
+docs to obtain BigQuery JSON file with the application credentials.
+
+If the handler that you want to run requires Thoth's database, follow
+instructions in `thoth-station/storages
+<https://github.com/thoth-station/storages>`__ repository that will guide you
+on how to setup a local database. The job, by default, connects to a local
+database instance so no changes or environment variables are needed to use the
+local database.
