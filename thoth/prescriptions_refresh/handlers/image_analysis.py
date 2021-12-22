@@ -31,7 +31,7 @@ from .quay.common import get_ps_s2i_image_names
 from .quay.common import get_image_containers
 from .quay.common import QUAY_TOKEN
 from .quay.common import QUAY_URL
-
+from .quay.common import QUAY_NAMESPACE_NAME
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -162,13 +162,13 @@ def thoth_image_analysis(prescriptions: "Prescriptions") -> None:
         for _, tag in get_image_containers(image):
             _LOGGER.info("Obtaining image information for %r in tag %r", image, tag)
 
-            image_url = f"{QUAY_URL}/thoth-station/{image}:{tag}"
+            image_url = f"{QUAY_URL}/{QUAY_NAMESPACE_NAME}/{image}:{tag}"
 
             # Get image analyzed IDs latest from database through USER-API endpoint
             info = _get_latest_image_analyzed_info(image=image)
 
             if not info:
-                _LOGGER.warning("Could not find any data for {QUAY_URL}/thoth-station/{image}:{tag} in Thoth Database.")
+                _LOGGER.warning(f"Could not find any data for {image_url} in Thoth Database.")
                 break
 
             # Software environment
