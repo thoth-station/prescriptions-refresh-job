@@ -71,6 +71,32 @@ _THOTH_IMAGE_ANALYSIS_WRAP = """\
           value: {link}
 """
 
+# TODO: Use Isis-API to identify categories or representative packages per topic?
+
+_REPRESENTATIVE_PACKAGES_ML = [
+  'keras',
+  'torch',
+  'tensorflow',
+  'transformers'
+]
+
+_REPRESENTATIVE_PACKAGES_NLP = [
+  'gensim',
+  'nltk',
+  'spacy',
+]
+
+_REPRESENTATIVE_PACKAGES_CV = [
+  'opencv-python',
+  'pillow',
+  'pytesseract',
+  'torchvision'
+]
+
+_REPRESENTATIVE_PACKAGES = _REPRESENTATIVE_PACKAGES_ML + \
+  _REPRESENTATIVE_PACKAGES_NLP + \
+    _REPRESENTATIVE_PACKAGES_CV
+
 USER_API_HOST = os.environ["THOTH_USER_API_HOST"]
 
 
@@ -121,8 +147,9 @@ def _create_resolved_dependencies_section(pipfile: Dict[str, Any], pipfile_lock:
     required_packages = []
 
     for package in pipfile.packages.packages:
-        version = pipfile_lock.packages[package].version
-        required_packages.append({"name": package, "version": version})  # Includes ==
+        if package in _REPRESENTATIVE_PACKAGES:
+            version = pipfile_lock.packages[package].version
+            required_packages.append({"name": package, "version": version})  # Includes ==
 
     line = 0
     for package in required_packages:
