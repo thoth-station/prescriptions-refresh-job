@@ -41,11 +41,6 @@ _THOTH_IMAGE_ANALYSIS_WRAP = """\
     type: wrap
     should_include:
       adviser_pipeline: true
-      recommendation_types:
-      - latest
-      - performance
-      - stable
-      - testing
       runtime_environments:
         operating_systems:
         - name: {os_name}
