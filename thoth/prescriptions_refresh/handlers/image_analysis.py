@@ -75,12 +75,7 @@ _THOTH_IMAGE_ANALYSIS_WRAP = """\
 
 _REPRESENTATIVE_PACKAGES_ML = ["keras", "scikit-learn", "torch", "tensorflow"]
 
-_REPRESENTATIVE_PACKAGES_NLP = [
-    "gensim",
-    "nltk",
-    "spacy",
-    "transformers"
-]
+_REPRESENTATIVE_PACKAGES_NLP = ["gensim", "nltk", "spacy", "transformers"]
 
 _REPRESENTATIVE_PACKAGES_CV = ["opencv-python", "pillow", "pytesseract", "torchvision"]
 
@@ -96,7 +91,8 @@ def _get_latest_image_analyzed_info(image: str) -> Optional[Dict[str, Any]]:
 
     if response.status_code == 200:
         results = response.json()
-        return results[0]
+        info: Dict[str, Any] = results[0]
+        return info
     else:
         return None
 
@@ -137,8 +133,13 @@ def _create_resolved_dependencies_section(pipfile_d: Dict[str, Any], pipfile_loc
 
     for package in pipfile.packages.packages:
         if package in _REPRESENTATIVE_PACKAGES:
-            version = pipfile_lock.packages[package].version
-            required_packages.append({"name": package, "version": version})  # Includes ==
+            required_packages.append(
+                {
+                    "name": package,
+                    "version": pipfile_lock.packages[package].version,  # Includes ==
+                    "index": pipfile_lock.packages[package].index.url,
+                }
+            )
 
     line = 0
     for package in required_packages:
@@ -148,6 +149,8 @@ def _create_resolved_dependencies_section(pipfile_d: Dict[str, Any], pipfile_loc
             resolved_dependencies += f"        - name: {package['name']}\n"
 
         resolved_dependencies += f"          version: {package['version']}\n"
+        resolved_dependencies += f"          index_url: {package['index']}\n"
+
         line += 1
 
     return resolved_dependencies
@@ -191,9 +194,7 @@ def thoth_image_analysis(prescriptions: "Prescriptions") -> None:
                 resolved_dependencies = _create_resolved_dependencies_section(pipfile_dict, pipfile_lock_dict)
 
                 if not resolved_dependencies:
-                    _LOGGER.error(
-                      "No representative packages identified, please check list of packages stated."
-                    )
+                    _LOGGER.error("No representative packages identified, please check list of packages stated.")
                     break
 
                 # Create prescriptions for direct dependencies
