@@ -162,6 +162,9 @@ def thoth_image_analysis(prescriptions: "Prescriptions") -> None:
     if not QUAY_TOKEN:
         raise ValueError("No Token to Quay API provided")
 
+    if not USER_API_HOST:
+        raise ValueError("No user-api host provided")
+
     for image in sorted(chain(get_ps_s2i_image_names(), get_configured_image_names())):
 
         # Get tag for Thoth images hosted on Quay
