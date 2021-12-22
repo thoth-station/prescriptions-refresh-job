@@ -35,9 +35,9 @@ from .quay.common import QUAY_URL
 
 _LOGGER = logging.getLogger(__name__)
 
-
-_QUAY_IMAGE_ANALYSIS_WRAP = """\
-  - name: {prescription_name}QuayBaseImageWrap
+_IMAGE_ANAYSIS_PRESCRIPTION_NAME = "thoth_image_analysis.yaml"
+_THOTH_IMAGE_ANALYSIS_WRAP = """\
+  - name: {prescription_name}BaseImageWrap
     type: wrap
     should_include:
       adviser_pipeline: true
@@ -74,30 +74,77 @@ _QUAY_IMAGE_ANALYSIS_WRAP = """\
 USER_API_HOST = os.environ["THOTH_USER_API_HOST"]
 
 
-def _get_latest_image_analyzed_info(image: str) -> Dict[str, Any]:
-    """Get image analyzed IDs latest from database through USER-API endpoint."""
+def _get_latest_image_analyzed_info(image: str) -> Optional[Dict[str, Any]]:
+    """Get latest image analyzed information."""
     url = f"http://{USER_API_HOST}/api/v1/container-images"
     response = requests.get(url, params={"image_name": f"{QUAY_URL}/thoth-station/{image}"})
-    results = response.json()
 
-    return results[0]
+    if response.status_code == 200:
+        results = response.json()
+        return results[0]
+    else:
+        return None
 
 
 def _get_requirement_files_from_image_analysis(
-    package_extract_document_id: str
+    package_extract_document_id: str,
 ) -> Tuple[Optional[Dict[str, Any]], Optional[Dict[str, Any]]]:
     """Get requiremens files from image analysis result."""
     url = f"http://{USER_API_HOST}/api/v1/analyze"
     response = requests.get(url, params={"analysis_id": package_extract_document_id})
-    results = response.json()
 
-    # Get latest result
-    document = results[0]
-    result = document["result"]
-    pipfile_dict = result["aicoe-ci"].get("requirements")
-    pipfile_lock_dict = result["aicoe-ci"].get("requirements_lock")
+    if response.status_code == 200:
+        document = response.json()
 
-    return pipfile_dict, pipfile_lock_dict
+        # Get result and requirements files
+        result = document["result"]
+        pipfile_dict = result["aicoe-ci"].get("requirements")
+        pipfile_lock_dict = result["aicoe-ci"].get("requirements_lock")
+
+        return pipfile_dict, pipfile_lock_dict
+
+    elif response.status_code == 404:
+        _LOGGER.warning(f"Document {package_extract_document_id} does not exists.")
+        return None, None
+
+    else:
+        return None, None
+
+
+def _create_resolved_dependencies_section(pipfile: Dict[str, Any], pipfile_lock: Dict[str, Any]) -> str:
+    """Create resolved dependencies section for adviser unit."""
+    resolved_dependencies = ""
+
+    pipfile = Pipfile.from_dict(pipfile)
+    pipfile_lock = PipfileLock.from_dict(pipfile_lock)
+
+    required_packages = []
+
+    for package in pipfile.packages.packages:
+        version = pipfile_lock.packages[package].version
+        required_packages.append({"name": package, "version": version})  # Includes ==
+
+    line = 0
+    for package in required_packages:
+        if line == 0:
+            resolved_dependencies += f"- name: {package['name']}\n"
+        else:
+            resolved_dependencies += f"        - name: {package['name']}\n"
+
+        resolved_dependencies += f"          version: {package['version']}\n"
+        line += 1
+
+    return resolved_dependencies
+
+
+def _generate_prescription_name(image, tag) -> str:
+    """Generate custom prescription name.
+
+    Example: image='ps-cv-ocr' tag='1.0.2
+
+        prescription name -> PsCvOcr102
+    """
+    return "".join([p.capitalize() for p in image.split("-")]) + tag.replace(".", "")
 
 
 def thoth_image_analysis(prescriptions: "Prescriptions") -> None:
@@ -107,62 +154,53 @@ def thoth_image_analysis(prescriptions: "Prescriptions") -> None:
 
     for image in sorted(chain(get_ps_s2i_image_names(), get_configured_image_names())):
 
-        ## Get tag for Thoth images hosted on Quay
+        # Get tag for Thoth images hosted on Quay
         for _, tag in get_image_containers(image):
             _LOGGER.info("Obtaining image information for %r in tag %r", image, tag)
 
+            image_url = f"{QUAY_URL}/thoth-station/{image}:{tag}"
+
             # Get image analyzed IDs latest from database through USER-API endpoint
-            result = _get_latest_image_analyzed_info(image=image)
+            info = _get_latest_image_analyzed_info(image=image)
 
-            package_extract_document_id = result["package_extract_document_id"]
-            os_name = result["os_name"]
-            os_version = result["os_version"]
-            python_version = result["python_version"]
+            if not info:
+                _LOGGER.warning("Could not find any data for {QUAY_URL}/thoth-station/{image}:{tag} in Thoth Database.")
+                break
 
-            ## Get Pipfile/Pipfile.lock from image analyzed result
+            # Software environment
+            os_name = info["os_name"]
+            os_version = info["os_version"]
+            python_version = info["python_version"]
+
+            # Latest package extract document ID
+            package_extract_document_id = info["package_extract_document_id"]
+
+            # Get Pipfile/Pipfile.lock from image analyzed result
             pipfile_dict, pipfile_lock_dict = _get_requirement_files_from_image_analysis(
                 package_extract_document_id=package_extract_document_id
             )
 
-            ## Retrieve direct locked packages versions for prescriptions
-            resolved_dependencies = ""
-
             if pipfile_dict and pipfile_lock_dict:
-                pipfile = Pipfile.from_dict(pipfile_dict)
-                pipfile_lock = PipfileLock.from_dict(pipfile_dict)
-
-                required_packages = []
-                for package in pipfile.packages.packages:
-                    version = pipfile_lock[package]
-                    required_packages.append({"name": package, "version": version})  # Includes ==
-
-                n = 0
-                for package in required_packages:
-                    if n == 0:
-                        resolved_dependencies += f"- name: {package['name']}\n"
-                    else:
-                        resolved_dependencies += f"        - name: {package['name']}\n"
-
-                    resolved_dependencies += f"          version: {package['version']}\n"
-                    n += 1
+                # Create section for locked packages versions for prescriptions
+                resolved_dependencies = _create_resolved_dependencies_section(pipfile_dict, pipfile_lock_dict)
 
                 # Create prescriptions for direct dependencies
                 prescriptions.create_prescription(
                     project_name="_containers",
-                    prescription_name="quay_image_analysis.yaml",
-                    content=_QUAY_IMAGE_ANALYSIS_WRAP.format(
-                        prescription_name=image,
+                    prescription_name=_IMAGE_ANAYSIS_PRESCRIPTION_NAME,
+                    content=_THOTH_IMAGE_ANALYSIS_WRAP.format(
+                        prescription_name=_generate_prescription_name(prefix="Thoth", image=image, tag=tag),
                         os_name=os_name,
                         os_version=os_version,
                         python_version=python_version,
-                        image=f"{QUAY_URL}/thoth-station/{image}:{tag}",
+                        image=image_url,
                         resolved_dependencies=resolved_dependencies,
-                        link=f"{QUAY_URL}/thoth-station/{image}:{tag}",
+                        link=image_url,
                     ),
-                    commit_message=f"Created prescriptions from predictable stack image: {image}",
+                    commit_message=f"Created prescriptions from predictable stack image: {image_url}",
                 )
             else:
-              _LOGGER.warning(
-                  f"Missing requirements file from package-extract document {package_extract_document_id}."
-                  "Prescription cannot be created without them."
-              )
+                _LOGGER.warning(
+                    f"Missing requirements files from package-extract document {package_extract_document_id}."
+                    "Prescription cannot be created without them."
+                )
