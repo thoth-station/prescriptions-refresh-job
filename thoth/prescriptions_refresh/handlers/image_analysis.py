@@ -73,12 +73,13 @@ _THOTH_IMAGE_ANALYSIS_WRAP = """\
 
 # TODO: Use Isis-API to identify categories or representative packages per topic?
 
-_REPRESENTATIVE_PACKAGES_ML = ["keras", "torch", "tensorflow", "transformers"]
+_REPRESENTATIVE_PACKAGES_ML = ["keras", "scikit-learn", "torch", "tensorflow"]
 
 _REPRESENTATIVE_PACKAGES_NLP = [
     "gensim",
     "nltk",
     "spacy",
+    "transformers"
 ]
 
 _REPRESENTATIVE_PACKAGES_CV = ["opencv-python", "pillow", "pytesseract", "torchvision"]
@@ -188,6 +189,12 @@ def thoth_image_analysis(prescriptions: "Prescriptions") -> None:
             if pipfile_dict and pipfile_lock_dict:
                 # Create section for locked packages versions for prescriptions
                 resolved_dependencies = _create_resolved_dependencies_section(pipfile_dict, pipfile_lock_dict)
+
+                if not resolved_dependencies:
+                    _LOGGER.error(
+                      "No representative packages identified, please check list of packages stated."
+                    )
+                    break
 
                 # Create prescriptions for direct dependencies
                 prescriptions.create_prescription(
