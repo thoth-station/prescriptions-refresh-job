@@ -52,6 +52,14 @@ Environment variables available to run and test the job:
     Command options for prescriptions-refresh-job CLI.
 - **THOTH_USER_API_HOST**
     Thoth USER_API host.
+- **THOTH_PRESCRIPTIONS_REFRESH_ML_PACKAGES**
+    Representative packages for Machine Learning (ML).
+- **THOTH_PRESCRIPTIONS_REFRESH_NLP_PACKAGES**
+    Representative packages for Natural Language Processing (NLP).
+- **THOTH_PRESCRIPTIONS_REFRESH_CV_PACKAGES**
+    Representative packages for Computer Vision (CV).
+- **THOTH_PRESCRIPTIONS_DRY_RUN**
+    If enabled, prescriptions won't be created but only printed in logs.
 
 =======
 Running the job locally

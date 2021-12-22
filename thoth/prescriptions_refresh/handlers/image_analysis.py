@@ -26,12 +26,12 @@ from typing import Dict, Any, Optional, Tuple
 from thoth.python import Pipfile, PipfileLock
 
 from thoth.prescriptions_refresh.prescriptions import Prescriptions
-from .quay.common import get_configured_image_names
 from .quay.common import get_ps_s2i_image_names
 from .quay.common import get_image_containers
 from .quay.common import QUAY_TOKEN
 from .quay.common import QUAY_URL
 from .quay.common import QUAY_NAMESPACE_NAME
+from .quay.common import CONFIGURED_IMAGES
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -66,15 +66,17 @@ _THOTH_IMAGE_ANALYSIS_WRAP = """\
           value: {link}
 """
 
-# TODO: Use Isis-API to identify categories or representative packages per topic?
-
-_REPRESENTATIVE_PACKAGES_ML = ["keras", "scikit-learn", "torch", "tensorflow"]
-
-_REPRESENTATIVE_PACKAGES_NLP = ["gensim", "nltk", "spacy", "transformers"]
-
-_REPRESENTATIVE_PACKAGES_CV = ["opencv-python", "pillow", "pytesseract", "torchvision"]
-
-_REPRESENTATIVE_PACKAGES = _REPRESENTATIVE_PACKAGES_ML + _REPRESENTATIVE_PACKAGES_NLP + _REPRESENTATIVE_PACKAGES_CV
+_REPRESENTATIVE_PACKAGES_ML = os.getenv("THOTH_PRESCRIPTIONS_REFRESH_ML_PACKAGES")
+_REPRESENTATIVE_PACKAGES_NLP = os.getenv("THOTH_PRESCRIPTIONS_REFRESH_NLP_PACKAGES")
+_REPRESENTATIVE_PACKAGES_CV = os.getenv("THOTH_PRESCRIPTIONS_REFRESH_CV_PACKAGES")
+_REPRESENTATIVE_PACKAGES = [
+    package
+    for package in chain(
+        Prescriptions.get_configured_parameters(_REPRESENTATIVE_PACKAGES_ML),
+        Prescriptions.get_configured_parameters(_REPRESENTATIVE_PACKAGES_NLP),
+        Prescriptions.get_configured_parameters(_REPRESENTATIVE_PACKAGES_CV),
+    )
+]
 
 USER_API_HOST = os.getenv("THOTH_USER_API_HOST")
 
@@ -165,7 +167,7 @@ def thoth_image_analysis(prescriptions: "Prescriptions") -> None:
     if not USER_API_HOST:
         raise ValueError("No user-api host provided")
 
-    for image in sorted(chain(get_ps_s2i_image_names(), get_configured_image_names())):
+    for image in sorted(chain(get_ps_s2i_image_names(), Prescriptions.get_configured_image_names(CONFIGURED_IMAGES))):
 
         # Get tag for Thoth images hosted on Quay
         for _, tag in get_image_containers(image):
