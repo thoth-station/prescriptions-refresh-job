@@ -32,12 +32,12 @@ from collections import defaultdict
 from itertools import chain
 
 from thoth.prescriptions_refresh.prescriptions import Prescriptions
-from .common import get_configured_image_names
 from .common import get_ps_s2i_image_names
 from .common import get_image_containers
 from .common import QUAY_TOKEN
 from .common import QUAY_NAMESPACE_NAME
 from .common import QUAY_URL
+from .common import CONFIGURED_IMAGES
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -225,7 +225,7 @@ def quay_security(prescriptions: "Prescriptions") -> None:
 
     datetime = datetime2datetime_str()
 
-    for image in sorted(chain(get_ps_s2i_image_names(), get_configured_image_names())):
+    for image in sorted(chain(get_ps_s2i_image_names(), Prescriptions.get_configured_parameters(CONFIGURED_IMAGES))):
         boots_vulnerabilities = ""
         wraps_vulnerabilities = ""
         units_alternatives = ""

@@ -35,20 +35,6 @@ CONFIGURED_IMAGES = os.getenv("THOTH_PRESCRIPTIONS_REFRESH_CONFIGURED_IMAGES")
 QUAY_URL = os.getenv("THOTH_PRESCRIPTIONS_REFRESH_QUAY_URL", "quay.io")
 
 
-def get_configured_image_names() -> Generator[str, None, None]:
-    """Get a list of container images configured via environment variables."""
-    if not CONFIGURED_IMAGES:
-        yield from ()
-        return None
-
-    for line in CONFIGURED_IMAGES.splitlines():
-        line = line.strip()
-        if not line or line.startswith("#"):
-            continue
-
-        yield line
-
-
 def get_ps_s2i_image_names() -> Generator[str, None, None]:
     """List all the predictable stack container image names."""
     response = requests.get(

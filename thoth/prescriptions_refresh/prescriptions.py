@@ -40,6 +40,7 @@ from .exceptions import PrescriptionNotFound
 _LOGGER = logging.getLogger(__name__)
 
 _RANDOMIZE = bool(int(os.getenv("THOTH_PRESCRIPTIONS_REFRESH_RANDOMIZE", 0)))
+_DRY_RUN = bool(int(os.getenv("THOTH_PRESCRIPTIONS_DRY_RUN", 0)))
 
 
 @attr.s(slots=True)
@@ -209,6 +210,20 @@ Visit [thoth-station.ninja](https://thoth-station.ninja) for more info.
 
         return result + wrap_name
 
+    @staticmethod
+    def get_configured_parameters(configured_parameters: str) -> Generator[str, None, None]:
+        """Get a list of configured parameters via environment variables."""
+        if not configured_parameters:
+            yield from ()
+            return None
+
+        for line in configured_parameters.splitlines():
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+
+            yield line
+
     def get_prescription(self, project_name: str, prescription_name: str) -> Optional[Dict[str, Any]]:
         """Get a prescription for the given project."""
         prescription_path = os.path.join(
@@ -288,6 +303,11 @@ Visit [thoth-station.ninja](https://thoth-station.ninja) for more info.
             commit_message = f"Add prescription {prescription_name!r} for {project_name!r}"
 
         prescription_content = yaml.safe_load(content)
+
+        if _DRY_RUN:
+            _LOGGER.info(f"\n{prescription_content}")
+            return False
+
         old_prescription = self.get_prescription(project_name, prescription_name)
         if old_prescription == prescription_content:
             _LOGGER.debug(

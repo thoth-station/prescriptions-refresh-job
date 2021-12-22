@@ -20,11 +20,11 @@
 import logging
 from itertools import chain
 
-from .common import get_configured_image_names
 from .common import get_image_containers_image_info
 from .common import get_ps_s2i_image_names
 from .common import QUAY_NAMESPACE_NAME
 from .common import QUAY_URL
+from .common import CONFIGURED_IMAGES
 
 from thoth.prescriptions_refresh.prescriptions import Prescriptions
 
@@ -50,7 +50,7 @@ _IMAGE_SIZE_BOOT = """\
 
 def quay_image_size(prescriptions: "Prescriptions") -> None:
     """Propagate information about container image size to users."""
-    for image_name in chain(get_configured_image_names(), get_ps_s2i_image_names()):
+    for image_name in chain(Prescriptions.get_configured_parameters(CONFIGURED_IMAGES), get_ps_s2i_image_names()):
         _LOGGER.info("Computing image size for container images available for image %r", image_name)
         content = ""
         for image_info, tag in get_image_containers_image_info(image_name):
