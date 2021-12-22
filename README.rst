@@ -1,10 +1,12 @@
 Thoth's prescriptions-refresh-job
 ---------------------------------
 
-A job that keeps `Thoth's prescriptions <https://github.com/thoth-station/prescriptions>`__ up to date.
+A job that keeps `Thoth's prescriptions
+<https://github.com/thoth-station/prescriptions>`__ up to date.
 
 Environment variables available to run and test the job:
 ========================================================
+
 - **APP_SCRIPT**
     Path to `app.sh` script.
 - **GITHUB_APP_ID**
@@ -48,7 +50,7 @@ Environment variables available to run and test the job:
     Prescriptions repository URL.
 - **THOTH_PRESCRIPTIONS_REFRESH_SUBCOMMAND**
     Command options for prescriptions-refresh-job CLI.
-=======
+
 Running the job locally
 =======================
 
