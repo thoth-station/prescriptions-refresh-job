@@ -76,7 +76,7 @@ _REPRESENTATIVE_PACKAGES_CV = ["opencv-python", "pillow", "pytesseract", "torchv
 
 _REPRESENTATIVE_PACKAGES = _REPRESENTATIVE_PACKAGES_ML + _REPRESENTATIVE_PACKAGES_NLP + _REPRESENTATIVE_PACKAGES_CV
 
-USER_API_HOST = os.environ["THOTH_USER_API_HOST"]
+USER_API_HOST = os.getenv("THOTH_USER_API_HOST")
 
 
 def _get_latest_image_analyzed_info(image: str) -> Optional[Dict[str, Any]]:
