@@ -73,29 +73,17 @@ _THOTH_IMAGE_ANALYSIS_WRAP = """\
 
 # TODO: Use Isis-API to identify categories or representative packages per topic?
 
-_REPRESENTATIVE_PACKAGES_ML = [
-  'keras',
-  'torch',
-  'tensorflow',
-  'transformers'
-]
+_REPRESENTATIVE_PACKAGES_ML = ["keras", "torch", "tensorflow", "transformers"]
 
 _REPRESENTATIVE_PACKAGES_NLP = [
-  'gensim',
-  'nltk',
-  'spacy',
+    "gensim",
+    "nltk",
+    "spacy",
 ]
 
-_REPRESENTATIVE_PACKAGES_CV = [
-  'opencv-python',
-  'pillow',
-  'pytesseract',
-  'torchvision'
-]
+_REPRESENTATIVE_PACKAGES_CV = ["opencv-python", "pillow", "pytesseract", "torchvision"]
 
-_REPRESENTATIVE_PACKAGES = _REPRESENTATIVE_PACKAGES_ML + \
-  _REPRESENTATIVE_PACKAGES_NLP + \
-    _REPRESENTATIVE_PACKAGES_CV
+_REPRESENTATIVE_PACKAGES = _REPRESENTATIVE_PACKAGES_ML + _REPRESENTATIVE_PACKAGES_NLP + _REPRESENTATIVE_PACKAGES_CV
 
 USER_API_HOST = os.environ["THOTH_USER_API_HOST"]
 
@@ -137,12 +125,12 @@ def _get_requirement_files_from_image_analysis(
         return None, None
 
 
-def _create_resolved_dependencies_section(pipfile: Dict[str, Any], pipfile_lock: Dict[str, Any]) -> str:
+def _create_resolved_dependencies_section(pipfile_d: Dict[str, Any], pipfile_lock_d: Dict[str, Any]) -> str:
     """Create resolved dependencies section for adviser unit."""
     resolved_dependencies = ""
 
-    pipfile = Pipfile.from_dict(pipfile)
-    pipfile_lock = PipfileLock.from_dict(pipfile_lock)
+    pipfile = Pipfile.from_dict(pipfile_d)
+    pipfile_lock = PipfileLock.from_dict(pipfile_lock_d)
 
     required_packages = []
 
@@ -162,16 +150,6 @@ def _create_resolved_dependencies_section(pipfile: Dict[str, Any], pipfile_lock:
         line += 1
 
     return resolved_dependencies
-
-
-def _generate_prescription_name(image, tag) -> str:
-    """Generate custom prescription name.
-
-    Example: image='ps-cv-ocr' tag='1.0.2
-
-        prescription name -> PsCvOcr102
-    """
-    return "".join([p.capitalize() for p in image.split("-")]) + tag.replace(".", "")
 
 
 def thoth_image_analysis(prescriptions: "Prescriptions") -> None:
@@ -216,7 +194,7 @@ def thoth_image_analysis(prescriptions: "Prescriptions") -> None:
                     project_name="_containers",
                     prescription_name=_IMAGE_ANAYSIS_PRESCRIPTION_NAME,
                     content=_THOTH_IMAGE_ANALYSIS_WRAP.format(
-                        prescription_name=_generate_prescription_name(prefix="Thoth", image=image, tag=tag),
+                        prescription_name=Prescriptions.get_prescription_name("BaseImageWrap", f"Thoth-{image}-{tag}"),
                         os_name=os_name,
                         os_version=os_version,
                         python_version=python_version,
