@@ -115,7 +115,7 @@ def _get_latest_image_analyzed_info(image: str) -> Optional[Dict[str, Any]]:
 def _get_requirement_files_from_image_analysis(
     package_extract_document_id: str,
 ) -> Tuple[Optional[Dict[str, Any]], Optional[Dict[str, Any]]]:
-    """Get requiremens files from image analysis result."""
+    """Get requirements files from image analysis result."""
     url = f"http://{USER_API_HOST}/api/v1/analyze"
     response = requests.get(url, params={"analysis_id": package_extract_document_id})
 
