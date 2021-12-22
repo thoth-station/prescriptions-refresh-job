@@ -50,7 +50,10 @@ Environment variables available to run and test the job:
     Prescriptions repository URL.
 - **THOTH_PRESCRIPTIONS_REFRESH_SUBCOMMAND**
     Command options for prescriptions-refresh-job CLI.
+- **THOTH_USER_API_HOST**
+    Thoth USER_API host.
 
+=======
 Running the job locally
 =======================
 
