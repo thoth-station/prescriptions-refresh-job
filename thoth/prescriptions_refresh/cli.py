@@ -179,7 +179,7 @@ def quay_image_size() -> None:
 
 @cli.command("thoth-image-analysis")
 def thoth_image_analysis() -> None:
-    """Create prescriptions from container images analysis results."""
+    """Create prescriptions from container image analysis results."""
     with Prescriptions() as prescriptions:
         handlers.thoth_image_analysis(prescriptions)
 
