@@ -130,7 +130,7 @@ def _get_requirement_files_from_image_analysis(
         return pipfile_dict, pipfile_lock_dict
 
     elif response.status_code == 404:
-        _LOGGER.warning(f"Document {package_extract_document_id} does not exists.")
+        _LOGGER.warning(f"Document {package_extract_document_id} does not exist.")
         return None, None
 
     else:
