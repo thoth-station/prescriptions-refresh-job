@@ -61,7 +61,7 @@ Environment variables available to run and test the job:
 - **THOTH_PRESCRIPTIONS_DRY_RUN**
     If enabled, prescriptions won't be created but only printed in logs.
 - **THOTH_PRESCRIPTIONS_REFRESH_SCHEME_PROTOCOL**
-    Scheme protocol for API calls (http or https)
+    Scheme protocol for API calls (http or https) (only for User-API)
 
 Running the job locally
 =======================
