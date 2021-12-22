@@ -180,7 +180,7 @@ def thoth_image_analysis(prescriptions: "Prescriptions") -> None:
 
             if not info:
                 _LOGGER.warning(f"Could not find any data for {image_url} in Thoth Database.")
-                break
+                continue
 
             # Software environment
             os_name = info["os_name"]
