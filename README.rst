@@ -61,7 +61,7 @@ Environment variables available to run and test the job:
 - **THOTH_PRESCRIPTIONS_DRY_RUN**
     If enabled, prescriptions won't be created but only printed in logs.
 
-=======
+
 Running the job locally
 =======================
 
