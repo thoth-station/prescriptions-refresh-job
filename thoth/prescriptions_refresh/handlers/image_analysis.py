@@ -175,7 +175,7 @@ def _generate_prescription_name(image, tag) -> str:
 
 
 def thoth_image_analysis(prescriptions: "Prescriptions") -> None:
-    """Create prescriptions from Thoth container images analysis results."""
+    """Create prescriptions from Thoth container image analysis results."""
     if not QUAY_TOKEN:
         raise ValueError("No Token to Quay API provided")
 
