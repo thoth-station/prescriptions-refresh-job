@@ -79,16 +79,19 @@ _REPRESENTATIVE_PACKAGES = _REPRESENTATIVE_PACKAGES_ML + _REPRESENTATIVE_PACKAGE
 USER_API_HOST = os.getenv("THOTH_USER_API_HOST")
 
 
-def _get_latest_image_analyzed_info(image: str) -> Optional[Dict[str, Any]]:
+def _get_latest_image_analyzed_info(image_url: str) -> Optional[Dict[str, Any]]:
     """Get latest image analyzed information."""
     url = f"http://{USER_API_HOST}/api/v1/container-images"
-    response = requests.get(url, params={"image_name": f"{QUAY_URL}/thoth-station/{image}"})
+    response = requests.get(url, params={"image_name": image_url})
 
     if response.status_code == 200:
         results = response.json()
         info: Dict[str, Any] = results[0]
         return info
     else:
+        _LOGGER.warning(
+            f"Container images analyzed for {image_url} could not be obtained." f"Status code {response.status_code}."
+        )
         return None
 
 
@@ -114,6 +117,9 @@ def _get_requirement_files_from_image_analysis(
         return None, None
 
     else:
+        _LOGGER.warning(
+            f"Document {package_extract_document_id} could not be obtained." f"Status code {response.status_code}."
+        )
         return None, None
 
 
@@ -165,7 +171,7 @@ def thoth_image_analysis(prescriptions: "Prescriptions") -> None:
             image_url = f"{QUAY_URL}/{QUAY_NAMESPACE_NAME}/{image}:{tag}"
 
             # Get image analyzed IDs latest from database through USER-API endpoint
-            info = _get_latest_image_analyzed_info(image=image)
+            info = _get_latest_image_analyzed_info(image_url=image_url)
 
             if not info:
                 _LOGGER.warning(f"Could not find any data for {image_url} in Thoth Database.")
@@ -197,7 +203,7 @@ def thoth_image_analysis(prescriptions: "Prescriptions") -> None:
                     project_name="_containers",
                     prescription_name=_IMAGE_ANAYSIS_PRESCRIPTION_NAME,
                     content=_THOTH_IMAGE_ANALYSIS_WRAP.format(
-                        prescription_name=Prescriptions.get_prescription_name("BaseImageWrap", f"Thoth-{image}-{tag}"),
+                        prescription_name=Prescriptions.get_prescription_name("BaseImageWrap", "Thoth", image, tag),
                         os_name=os_name,
                         os_version=os_version,
                         python_version=python_version,
