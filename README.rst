@@ -60,7 +60,8 @@ Environment variables available to run and test the job:
     Representative packages for Computer Vision (CV).
 - **THOTH_PRESCRIPTIONS_DRY_RUN**
     If enabled, prescriptions won't be created but only printed in logs.
-
+- **THOTH_PRESCRIPTIONS_REFRESH_SCHEME_PROTOCOL**
+    Scheme protocol for API calls (http or https)
 
 Running the job locally
 =======================

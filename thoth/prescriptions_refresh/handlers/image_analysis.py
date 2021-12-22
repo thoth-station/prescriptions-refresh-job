@@ -79,11 +79,12 @@ _REPRESENTATIVE_PACKAGES = [
 ]
 
 USER_API_HOST = os.getenv("THOTH_USER_API_HOST")
+SCHEME_PROTOCOL = os.getenv("THOTH_PRESCRIPTIONS_REFRESH_SCHEME_PROTOCOL", "http")
 
 
 def _get_latest_image_analyzed_info(image_url: str) -> Optional[Dict[str, Any]]:
     """Get latest image analyzed information."""
-    url = f"http://{USER_API_HOST}/api/v1/container-images"
+    url = f"{SCHEME_PROTOCOL}://{USER_API_HOST}/api/v1/container-images"
     response = requests.get(url, params={"image_name": image_url})
 
     if response.status_code == 200:
@@ -101,8 +102,8 @@ def _get_requirement_files_from_image_analysis(
     package_extract_document_id: str,
 ) -> Tuple[Optional[Dict[str, Any]], Optional[Dict[str, Any]]]:
     """Get requirements files from image analysis result."""
-    url = f"http://{USER_API_HOST}/api/v1/analyze"
-    response = requests.get(url, params={"analysis_id": package_extract_document_id})
+    url = f"{SCHEME_PROTOCOL}://{USER_API_HOST}/api/v1/analyze/{package_extract_document_id}"
+    response = requests.get(url)
 
     if response.status_code == 200:
         document = response.json()
@@ -166,6 +167,9 @@ def thoth_image_analysis(prescriptions: "Prescriptions") -> None:
 
     if not USER_API_HOST:
         raise ValueError("No user-api host provided")
+
+    if SCHEME_PROTOCOL not in ("https", "http"):
+        raise ValueError(f"Invalid scheme {SCHEME_PROTOCOL!r}, has to be http or https")
 
     for image in sorted(chain(get_ps_s2i_image_names(), Prescriptions.get_configured_image_names(CONFIGURED_IMAGES))):
 
