@@ -210,8 +210,8 @@ def _create_alternatives_prescriptions(vulnerabilities_found: Dict[str, Dict[str
                 )
                 units += _QUAY_ALTERNATIVE_WRAP.format(
                     prescription_name=f"{prescription_name}V{i}N{j}",
-                    image=f"{image}:{vuln_tag}",
-                    image_alternative=f"{image}:{tag}",
+                    image=f"{QUAY_URL}/{QUAY_NAMESPACE_NAME}/{image}:{vuln_tag}",
+                    image_alternative=f"{QUAY_URL}/{QUAY_NAMESPACE_NAME}/{image}:{tag}",
                     link=f"https://{QUAY_URL}/repository/{QUAY_NAMESPACE_NAME}/{image}",
                 )
 
