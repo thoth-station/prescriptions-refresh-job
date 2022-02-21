@@ -268,7 +268,7 @@ Visit [thoth-station.ninja](https://thoth-station.ninja) for more info.
         try:
             pr = self.project.create_pr(
                 title=commit_message,
-                body="This change was automatically generated",
+                body=self.PR_BODY,
                 target_branch=self.project.default_branch,
                 source_branch=branch_name,
             )
