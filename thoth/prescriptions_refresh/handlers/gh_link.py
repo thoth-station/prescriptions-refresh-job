@@ -113,12 +113,14 @@ def _get_gh_url(project_name: str) -> Optional[str]:
         org, repo = url_path_parts[:2]
         source_url = f"https://{url_netloc}/{org}/{repo}"
         try:
-            response = requests.head(source_url)
+            response = requests.head(source_url, allow_redirects=True)
         except Exception:
             _LOGGER.exception("Failed to obtain %r information for %r with requests.head()", source_url, project_name)
         else:
             if response.status_code == 200:
-                return source_url
+                # Get location from headers to follow possible redirects when ownership of GH repo is transferred.
+                result: str = response.url
+                return result
             else:
                 _LOGGER.debug(
                     "%r is an invalid GitHub URL based on HTTP status code %r: %s",
