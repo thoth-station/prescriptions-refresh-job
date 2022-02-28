@@ -1,5 +1,46 @@
 # Changelog for Thoth's prescriptions refresh job
 
+## Release 0.6.0 (2022-02-28T22:07:18)
+* :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
+* Follow redirects for GitHub repos that were transferred (#119)
+* :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
+* Fix incomplete PR body
+* :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
+* Fix recommendations for base container images
+* Scheme protocol is only for user-API
+* :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
+* Fix api calls and add PROTOCOL_SCHEMA env variable
+* fix README not rendering
+* Missed commit suggestion
+* Provide representative packages from env variables
+* Add chck on env variable
+* expose status code in logs
+* use quay namespace name env variable
+* make env variable optional
+* remove recommendation type
+* Add also index
+* Add warning if no representative packages are identified
+* Reuse existing method for generating prescription name
+* Update thoth/prescriptions_refresh/handlers/image_analysis.py
+* Update thoth/prescriptions_refresh/handlers/image_analysis.py
+* Update thoth/prescriptions_refresh/handlers/image_analysis.py
+* Update thoth/prescriptions_refresh/cli.py
+* Add representative packages
+* Finalize logic for new handler
+* Add request to User-API
+* Add handler for thoth image analysis command
+* Fix README formatting
+* Add missing Thoth GitHub templates
+* :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
+* :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
+* Make justifications for vulnerabilities short
+* Document how to run the job locally
+* :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
+* Fix typos in variables description
+* Add descriptions to environment variables
+* Fixes for pre-commit
+* Describe environment variables used to run the job
+
 ## Release 0.5.0 (2021-12-15T16:50:52)
 * Apply solver rules to package versions used to generate prescriptions
 * Put character between version numbers in pipeline unit names to avoid conflicts
