@@ -89,7 +89,7 @@ def _get_latest_image_analyzed_info(image_url: str) -> Optional[Dict[str, Any]]:
 
     if response.status_code == 200:
         results = response.json()
-        info: Dict[str, Any] = results[0]
+        info: Dict[str, Any] = results["container_images"]
         return info
     else:
         _LOGGER.warning(
@@ -171,7 +171,7 @@ def thoth_image_analysis(prescriptions: "Prescriptions") -> None:
     if SCHEME_PROTOCOL not in ("https", "http"):
         raise ValueError(f"Invalid scheme {SCHEME_PROTOCOL!r}, has to be http or https")
 
-    for image in sorted(chain(get_ps_s2i_image_names(), Prescriptions.get_configured_image_names(CONFIGURED_IMAGES))):
+    for image in sorted(chain(get_ps_s2i_image_names(), Prescriptions.get_configured_parameters(CONFIGURED_IMAGES))):
 
         # Get tag for Thoth images hosted on Quay
         for _, tag in get_image_containers(image):
