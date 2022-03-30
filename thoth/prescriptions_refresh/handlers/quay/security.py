@@ -167,11 +167,13 @@ def _create_vulnerability_prescriptions(image: str, tag: str, vulnerabilities: L
 
         if "Link" in vulnerability.keys():
             vulnerability_link = vulnerability["Link"]
-            message = f"Found vulnerability {vulnerability['Name']!r} in the base image used. See the link provided for more information."
+            message = f"Found vulnerability {vulnerability['Name']!r} in the base image used."
+            " See the link provided for more information."
 
         else:
             vulnerability_link = "https://access.redhat.com/errata/#/"
-            message = f"Found vulnerability {vulnerability['Name']!r} in the base image used. No link was provided for this vulnerability."
+            message = f"Found vulnerability {vulnerability['Name']!r} in the base image used."
+            " No link was provided for this vulnerability."
 
         boot_units += _QUAY_SECURITY_BOOT.format(
             prescription_name=f"{prescription_name}Vuln{idx}",
