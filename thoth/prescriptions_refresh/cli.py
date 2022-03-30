@@ -20,6 +20,7 @@
 
 import logging
 from typing import Optional
+import sys
 
 import click
 from thoth.common import init_logging
@@ -110,6 +111,7 @@ def gh_link_command() -> None:
 @cli.command("gh-archived")
 def gh_archived_command() -> None:
     """Check for archived projects on GitHub."""
+    sys.exit(3)
     with Prescriptions() as prescriptions:
         handlers.gh_archived(prescriptions)
 
