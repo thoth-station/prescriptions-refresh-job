@@ -120,10 +120,10 @@ def gh_release_notes(prescriptions: "Prescriptions") -> None:
         if response.status_code == 429:
             _LOGGER.error(
                 "Bad HTTP status code %s when trying to obtain information for project %r: too many requests."
-                "Exiting code with status 0.",
+                "Exiting code with status 3.",
                 response.status_code,
                 project_name,
             )
-            sys.exit(0)
+            sys.exit(3)
 
         _LOGGER.info("No GitHub release notes detected for %r", project_name)

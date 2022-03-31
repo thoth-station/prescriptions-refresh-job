@@ -126,11 +126,11 @@ def _get_gh_url(project_name: str) -> Optional[str]:
             elif response.status_code == 429:
                 _LOGGER.error(
                     "Bad HTTP status code %s when trying to obtain information for project %r: too many requests."
-                    "Exiting code with status 0.",
+                    "Exiting code with status 3.",
                     response.status_code,
                     project_name,
                 )
-                sys.exit(0)
+                sys.exit(3)
             else:
                 _LOGGER.debug(
                     "%r is an invalid GitHub URL based on HTTP status code %r: %s",
