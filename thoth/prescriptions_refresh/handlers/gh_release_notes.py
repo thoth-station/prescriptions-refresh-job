@@ -19,6 +19,7 @@
 
 import logging
 import requests
+import sys
 from typing import TYPE_CHECKING
 
 from .gh_link import iter_gh_info
@@ -92,7 +93,7 @@ def gh_release_notes(prescriptions: "Prescriptions") -> None:
             )
             continue
 
-        # Try without `v' prefix.
+        # Try with `v' prefix.
         release_url = f"https://github.com/{organization}/{repository}/releases/tag/v{version}"
         try:
             response = requests.head(release_url, allow_redirects=True)
@@ -115,5 +116,14 @@ def gh_release_notes(prescriptions: "Prescriptions") -> None:
                 commit_message=f"Project {project_name!r} hosts release notes on GitHub",
             )
             continue
+
+        if response.status_code == 429:
+            _LOGGER.error(
+                "Bad HTTP status code %s when trying to obtain information for project %r: too many requests."
+                "Exiting code with status 3.",
+                response.status_code,
+                project_name,
+            )
+            sys.exit(3)
 
         _LOGGER.info("No GitHub release notes detected for %r", project_name)

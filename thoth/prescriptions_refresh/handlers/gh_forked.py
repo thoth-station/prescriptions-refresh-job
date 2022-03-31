@@ -19,6 +19,7 @@
 
 import logging
 import requests
+import sys
 from typing import TYPE_CHECKING
 
 from .gh_link import iter_gh_info
@@ -64,6 +65,16 @@ def gh_forked(prescriptions: "Prescriptions") -> None:
         if response.status_code == 404:
             _LOGGER.warning("Repository %r not found", gh_link)
             continue
+
+        elif response.status_code == 429:
+            _LOGGER.error(
+                "Bad HTTP status code %s when trying to obtain information for project %r: too many requests."
+                "Exiting code with status 3.",
+                response.status_code,
+                project_name,
+            )
+            sys.exit(3)
+
         elif response.status_code != 200:
             _LOGGER.error(
                 "Bad HTTP status code %r when obtaining info using GitHub API for %r: %s",
