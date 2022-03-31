@@ -20,6 +20,7 @@
 import logging
 import os
 import requests
+import sys
 from typing import Any
 from typing import Tuple
 from typing import Dict
@@ -90,6 +91,16 @@ def gh_popularity(prescriptions: "Prescriptions") -> None:
         if response.status_code == 404:
             _LOGGER.warning("Repository %r not found", gh_link)
             continue
+
+        elif response.status_code == 429:
+            _LOGGER.error(
+                "Bad HTTP status code %s when trying to obtain information for project %r: too many requests."
+                "Exiting code with status 0.",
+                response.status_code,
+                project_name,
+            )
+            sys.exit(0)
+
         elif response.status_code != 200:
             _LOGGER.error(
                 "Bad HTTP status code %r when obtaining info using GitHub API for %r: %s",

@@ -22,6 +22,7 @@ import logging
 import requests
 import yaml
 import os
+import sys
 from urllib.parse import urlparse
 from typing import Generator
 from typing import List
@@ -121,6 +122,15 @@ def _get_gh_url(project_name: str) -> Optional[str]:
                 # Get location from headers to follow possible redirects when ownership of GH repo is transferred.
                 result: str = response.url
                 return result
+
+            elif response.status_code == 429:
+                _LOGGER.error(
+                    "Bad HTTP status code %s when trying to obtain information for project %r: too many requests."
+                    "Exiting code with status 0.",
+                    response.status_code,
+                    project_name,
+                )
+                sys.exit(0)
             else:
                 _LOGGER.debug(
                     "%r is an invalid GitHub URL based on HTTP status code %r: %s",
