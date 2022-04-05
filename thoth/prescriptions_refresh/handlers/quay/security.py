@@ -171,7 +171,7 @@ def _create_vulnerability_prescriptions(image: str, tag: str, vulnerabilities: L
             " See the link provided for more information."
 
         else:
-            vulnerability_link = "https://access.redhat.com/errata/#/"
+            vulnerability_link = "https://thoth-station.ninja/j/no_cve_link_provided"
             message = f"Found vulnerability {vulnerability['Name']!r} in the base image used."
             " No link was provided for this vulnerability."
 
