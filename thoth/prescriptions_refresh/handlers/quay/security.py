@@ -165,13 +165,13 @@ def _create_vulnerability_prescriptions(image: str, tag: str, vulnerabilities: L
 
         cve_seen.add(vulnerability["Name"])
 
-        if "Link" in vulnerability.keys():
+        if vulnerability.get("Link"):
             vulnerability_link = vulnerability["Link"]
             message = f"Found vulnerability {vulnerability['Name']!r} in the base image used."
             " See the link provided for more information."
 
         else:
-            vulnerability_link = "https://thoth-station.ninja/j/no_cve_link_provided"
+            vulnerability_link = "no_cve_link_provided"
             message = f"Found vulnerability {vulnerability['Name']!r} in the base image used."
             " No link was provided for this vulnerability."
 
