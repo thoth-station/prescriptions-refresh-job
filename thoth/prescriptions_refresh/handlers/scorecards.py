@@ -707,77 +707,178 @@ def _handle_sast(
     )
 
 
+def _handle_dangerous_workflow(
+    prescriptions: "Prescriptions",
+    project_name: str,
+    scorecards_entry: Dict[str, Any],
+) -> None:
+    """Handle Dangerous-Workflow scorecards."""
+    if int(scorecards_entry["Confidence"]) == 0:
+        prescriptions.delete_prescription(
+            project_name,
+            prescription_name="scorecards_dangerous_workflow.yaml",
+            commit_message=f"Dangerous-Workflow Security Scorecards for {project_name!r} have low confidence",
+            nonexisting_ok=True,
+        )
+        return
+
+    prescription_name = "DangerousWorkflow"
+    prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
+
+    if scorecards_entry["Pass"]:
+        justification_type = "INFO"
+        message = "Project GitHub Action workflows do not have dangerous code patterns based on Security Scorecards"
+    else:
+        justification_type = "WARNING"
+        message = "Project GitHub Action workflows have dangerous code patterns based on Security Scorecards"
+
+    prescriptions.create_prescription(
+        project_name,
+        "scorecards_dangerous_workflow.yaml",
+        content=_SCORECARDS_WRAP_GENERIC_UNIT.format(
+            prescription_name=prescription_name,
+            package_name=project_name,
+            type=justification_type,
+            message=message,
+        ),
+        commit_message=f"Dangerous-Workflow Security Scorecards update for {project_name!r}",
+    )
+
+
+def _handle_license(
+    prescriptions: "Prescriptions",
+    project_name: str,
+    scorecards_entry: Dict[str, Any],
+) -> None:
+    """Handle License scorecards."""
+    if int(scorecards_entry["Confidence"]) == 0:
+        prescriptions.delete_prescription(
+            project_name,
+            prescription_name="scorecards_license.yaml",
+            commit_message=f"License Security Scorecards for {project_name!r} have low confidence",
+            nonexisting_ok=True,
+        )
+        return
+
+    prescription_name = "License"
+    prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
+
+    if scorecards_entry["Pass"]:
+        justification_type = "INFO"
+        message = "Project has published a license based on Security Scorecards"
+    else:
+        justification_type = "WARNING"
+        message = "Project has NOT published a license based on Security Scorecards"
+
+    prescriptions.create_prescription(
+        project_name,
+        "scorecards_licence.yaml",
+        content=_SCORECARDS_WRAP_GENERIC_UNIT.format(
+            prescription_name=prescription_name,
+            package_name=project_name,
+            type=justification_type,
+            message=message,
+        ),
+        commit_message=f"Licence Security Scorecards update for {project_name!r}",
+    )
+
+
+def _handle_webhooks(
+    prescriptions: "Prescriptions",
+    project_name: str,
+    scorecards_entry: Dict[str, Any],
+) -> None:
+    """Handle Webhooks scorecards."""
+    if int(scorecards_entry["Confidence"]) == 0:
+        prescriptions.delete_prescription(
+            project_name,
+            prescription_name="scorecards_webhooks.yaml",
+            commit_message=f"Webhooks Security Scorecards for {project_name!r} have low confidence",
+            nonexisting_ok=True,
+        )
+        return
+
+    prescription_name = "Webhooks"
+    prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
+
+    if scorecards_entry["Pass"]:
+        justification_type = "INFO"
+        message = "The webhook defined in the project repository has a token configured "
+        "to authenticate the origins of requests based on Security Scorecards"
+    else:
+        justification_type = "WARNING"
+        message = "The webhook defined in the project repository does NOT have a token configured "
+        "to authenticate the origins of requests based on Security Scorecard"
+
+    prescriptions.create_prescription(
+        project_name,
+        "scorecards_webhooks.yaml",
+        content=_SCORECARDS_WRAP_GENERIC_UNIT.format(
+            prescription_name=prescription_name,
+            package_name=project_name,
+            type=justification_type,
+            message=message,
+        ),
+        commit_message=f"Webhooks Security Scorecards update for {project_name!r}",
+    )
+
+
 _SCORECARDS_HANDLERS = {
-    "Code-Review": _handle_code_review,
     "Active": _handle_active,
-    "Maintained": _handle_active,
     "Automatic-Dependency-Update": _handle_automatic_dependency_update,
-    "Dependency-Update-Tool": _handle_automatic_dependency_update,
+    "Binary-Artifacts": _handle_binary_artifacts,
     "Branch-Protection": _handle_branch_protection,
-    "Token-Permissions": _handle_token_permissions,
+    "CI-Tests": _handle_ci_tests,
+    "CII-Best-Practices": _handle_cii_best_practices,
+    "Code-Review": _handle_code_review,
+    "Contributors": _handle_contributors,
+    "Dangerous-Workflow": _handle_dangerous_workflow,
+    "Dependency-Update-Tool": _handle_automatic_dependency_update,
+    "Frozen-Dependencies": _handle_pinned_dependencies,
+    "Frozen-Deps": _handle_pinned_dependencies,
+    "Fuzzing": _handle_fuzzing,
+    "License": _handle_license,
+    "Maintained": _handle_active,
+    "Packaging": _handle_packaging,
+    "Pinned-Dependencies": _handle_pinned_dependencies,
+    "SAST": _handle_sast,
     "Security-Policy": _handle_security_policy,
     "Signed-Releases": _handle_signed_releases,
     "Signed-Tags": _handle_signed_tags,
-    "Fuzzing": _handle_fuzzing,
+    "Token-Permissions": _handle_token_permissions,
     "Vulnerabilities": _handle_vulnerabilities,
-    "Packaging": _handle_packaging,
-    "Binary-Artifacts": _handle_binary_artifacts,
-    "CII-Best-Practices": _handle_cii_best_practices,
-    "Pinned-Dependencies": _handle_pinned_dependencies,
-    "Frozen-Dependencies": _handle_pinned_dependencies,
-    "Frozen-Deps": _handle_pinned_dependencies,
-    "Contributors": _handle_contributors,
-    "CI-Tests": _handle_ci_tests,
-    "SAST": _handle_sast,
+    "Webhooks": _handle_webhooks,
 }
 
 
 def scorecards(prescriptions: "Prescriptions") -> None:
     """Check scorecards computed by OSSF and create corresponding prescriptions."""
-    # Parse and prepare scorecards in advance.
-    _LOGGER.info("Querying scorecards available in BigQuery")
+    # Getting scorecards from BigQuery for projects in existing prescriptions
+    _LOGGER.info("Mapping available prescriptions to scorecards")
     client = bigquery.Client()
-    query_job = client.query('SELECT * FROM openssf.scorecardcron.scorecard WHERE starts_with(Repo, "github.com")')
 
-    scorecards_dict = {}
-    for row in query_job:
-        repo = row["Repo"].rstrip("/")
-
-        parts = repo.split("/")
-        if len(parts) != 2:
-            _LOGGER.debug(
-                "Skipping scorecard for repo %r from %r: cannot parse organization and repository",
-                parts,
-                row["Repo"],
-            )
-            continue
-
-        scorecards_dict[tuple(parts)] = dict(row)
-
-    _LOGGER.info("Mapping available scorecards to prescriptions")
     for project_name, organization, repository in iter_gh_info(prescriptions):
-        scorecards_entry = scorecards_dict.get((organization, repository))
+        query_job = client.query(
+            f'SELECT * FROM openssf.scorecardcron.scorecard WHERE Repo="github.com/{organization}/{repository}" '
+            "AND Date=(SELECT MAX(Date) FROM openssf.scorecardcron.scorecard WHERE "
+            f'Repo="github.com/{organization}/{repository}")'
+        )
+        query_result = query_job.result()
+        if query_result.total_rows == 0:
+            _LOGGER.info(f"No scorecard found for project {project_name} at github.com/{organization}/{repository}")
 
-        if not scorecards_entry:
-            _LOGGER.debug(
-                "No scorecard found for project %r hosted on GitHub slug %s/%s",
-                project_name,
-                organization,
-                repository,
-            )
-            continue
+        else:
+            checks = list(query_result)[0][0]
+            for check in checks or []:
+                handler = _SCORECARDS_HANDLERS.get(check.get("Name"))
+                if not handler:
+                    _LOGGER.error(
+                        "No scorecards handler registered for scorecard %r found for project %r (GitHub slug: %s/%s)",
+                        check.get("Name"),
+                        project_name,
+                        organization,
+                        repository,
+                    )
+                    continue
 
-        for check in scorecards_entry.get("Checks") or []:
-            handler = _SCORECARDS_HANDLERS.get(check.get("Name"))
-
-            if not handler:
-                _LOGGER.error(
-                    "No scorecards handler registered for scorecard %r found for project %r (GItHub slug: %s/%s)",
-                    check.get("Name"),
-                    project_name,
-                    organization,
-                    repository,
-                )
-                continue
-
-            handler(prescriptions, project_name, check)
+                handler(prescriptions, project_name, check)
