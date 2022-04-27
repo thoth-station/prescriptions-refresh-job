@@ -39,11 +39,11 @@ units:
     match:
       state:
         resolved_dependencies:
-        - name: '{package_name}'
+        - name: {package_name}
     run:
       release_notes:
-        organization: '{organization}'
-        repository: '{repository}'
+        organization: {organization}
+        repository: {repository}
 """
 
 
