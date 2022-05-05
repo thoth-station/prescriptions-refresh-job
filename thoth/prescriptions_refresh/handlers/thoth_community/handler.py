@@ -29,10 +29,12 @@ from typing import Tuple
 from typing import TYPE_CHECKING
 
 import attr
+import thoth.prescriptions_refresh
 from thoth.common import datetime2datetime_str
 from thoth.common import map_os_name
 from thoth.common import normalize_os_version
 from thoth.prescriptions_refresh.prescriptions_change import PrescriptionsChange
+from thoth.prescriptions_refresh.prescriptions import Prescriptions
 from thoth.storages import AdvisersResultsStore
 
 from .content import PRESCRIPTION_TOP_PACKAGE_NAMES
@@ -48,10 +50,11 @@ from .content import PRESCRIPTION_THOTH_COMMUNITY_UPDATE
 
 if TYPE_CHECKING:
     from git import Repo
-    from thoth.prescriptions_refresh.prescriptions import Prescriptions
 
 
 _LOGGER = logging.getLogger(__name__)
+_PRESCRIPTIONS_DEFAULT_REPO = Prescriptions.DEFAULT_PRESCRIPTIONS_REPO
+_PRESCRIPTIONS_VERSION = thoth.prescriptions_refresh.__version__
 
 _PRESCRIPTION_NAME_PREFIX = "thoth_community"
 _DAYS = int(os.getenv("THOTH_PRESCRIPTIONS_REFRESH_THOTH_COMMUNITY_DAYS", 365 // 2))
@@ -169,6 +172,8 @@ def thoth_community(prescriptions: "Prescriptions") -> None:
             prescription = PRESCRIPTION_TOP_PACKAGE_NAMES.format(
                 prescription_name=prescriptions.get_prescription_name("", package_name),
                 package_name=package_name,
+                default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+                prescriptions_version=_PRESCRIPTIONS_VERSION,
             )
             change.add_prescription(package_name, f"{_PRESCRIPTION_NAME_PREFIX}_package_names.yaml", prescription)
 
@@ -178,6 +183,8 @@ def thoth_community(prescriptions: "Prescriptions") -> None:
                 prescription_name=prescriptions.get_prescription_name("", package_name, package_version),
                 package_name=package_name,
                 package_version=package_version,
+                default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+                prescriptions_version=_PRESCRIPTIONS_VERSION,
             )
             change.add_prescription(
                 package_name, f"{_PRESCRIPTION_NAME_PREFIX}_{package_version}_package_versions.yaml", prescription
@@ -188,6 +195,8 @@ def thoth_community(prescriptions: "Prescriptions") -> None:
             prescription = PRESCRIPTION_TOP_DEV_PACKAGE_NAMES.format(
                 prescription_name=prescriptions.get_prescription_name("", package_name),
                 package_name=package_name,
+                default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+                prescriptions_version=_PRESCRIPTIONS_VERSION,
             )
             change.add_prescription(package_name, f"{_PRESCRIPTION_NAME_PREFIX}_dev_package_names.yaml", prescription)
 
@@ -197,6 +206,8 @@ def thoth_community(prescriptions: "Prescriptions") -> None:
                 prescription_name=prescriptions.get_prescription_name("", package_name, package_version),
                 package_name=package_name,
                 package_version=package_version,
+                default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+                prescriptions_version=_PRESCRIPTIONS_VERSION,
             )
             change.add_prescription(
                 package_name, f"{_PRESCRIPTION_NAME_PREFIX}_{package_version}_dev_package_versions.yaml", prescription
@@ -208,6 +219,8 @@ def thoth_community(prescriptions: "Prescriptions") -> None:
             prescription = PRESCRIPTION_TOP_BASE_IMAGES.format(
                 prescription_name=prescriptions.get_prescription_name("", base_image_name),
                 base_image=base_image,
+                default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+                prescriptions_version=_PRESCRIPTIONS_VERSION,
             )
             change.add_prescription(
                 "_containers", f"{base_image_name}/{_PRESCRIPTION_NAME_PREFIX}_base_images.yaml", prescription
@@ -221,6 +234,8 @@ def thoth_community(prescriptions: "Prescriptions") -> None:
                 prescription_name=prescriptions.get_prescription_name("", base_image_name, base_image_version),
                 base_image=base_image,
                 base_image_version=base_image_version,
+                default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+                prescriptions_version=_PRESCRIPTIONS_VERSION,
             )
             change.add_prescription(
                 "_containers",
@@ -233,6 +248,8 @@ def thoth_community(prescriptions: "Prescriptions") -> None:
             prescription = PRESCRIPTION_TOP_PYTHON_VERSIONS.format(
                 prescription_name=prescriptions.get_prescription_name("", "Python", python_version),
                 python_version=python_version,
+                default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+                prescriptions_version=_PRESCRIPTIONS_VERSION,
             )
             change.add_prescription(
                 "_python",
@@ -250,6 +267,8 @@ def thoth_community(prescriptions: "Prescriptions") -> None:
                 ),
                 operating_system_name=operating_system_name,
                 operating_system_version=operating_system_version,
+                default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+                prescriptions_version=_PRESCRIPTIONS_VERSION,
             )
             change.add_prescription(
                 "_operating_systems",
@@ -262,5 +281,7 @@ def thoth_community(prescriptions: "Prescriptions") -> None:
             "thoth_community.yaml",
             PRESCRIPTION_THOTH_COMMUNITY_UPDATE.format(
                 thoth_community_timestamp=datetime2datetime_str(current_datetime),
+                default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+                prescriptions_version=_PRESCRIPTIONS_VERSION,
             ),
         )

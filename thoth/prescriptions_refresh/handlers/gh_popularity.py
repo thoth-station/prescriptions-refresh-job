@@ -24,15 +24,16 @@ import sys
 from typing import Any
 from typing import Tuple
 from typing import Dict
-from typing import TYPE_CHECKING
 
+import thoth.prescriptions_refresh
+from thoth.prescriptions_refresh.prescriptions import Prescriptions
 from .gh_link import iter_gh_info
 
 
-if TYPE_CHECKING:
-    from thoth.prescriptions_refresh.prescriptions import Prescriptions
-
 _LOGGER = logging.getLogger(__name__)
+_PRESCRIPTIONS_DEFAULT_REPO = Prescriptions.DEFAULT_PRESCRIPTIONS_REPO
+_PRESCRIPTIONS_VERSION = thoth.prescriptions_refresh.__version__
+
 _GH_POPULARITY_LOW = int(os.getenv("THOTH_PRESCRIPTIONS_REFRESH_GH_POPULARITY_LOW", 20))
 _GH_POPULARITY_MODERATE = int(os.getenv("THOTH_PRESCRIPTIONS_REFRESH_GH_POPULARITY_MODERATE", 100))
 _GH_POPULARITY_HIGH = int(os.getenv("THOTH_PRESCRIPTIONS_REFRESH_GH_POPULARITY_HIGH", 1000))
@@ -54,6 +55,9 @@ units:
         message: Project '{package_name}' has {popularity_score} popularity on GitHub
         link: {gh_link}
         package_name: {package_name}
+        metadata:
+        - prescriptions_repository: {default_prescriptions_repository}
+          prescriptions_version: {prescriptions_version}
 """
 
 
@@ -123,6 +127,8 @@ def gh_popularity(prescriptions: "Prescriptions") -> None:
                 popularity_score=popularity_score,
                 message_type=message_type,
                 prescription_name=prescription_name,
+                default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+                prescriptions_version=_PRESCRIPTIONS_VERSION,
             ),
             commit_message=f"Update of GitHub popularity statistics for project {project_name!r}",
         )

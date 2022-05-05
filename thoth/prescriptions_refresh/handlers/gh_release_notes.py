@@ -20,14 +20,16 @@
 import logging
 import requests
 import sys
-from typing import TYPE_CHECKING
 
+import thoth.prescriptions_refresh
+from thoth.prescriptions_refresh.prescriptions import Prescriptions
 from .gh_link import iter_gh_info
 
-if TYPE_CHECKING:
-    from thoth.prescriptions_refresh.prescriptions import Prescriptions
 
 _LOGGER = logging.getLogger(__name__)
+_PRESCRIPTIONS_DEFAULT_REPO = Prescriptions.DEFAULT_PRESCRIPTIONS_REPO
+_PRESCRIPTIONS_VERSION = thoth.prescriptions_refresh.__version__
+
 _GH_LINK_PRESCRIPTION_NAME = "gh_release_notes.yaml"
 _GH_LINK_PRESCRIPTION_CONTENT = """\
 units:
@@ -44,6 +46,9 @@ units:
       release_notes:
         organization: {organization}
         repository: {repository}
+        metadata:
+        - prescriptions_repository: {default_prescriptions_repository}
+          prescriptions_version: {prescriptions_version}
 """
 
 
@@ -88,6 +93,8 @@ def gh_release_notes(prescriptions: "Prescriptions") -> None:
                     package_name=project_name,
                     organization=organization,
                     repository=repository,
+                    default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+                    prescriptions_version=_PRESCRIPTIONS_VERSION,
                 ),
                 commit_message=f"Project {project_name!r} hosts release notes on GitHub",
             )
@@ -112,6 +119,8 @@ def gh_release_notes(prescriptions: "Prescriptions") -> None:
                     package_name=project_name,
                     organization=organization,
                     repository=repository,
+                    default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+                    prescriptions_version=_PRESCRIPTIONS_VERSION,
                 ),
                 commit_message=f"Project {project_name!r} hosts release notes on GitHub",
             )

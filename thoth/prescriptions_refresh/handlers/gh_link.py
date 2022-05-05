@@ -30,11 +30,16 @@ from typing import Optional
 from typing import Tuple
 from typing import TYPE_CHECKING
 
+import thoth.prescriptions_refresh
+from thoth.prescriptions_refresh.prescriptions import Prescriptions
+
 if TYPE_CHECKING:
     from thoth.prescriptions_refresh.knowledge import Knowledge
-    from thoth.prescriptions_refresh.prescriptions import Prescriptions
 
 _LOGGER = logging.getLogger(__name__)
+_PRESCRIPTIONS_DEFAULT_REPO = Prescriptions.DEFAULT_PRESCRIPTIONS_REPO
+_PRESCRIPTIONS_VERSION = thoth.prescriptions_refresh.__version__
+
 _GH_LINK_PRESCRIPTION_NAME = "gh_link.yaml"
 _GH_LINK_PRESCRIPTION_CONTENT = """\
 units:
@@ -53,6 +58,9 @@ units:
         message: Package '{package_name}' is hosted on GitHub
         link: {gh_url}
         package_name: {package_name}
+        metadata:
+        - prescriptions_repository: {default_prescriptions_repository}
+          prescriptions_version: {prescriptions_version}
 """
 
 
@@ -190,6 +198,8 @@ def gh_link(knowledge: "Knowledge") -> None:
                 package_name=project_name,
                 gh_url=gh_url,
                 prescription_name=prescription_name,
+                default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+                prescriptions_version=_PRESCRIPTIONS_VERSION,
             )
 
             knowledge.prescriptions.create_prescription(
