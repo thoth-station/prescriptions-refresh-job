@@ -21,7 +21,6 @@
 import logging
 import os
 import datetime
-from typing import TYPE_CHECKING
 from typing import Optional
 from typing import List
 
@@ -29,10 +28,12 @@ import requests
 from bs4 import BeautifulSoup
 from dateutil import parser as datetime_parser
 
-if TYPE_CHECKING:
-    from thoth.prescriptions_refresh.prescriptions import Prescriptions
+import thoth.prescriptions_refresh
+from thoth.prescriptions_refresh.prescriptions import Prescriptions
 
 _LOGGER = logging.getLogger(__name__)
+_PRESCRIPTIONS_DEFAULT_REPO = Prescriptions.DEFAULT_PRESCRIPTIONS_REPO
+_PRESCRIPTIONS_VERSION = thoth.prescriptions_refresh.__version__
 
 _PYPI_MAINTAINER_PROJECTS_COUNT = int(os.getenv("THOTH_PRESCRIPTIONS_REFRESH_PYPI_MAINTAINER_PROJECTS_COUNT", 3))
 _PYPI_PROJECT_MAINTAINERS_COUNT = int(os.getenv("THOTH_PRESCRIPTIONS_REFRESH_PYPI_PROJECT_MAINTAINERS_COUNT", 3))
@@ -59,6 +60,9 @@ units:
           number of projects on PyPI (less than {maintainer_projects_count})
         link: https://pypi.org/project/{package_name}/
         package_name: {package_name}
+        metadata:
+        - prescriptions_repository: {default_prescriptions_repository}
+          prescriptions_version: {prescriptions_version}
 """
 
 _PYPI_PROJECT_MAINTAINERS_PRESCRIPTION_NAME = "pypi_project_maintainers.yaml"
@@ -80,6 +84,9 @@ units:
         message: Project '{package_name}' has low number of maintainers on PyPI (less than {project_maintainers_count})
         link: https://pypi.org/project/{package_name}/
         package_name: {package_name}
+        metadata:
+        - prescriptions_repository: {default_prescriptions_repository}
+          prescriptions_version: {prescriptions_version}
 """
 
 
@@ -104,6 +111,9 @@ units:
           recently (less than {maintainers_join_days} days ago)
         link: https://pypi.org/project/{package_name}/
         package_name: {package_name}
+        metadata:
+        - prescriptions_repository: {default_prescriptions_repository}
+          prescriptions_version: {prescriptions_version}
 """
 
 
@@ -141,6 +151,8 @@ def _do_project_maintainers(prescriptions: "Prescriptions", project_name: str, m
             package_name=project_name,
             prescription_name=prescriptions.get_prescription_name("PyPIProjectMaintainersWrap", project_name),
             project_maintainers_count=_PYPI_PROJECT_MAINTAINERS_COUNT,
+            default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+            prescriptions_version=_PRESCRIPTIONS_VERSION,
         ),
         commit_message=f"Project {project_name!r} has less than {_PYPI_PROJECT_MAINTAINERS_COUNT} maintainers on PyPI",
     )
@@ -186,6 +198,8 @@ def _do_maintainer_projects(prescriptions: "Prescriptions", project_name: str, m
                 package_name=project_name,
                 prescription_name=prescriptions.get_prescription_name("PyPIMaintainerProjectsWrap", project_name),
                 maintainer_projects_count=_PYPI_PROJECT_MAINTAINERS_COUNT,
+                default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+                prescriptions_version=_PRESCRIPTIONS_VERSION,
             ),
             commit_message=f"Project {project_name!r} has no maintainer with at least "
             f"{_PYPI_MAINTAINER_PROJECTS_COUNT} projects on PyPI,",
@@ -248,6 +262,8 @@ def _do_maintainer_joined_warning(prescriptions: "Prescriptions", project_name: 
                 package_name=project_name,
                 prescription_name=prescriptions.get_prescription_name("PyPIMaintainersJoinWrap", project_name),
                 maintainers_join_days=_PYPI_MAINTAINER_JOINED_AGE_DAYS,
+                default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+                prescriptions_version=_PRESCRIPTIONS_VERSION,
             ),
             commit_message=f"Project {project_name!r} has maintainers who joined PyPI recently",
         )

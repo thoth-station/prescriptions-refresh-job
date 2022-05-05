@@ -26,9 +26,12 @@ from .common import QUAY_NAMESPACE_NAME
 from .common import QUAY_URL
 from .common import CONFIGURED_IMAGES
 
+import thoth.prescriptions_refresh
 from thoth.prescriptions_refresh.prescriptions import Prescriptions
 
 _LOGGER = logging.getLogger(__name__)
+_PRESCRIPTIONS_DEFAULT_REPO = Prescriptions.DEFAULT_PRESCRIPTIONS_REPO
+_PRESCRIPTIONS_VERSION = thoth.prescriptions_refresh.__version__
 
 _IMAGE_SIZE_PRESCRIPTION_NAME = "quay_image_size.yaml"
 _IMAGE_SIZE_BOOT = """\
@@ -45,6 +48,9 @@ _IMAGE_SIZE_BOOT = """\
         message: >-
           Container image {image!r} has a size of {size}
         link: {link}
+        metadata:
+        - prescriptions_repository: {default_prescriptions_repository}
+          prescriptions_version: {prescriptions_version}
 """
 
 
@@ -68,6 +74,8 @@ def quay_image_size(prescriptions: "Prescriptions") -> None:
                 prescription_name=prescriptions.get_prescription_name("QuayImageSizeBoot", image_name, tag),
                 link=f"https://{image_identifier}",  # Redirects to the container image listing with tag selected.
                 size=prescriptions.get_artifact_size_str(image_size),
+                default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+                prescriptions_version=_PRESCRIPTIONS_VERSION,
             )
 
         if not content:
