@@ -1,5 +1,33 @@
 # Changelog for Thoth's prescriptions refresh job
 
+## Release 0.7.0 (2022-05-23T15:02:20)
+* d6b54ca Remove pacospace :(
+* d946359 Fix username in maintainers
+* d4f7af7 :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
+* 4a2431a :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
+* 9217283 Fix duplicate prescription names and pre-commit
+* 7356dab :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
+* 13e9d13 Revert "Fix organization names to string in prescription template"
+* 05a85d2 :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
+* 684ab10 :ship: Bump up base image initialized in CI.
+* dd80f1a Fix organization names to string in prescription template
+* 474da2a Update security scorecards handler according to new schema
+* 55faa72 Get link key and specify default link shortcut
+* cc7b625 Default CVE link to no_cve_link_provided justification
+* a93da9a :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
+* 846265b Fix pre-commit
+* 62bafce Provide default link for quay clair vulnerabilities
+* abcf487 Fix exit code
+* 48008aa Handle too many requests error (429) in gh handlers
+* a8fd553 :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
+* 9816428 Fix pre-commit config
+* bcd69f2 Remove maintainers section from .thoth.yaml
+* 809580a :ship: Bump up base image initialized in CI.
+* 63145b2 Update PR template
+* 5a613ae Fix container images information handler
+* 05b2c05 :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
+* 02b3056 :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
+
 ## Release 0.6.0 (2022-02-28T22:07:18)
 * :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
 * Follow redirects for GitHub repos that were transferred (#119)
