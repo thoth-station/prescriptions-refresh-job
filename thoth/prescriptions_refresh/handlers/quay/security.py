@@ -165,11 +165,21 @@ def _create_vulnerability_prescriptions(image: str, tag: str, vulnerabilities: L
 
         cve_seen.add(vulnerability["Name"])
 
+        if vulnerability.get("Link"):
+            vulnerability_link = vulnerability["Link"]
+            message = f"Found vulnerability {vulnerability['Name']!r} in the base image used."
+            " See the link provided for more information."
+
+        else:
+            vulnerability_link = "no_cve_link_provided"
+            message = f"Found vulnerability {vulnerability['Name']!r} in the base image used."
+            " No link was provided for this vulnerability."
+
         boot_units += _QUAY_SECURITY_BOOT.format(
             prescription_name=f"{prescription_name}Vuln{idx}",
             image=f"{QUAY_URL}/{QUAY_NAMESPACE_NAME}/{image}:{tag}",
-            message=f"Found vulnerability {vulnerability['Name']!r} in the base image used",
-            link=vulnerability["Link"],
+            message=message,
+            link=vulnerability_link,
             cve_name=vulnerability["Name"],
         )
 
