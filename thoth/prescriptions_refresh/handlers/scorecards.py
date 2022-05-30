@@ -18,6 +18,7 @@
 """Check scorecards computed by Open Source Security Foundation."""
 
 import logging
+import os
 from typing import Any
 from typing import Dict
 
@@ -51,6 +52,8 @@ units:
         link: https://github.com/ossf/scorecard/blob/main/docs/checks.md
         package_name: {package_name}
 """
+
+_THOTH_PRESCRIPTIONS_REFRESH_SCORECARD_FRESHNESS = int(os.getenv("THOTH_PRESCRIPTIONS_REFRESH_SCORECARD_FRESHNESS", 2))
 
 
 def _handle_code_review(
@@ -862,7 +865,7 @@ def scorecards(prescriptions: "Prescriptions") -> None:
             f'SELECT * FROM openssf.scorecardcron.scorecard WHERE Repo="github.com/{organization}/{repository} "'
             "AND Date=(SELECT MAX(Date) FROM openssf.scorecardcron.scorecard "
             f'WHERE Repo="github.com/{organization}/{repository}") '
-            f"AND Date > DATE_ADD(CURRENT_DATE(), interval -2 week)"
+            f"AND Date > DATE_ADD(CURRENT_DATE(), interval -{_THOTH_PRESCRIPTIONS_REFRESH_SCORECARD_FRESHNESS} week)"
         )
         query_result = query_job.result()
         if query_result.total_rows == 0:
