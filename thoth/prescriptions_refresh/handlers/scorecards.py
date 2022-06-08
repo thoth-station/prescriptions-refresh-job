@@ -867,7 +867,8 @@ def scorecards(prescriptions: "Prescriptions") -> None:
             f'SELECT * FROM openssf.scorecardcron.scorecard WHERE Repo="github.com/{organization}/{repository} "'
             "AND Date=(SELECT MAX(Date) FROM openssf.scorecardcron.scorecard "
             f'WHERE Repo="github.com/{organization}/{repository}") '
-            f"AND Date > DATE_ADD(CURRENT_DATE(), interval -{_THOTH_PRESCRIPTIONS_REFRESH_SCORECARD_FRESHNESS_WEEKS} week)"
+            f"AND Date > DATE_ADD(CURRENT_DATE(), interval"
+            f" -{_THOTH_PRESCRIPTIONS_REFRESH_SCORECARD_FRESHNESS_WEEKS} week)"
         )
         query_result = query_job.result()
         if query_result.total_rows == 0:
