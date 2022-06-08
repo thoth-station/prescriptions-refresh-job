@@ -1,5 +1,12 @@
 # Changelog for Thoth's prescriptions refresh job
 
+## Release 0.7.1 (2022-06-08T08:14:54)
+* 61fa915 Fix pre-commit
+* 8300304 Add units
+* 1997574 Configure scorecard freshness via env variable
+* 99ec726 Select only scorecards updated recently
+* c5d56f9 :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
+
 ## Release 0.7.0 (2022-05-23T15:02:20)
 * d6b54ca Remove pacospace :(
 * d946359 Fix username in maintainers
