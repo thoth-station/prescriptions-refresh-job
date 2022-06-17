@@ -145,7 +145,6 @@ def pypi_downloads(prescriptions: "Prescriptions") -> None:
     dataset = client.create_dataset(dataset)
 
     job_config = bigquery.QueryJobConfig()
-    job_config.destination = f"{dataset_id_full}.destination_table"
 
     query = f"""
     SELECT *
