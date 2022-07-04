@@ -862,14 +862,18 @@ def scorecards(prescriptions: "Prescriptions") -> None:
     _LOGGER.info("Mapping available prescriptions to scorecards")
     client = bigquery.Client()
 
+    job_labels = {"query_target": "openssf-scorecards"}
+    job_config = bigquery.QueryJobConfig(labels=job_labels)
+
     for project_name, organization, repository in iter_gh_info(prescriptions):
-        query_job = client.query(
-            f'SELECT * FROM openssf.scorecardcron.scorecard WHERE Repo="github.com/{organization}/{repository} "'
-            "AND Date=(SELECT MAX(Date) FROM openssf.scorecardcron.scorecard "
-            f'WHERE Repo="github.com/{organization}/{repository}") '
-            f"AND Date > DATE_ADD(CURRENT_DATE(), interval"
-            f" -{_THOTH_PRESCRIPTIONS_REFRESH_SCORECARD_FRESHNESS_WEEKS} week)"
-        )
+        query = f"""
+        SELECT * FROM openssf.scorecardcron.scorecard WHERE Repo="github.com/{organization}/{repository}"
+        AND Date=(SELECT MAX(Date) FROM openssf.scorecardcron.scorecard
+                  WHERE Repo="github.com/{organization}/{repository}")
+        AND Date > DATE_ADD(CURRENT_DATE(),
+                   interval-{_THOTH_PRESCRIPTIONS_REFRESH_SCORECARD_FRESHNESS_WEEKS} week)
+        """
+        query_job = client.query(query=query, job_config=job_config)
         query_result = query_job.result()
         if query_result.total_rows == 0:
             _LOGGER.info(f"No scorecard found for project {project_name} at github.com/{organization}/{repository}")
