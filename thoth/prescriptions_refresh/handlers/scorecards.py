@@ -868,10 +868,9 @@ def scorecards(prescriptions: "Prescriptions") -> None:
     for project_name, organization, repository in iter_gh_info(prescriptions):
         query = f"""
         SELECT * FROM openssf.scorecardcron.scorecard WHERE Repo="github.com/{organization}/{repository}"
-        AND Date=(SELECT MAX(Date) FROM openssf.scorecardcron.scorecard
-                  WHERE Repo="github.com/{organization}/{repository}")
         AND Date > DATE_ADD(CURRENT_DATE(),
                    interval-{_THOTH_PRESCRIPTIONS_REFRESH_SCORECARD_FRESHNESS_WEEKS} week)
+        ORDER BY Date DESC LIMIT 1
         """
         query_job = client.query(query=query, job_config=job_config)
         query_result = query_job.result()
