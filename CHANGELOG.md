@@ -1,5 +1,12 @@
 # Changelog for Thoth's prescriptions refresh job
 
+## Release 0.7.2 (2022-07-06T08:48:33)
+* bc4db48 Replace sub-query by ORDER/LIMIT in bigquery job
+* cc5d2a7 Add labels to BigQuery queries
+* c0ad994 :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
+* 156b513 Remove destination table from BigQuery config
+* d3ee756 :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
+
 ## Release 0.7.1 (2022-06-08T08:14:54)
 * 61fa915 Fix pre-commit
 * 8300304 Add units
