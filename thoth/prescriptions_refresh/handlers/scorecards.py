@@ -22,17 +22,17 @@ import os
 from typing import Any
 from typing import Dict
 
-from typing import TYPE_CHECKING
-
 from google.cloud import bigquery
 
 from .gh_link import iter_gh_info
 
-if TYPE_CHECKING:
-    from thoth.prescriptions_refresh.prescriptions import Prescriptions
+import thoth.prescriptions_refresh
+from thoth.prescriptions_refresh.prescriptions import Prescriptions
 
 
 _LOGGER = logging.getLogger(__name__)
+_PRESCRIPTIONS_DEFAULT_REPO = Prescriptions.DEFAULT_PRESCRIPTIONS_REPO
+_PRESCRIPTIONS_VERSION = thoth.prescriptions_refresh.__version__
 
 _SCORECARDS_WRAP_GENERIC_UNIT = """\
 units:
@@ -51,6 +51,9 @@ units:
         message: {message}
         link: https://github.com/ossf/scorecard/blob/main/docs/checks.md
         package_name: {package_name}
+        metadata:
+        - prescriptions_repository: {default_prescriptions_repository}
+          prescriptions_version: {prescriptions_version}
 """
 
 _THOTH_PRESCRIPTIONS_REFRESH_SCORECARD_FRESHNESS_WEEKS = int(
@@ -129,6 +132,8 @@ def _handle_active(
             package_name=project_name,
             type=justification_type,
             message=message,
+            default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+            prescriptions_version=_PRESCRIPTIONS_VERSION,
         ),
         commit_message=f"Active Security Scorecards update for {project_name!r}",
     )
@@ -284,6 +289,8 @@ def _handle_security_policy(
             package_name=project_name,
             type=justification_type,
             message=message,
+            default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+            prescriptions_version=_PRESCRIPTIONS_VERSION,
         ),
         commit_message=f"Security-Policy Security Scorecards update for {project_name!r}",
     )
@@ -322,6 +329,8 @@ def _handle_signed_releases(
             package_name=project_name,
             type=justification_type,
             message=message,
+            default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+            prescriptions_version=_PRESCRIPTIONS_VERSION,
         ),
         commit_message=f"Signed-Releases Security Scorecards update for {project_name!r}",
     )
@@ -360,6 +369,8 @@ def _handle_signed_tags(
             package_name=project_name,
             type=justification_type,
             message=message,
+            default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+            prescriptions_version=_PRESCRIPTIONS_VERSION,
         ),
         commit_message=f"Signed-Tags Security Scorecards update for {project_name!r}",
     )
@@ -398,6 +409,8 @@ def _handle_fuzzing(
             package_name=project_name,
             type=justification_type,
             message=message,
+            default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+            prescriptions_version=_PRESCRIPTIONS_VERSION,
         ),
         commit_message=f"Fuzzing Security Scorecards update for {project_name!r}",
     )
@@ -441,6 +454,8 @@ def _handle_vulnerabilities(
             package_name=project_name,
             type=justification_type,
             message=message,
+            default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+            prescriptions_version=_PRESCRIPTIONS_VERSION,
         ),
         commit_message=f"Vulnerabilities Security Scorecards update for {project_name!r}",
     )
@@ -479,6 +494,8 @@ def _handle_packaging(
             package_name=project_name,
             type=justification_type,
             message=message,
+            default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+            prescriptions_version=_PRESCRIPTIONS_VERSION,
         ),
         commit_message=f"Packaging Security Scorecards update for {project_name!r}",
     )
@@ -517,6 +534,8 @@ def _handle_binary_artifacts(
             package_name=project_name,
             type=justification_type,
             message=message,
+            default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+            prescriptions_version=_PRESCRIPTIONS_VERSION,
         ),
         commit_message=f"Binary-Artifacts Security Scorecards update for {project_name!r}",
     )
@@ -555,6 +574,8 @@ def _handle_cii_best_practices(
             package_name=project_name,
             type=justification_type,
             message=message,
+            default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+            prescriptions_version=_PRESCRIPTIONS_VERSION,
         ),
         commit_message=f"CII-Best-Practices Security Scorecards update for {project_name!r}",
     )
@@ -593,6 +614,8 @@ def _handle_pinned_dependencies(
             package_name=project_name,
             type=justification_type,
             message=message,
+            default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+            prescriptions_version=_PRESCRIPTIONS_VERSION,
         ),
         commit_message=f"Pinned-Dependencies Security Scorecards update for {project_name!r}",
     )
@@ -631,6 +654,8 @@ def _handle_contributors(
             package_name=project_name,
             type=justification_type,
             message=message,
+            default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+            prescriptions_version=_PRESCRIPTIONS_VERSION,
         ),
         commit_message=f"Contributors Security Scorecards update for {project_name!r}",
     )
@@ -669,6 +694,8 @@ def _handle_ci_tests(
             package_name=project_name,
             type=justification_type,
             message=message,
+            default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+            prescriptions_version=_PRESCRIPTIONS_VERSION,
         ),
         commit_message=f"CI-Tests Security Scorecards update for {project_name!r}",
     )
@@ -707,6 +734,8 @@ def _handle_sast(
             package_name=project_name,
             type=justification_type,
             message=message,
+            default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+            prescriptions_version=_PRESCRIPTIONS_VERSION,
         ),
         commit_message=f"SAST Security Scorecards update for {project_name!r}",
     )

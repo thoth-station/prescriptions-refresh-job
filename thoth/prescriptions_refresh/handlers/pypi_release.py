@@ -20,15 +20,17 @@
 import datetime
 import logging
 import os
-from typing import TYPE_CHECKING
 
 import requests
 from dateutil import parser as datetime_parser
 
-if TYPE_CHECKING:
-    from thoth.prescriptions_refresh.prescriptions import Prescriptions
+import thoth.prescriptions_refresh
+from thoth.prescriptions_refresh.prescriptions import Prescriptions
 
 _LOGGER = logging.getLogger(__name__)
+_PRESCRIPTIONS_DEFAULT_REPO = Prescriptions.DEFAULT_PRESCRIPTIONS_REPO
+_PRESCRIPTIONS_VERSION = thoth.prescriptions_refresh.__version__
+
 _PYPI_RELEASE_DAYS = int(os.getenv("THOTH_PRESCRIPTIONS_PYPI_RELEASE_DAYS", 180))
 _PYPI_RELEASE_WARNING_PRESCRIPTION_NAME = "pypi_release.yaml"
 _PYPI_RELEASE_WARNING_PRESCRIPTION_CONTENT = """\
@@ -49,6 +51,9 @@ units:
           Package '{package_name}' has no recent release, last release dates back to {last_release_datetime}
         link: https://pypi.org/project/{package_name}/#history
         package_name: {package_name}
+        metadata:
+        - prescriptions_repository: {default_prescriptions_repository}
+          prescriptions_version: {prescriptions_version}
 """
 
 
@@ -86,6 +91,8 @@ def pypi_release(prescriptions: "Prescriptions") -> None:
                     package_name=project_name,
                     prescription_name=prescriptions.get_prescription_name("PyPIReleaseWrap", project_name),
                     last_release_datetime=last_release_datetime,
+                    default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+                    prescriptions_version=_PRESCRIPTIONS_VERSION,
                 ),
                 commit_message=f"Project {project_name!r} has no recent releases",
             )

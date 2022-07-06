@@ -22,16 +22,17 @@ from datetime import datetime
 from google.cloud import bigquery
 import logging
 import os
-from typing import TYPE_CHECKING
 from typing import Any
 from typing import Dict
 from typing import Optional
 from typing import Tuple
 
-if TYPE_CHECKING:
-    from thoth.prescriptions_refresh.prescriptions import Prescriptions
+import thoth.prescriptions_refresh
+from thoth.prescriptions_refresh.prescriptions import Prescriptions
 
 _LOGGER = logging.getLogger(__name__)
+_PRESCRIPTIONS_DEFAULT_REPO = Prescriptions.DEFAULT_PRESCRIPTIONS_REPO
+_PRESCRIPTIONS_VERSION = thoth.prescriptions_refresh.__version__
 
 _PYPI_POPULARITY_LOW = int(os.getenv("THOTH_PRESCRIPTIONS_REFRESH_PYPI_POPULARITY_LOW", 20))
 _PYPI_POPULARITY_MODERATE = int(os.getenv("THOTH_PRESCRIPTIONS_REFRESH_PYPI_POPULARITY_MODERATE", 100))
@@ -61,6 +62,9 @@ units:
           The most downloaded package version is {most_downloaded_version} with {max_downloads} downloads.
         link: {package_link}
         package_name: {package_name}
+        metadata:
+        - prescriptions_repository: {default_prescriptions_repository}
+          prescriptions_version: {prescriptions_version}
 """
 _PACKAGE_DOWNLOADS_PRESCRIPTION_NAME_PER_VERSION = "pypi_downloads_per_version.yaml"
 _PACKAGE_DOWNLOADS_PER_VERSION_PRESCRIPTION_CONTENT = """\
@@ -83,6 +87,9 @@ units:
           on PyPI in the last {days} days, with {downloads_count} downloads.
         link: {package_link}
         package_name: {package_name}
+        metadata:
+        - prescriptions_repository: {default_prescriptions_repository}
+          prescriptions_version: {prescriptions_version}
 """
 
 
@@ -202,6 +209,8 @@ def pypi_downloads(prescriptions: "Prescriptions") -> None:
                 package_link=package_link,
                 most_downloaded_version=most_downloaded_version,
                 max_downloads=max_downloaded_version_downloads_count,
+                default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+                prescriptions_version=_PRESCRIPTIONS_VERSION,
             ),
         )
 
@@ -221,5 +230,7 @@ def pypi_downloads(prescriptions: "Prescriptions") -> None:
                     popularity_level=_downloads_to_popularity(int(version_downloads_count)),
                     downloads_count=version_downloads_count,
                     package_link=package_link,
+                    default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+                    prescriptions_version=_PRESCRIPTIONS_VERSION,
                 ),
             )

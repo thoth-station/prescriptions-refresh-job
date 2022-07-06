@@ -22,15 +22,16 @@ import logging
 import os
 import requests
 import sys
-from typing import TYPE_CHECKING
 
+import thoth.prescriptions_refresh
+from thoth.prescriptions_refresh.prescriptions import Prescriptions
 from .gh_link import iter_gh_info
 
 
-if TYPE_CHECKING:
-    from thoth.prescriptions_refresh.prescriptions import Prescriptions
-
 _LOGGER = logging.getLogger(__name__)
+_PRESCRIPTIONS_DEFAULT_REPO = Prescriptions.DEFAULT_PRESCRIPTIONS_REPO
+_PRESCRIPTIONS_VERSION = thoth.prescriptions_refresh.__version__
+
 _MARK_DAYS = int(os.getenv("THOTH_PRESCRIPTIONS_REFRESH_GH_UPDATED_DAYS", 365))
 _GH_LINK_PRESCRIPTION_NAME = "gh_updated.yaml"
 _GH_LINK_PRESCRIPTION_CONTENT = """\
@@ -50,6 +51,9 @@ units:
         message: Package '{package_name}' was last updated at {updated_at}
         link: {gh_link}
         package_name: {package_name}
+        metadata:
+        - prescriptions_repository: {default_prescriptions_repository}
+          prescriptions_version: {prescriptions_version}
 """
 
 
@@ -115,6 +119,8 @@ def gh_updated(prescriptions: "Prescriptions") -> None:
                 prescription_name=prescription_name,
                 gh_link=gh_link,
                 updated_at=str(commit_datetime),
+                default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+                prescriptions_version=_PRESCRIPTIONS_VERSION,
             ),
             commit_message=f"Project {project_name!r} was not updated for more than {_MARK_DAYS} days",
         )

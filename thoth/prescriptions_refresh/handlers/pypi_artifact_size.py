@@ -19,17 +19,19 @@
 
 import logging
 import os
-from typing import TYPE_CHECKING
 
 import requests
 from packaging.specifiers import SpecifierSet
 from thoth.storages import GraphDatabase
 from thoth.python.package_version import Version
 
-if TYPE_CHECKING:
-    from thoth.prescriptions_refresh.prescriptions import Prescriptions
+import thoth.prescriptions_refresh
+from thoth.prescriptions_refresh.prescriptions import Prescriptions
 
 _LOGGER = logging.getLogger(__name__)
+_PRESCRIPTIONS_DEFAULT_REPO = Prescriptions.DEFAULT_PRESCRIPTIONS_REPO
+_PRESCRIPTIONS_VERSION = thoth.prescriptions_refresh.__version__
+
 # Report only 3MiB+
 _PYPI_ARTIFACT_REPORT_SIZE = int(os.getenv("THOTH_PRESCRIPTIONS_REFRESH_PYPI_ARTIFACT_REPORT_SIZE", 3 * 1024 * 1024))
 _PYPI_ARTIFACT_SIZE_PRESCRIPTION_NAME = "pypi_artifact_size.yaml"
@@ -52,6 +54,9 @@ _PYPI_ARTIFACT_SIZE_PRESCRIPTION_CONTENT = """\
           '{package_version}' can have up to {artifact_size}
         link: https://pypi.org/project/{package_name}/{package_version}/#files
         package_name: {package_name}
+        metadata:
+        - prescriptions_repository: {default_prescriptions_repository}
+          prescriptions_version: {prescriptions_version}
 """
 
 
@@ -120,6 +125,8 @@ def pypi_artifact_size(prescriptions: "Prescriptions") -> None:
                     prescription_name=prescriptions.get_prescription_name(
                         "PyPIArtifactSizeWrap", project_name, package_version
                     ),
+                    default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+                    prescriptions_version=_PRESCRIPTIONS_VERSION,
                 )
 
         if not content:
