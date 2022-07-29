@@ -1,5 +1,10 @@
 # Changelog for Thoth's prescriptions refresh job
 
+## Release 0.7.3 (2022-07-29T17:12:10)
+* b07003d Add tags to scorecards prescriptions
+* 235369e :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
+* c33bf0a :ship: Bump up base image initialized in CI.
+
 ## Release 0.7.2 (2022-07-06T08:48:33)
 * bc4db48 Replace sub-query by ORDER/LIMIT in bigquery job
 * cc5d2a7 Add labels to BigQuery queries
