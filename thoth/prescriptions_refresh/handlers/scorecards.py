@@ -51,6 +51,7 @@ units:
         message: {message}
         link: https://github.com/ossf/scorecard/blob/main/docs/checks.md
         package_name: {package_name}
+        tag: {tag}
 """
 
 _THOTH_PRESCRIPTIONS_REFRESH_SCORECARD_FRESHNESS_WEEKS = int(
@@ -76,12 +77,15 @@ def _handle_code_review(
     prescription_name = "CodeReview"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
+    passed = ""
+
     if scorecards_entry["Pass"]:
         justification_type = "INFO"
         message = "Project requires code review before the code is merged based on Security Scorecards"
     else:
         justification_type = "WARNING"
         message = "Project does NOT require code review before the code is merged based on Security Scorecards"
+        passed = "no-"
 
     prescriptions.create_prescription(
         project_name,
@@ -91,6 +95,7 @@ def _handle_code_review(
             package_name=project_name,
             type=justification_type,
             message=message,
+            tag=f"{passed}code-review",
         ),
         commit_message=f"Code-Review Security Scorecards update for {project_name!r}",
     )
@@ -114,12 +119,15 @@ def _handle_active(
     prescription_name = "Active"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
+    passed = ""
+
     if scorecards_entry["Pass"]:
         justification_type = "INFO"
         message = "Project is actively maintained based on Security Scorecards"
     else:
         justification_type = "WARNING"
         message = "Project is NOT actively maintained based on Security Scorecards"
+        passed = "no-"
 
     prescriptions.create_prescription(
         project_name,
@@ -129,6 +137,7 @@ def _handle_active(
             package_name=project_name,
             type=justification_type,
             message=message,
+            tag=f"{passed}actively-maintained",
         ),
         commit_message=f"Active Security Scorecards update for {project_name!r}",
     )
@@ -152,12 +161,15 @@ def _handle_automatic_dependency_update(
     prescription_name = "AutomaticDependencyUpdate"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
+    passed = ""
+
     if scorecards_entry["Pass"]:
         justification_type = "INFO"
         message = "Project uses tools for automatic dependency updates based on Security Scorecards"
     else:
         justification_type = "WARNING"
         message = "Project does NOT use tools for automatic dependency updates based on Security Scorecards"
+        passed = "no-"
 
     prescriptions.create_prescription(
         project_name,
@@ -167,6 +179,7 @@ def _handle_automatic_dependency_update(
             package_name=project_name,
             type=justification_type,
             message=message,
+            tag=f"{passed}automatic-updates",
         ),
         commit_message=f"Automatic-Dependency-Update Security Scorecards update for {project_name!r}",
     )
@@ -190,12 +203,15 @@ def _handle_branch_protection(
     prescription_name = "BranchProtection"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
+    passed = ""
+
     if scorecards_entry["Pass"]:
         justification_type = "INFO"
         message = "Project has branch protection setup based on Security Scorecards"
     else:
         justification_type = "WARNING"
         message = "Project does NOT have branch protection setup based on Security Scorecards"
+        passed = "no-"
 
     prescriptions.create_prescription(
         project_name,
@@ -205,6 +221,7 @@ def _handle_branch_protection(
             package_name=project_name,
             type=justification_type,
             message=message,
+            tag=f"{passed}branch-protection",
         ),
         commit_message=f"Branch-Protection Security Scorecards update for {project_name!r}",
     )
@@ -228,6 +245,8 @@ def _handle_token_permissions(
     prescription_name = "TokenPermissions"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
+    passed = ""
+
     if scorecards_entry["Pass"]:
         justification_type = "INFO"
         message = "Project follows the principle of least privileged in GitHub workflows based on Security Scorecards"
@@ -237,6 +256,7 @@ def _handle_token_permissions(
             "Project does NOT follow the principle of least privileged in GitHub workflows "
             "based on Security Scorecards"
         )
+        passed = "no-"
 
     prescriptions.create_prescription(
         project_name,
@@ -246,6 +266,7 @@ def _handle_token_permissions(
             package_name=project_name,
             type=justification_type,
             message=message,
+            tag=f"{passed}least-privileged-workflow",
         ),
         commit_message=f"Token-Permissions Security Scorecards update for {project_name!r}",
     )
@@ -269,12 +290,15 @@ def _handle_security_policy(
     prescription_name = "SecurityPolicy"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
+    passed = ""
+
     if scorecards_entry["Pass"]:
         justification_type = "INFO"
         message = "Project has a security policy published based on Security Scorecards"
     else:
         justification_type = "WARNING"
         message = "Project does not have any security policy published based on Security Scorecards"
+        passed = "no-"
 
     prescriptions.create_prescription(
         project_name,
@@ -284,6 +308,7 @@ def _handle_security_policy(
             package_name=project_name,
             type=justification_type,
             message=message,
+            tag=f"{passed}security-policy",
         ),
         commit_message=f"Security-Policy Security Scorecards update for {project_name!r}",
     )
@@ -307,12 +332,15 @@ def _handle_signed_releases(
     prescription_name = "SignedReleases"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
+    passed = ""
+
     if scorecards_entry["Pass"]:
         justification_type = "INFO"
         message = "Project cryptographically signs released artifacts based on Security Scorecards"
     else:
         justification_type = "WARNING"
         message = "Project does NOT cryptographically sign released artifacts based on Security Scorecards"
+        passed = "no-"
 
     prescriptions.create_prescription(
         project_name,
@@ -322,6 +350,7 @@ def _handle_signed_releases(
             package_name=project_name,
             type=justification_type,
             message=message,
+            tag=f"{passed}signed-releases",
         ),
         commit_message=f"Signed-Releases Security Scorecards update for {project_name!r}",
     )
@@ -345,12 +374,15 @@ def _handle_signed_tags(
     prescription_name = "SignedTags"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
+    passed = ""
+
     if scorecards_entry["Pass"]:
         justification_type = "INFO"
         message = "Project cryptographically signs tags based on Security Scorecards"
     else:
         justification_type = "WARNING"
         message = "Project does NOT cryptographically sign tags based on Security Scorecards"
+        passed = "no-"
 
     prescriptions.create_prescription(
         project_name,
@@ -360,6 +392,7 @@ def _handle_signed_tags(
             package_name=project_name,
             type=justification_type,
             message=message,
+            tag=f"{passed}cryptographically-signed",
         ),
         commit_message=f"Signed-Tags Security Scorecards update for {project_name!r}",
     )
@@ -383,12 +416,15 @@ def _handle_fuzzing(
     prescription_name = "Fuzzing"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
+    passed = ""
+
     if scorecards_entry["Pass"]:
         justification_type = "INFO"
         message = "Project uses fuzzing based on Security Scorecards"
     else:
         justification_type = "WARNING"
         message = "Project does not use fuzzing based on Security Scorecards"
+        passed = "no-"
 
     prescriptions.create_prescription(
         project_name,
@@ -398,6 +434,7 @@ def _handle_fuzzing(
             package_name=project_name,
             type=justification_type,
             message=message,
+            tag=f"{passed}fuzzing",
         ),
         commit_message=f"Fuzzing Security Scorecards update for {project_name!r}",
     )
@@ -421,11 +458,14 @@ def _handle_vulnerabilities(
     prescription_name = "Vulnerabilities"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
+    passed = ""
+
     if scorecards_entry["Pass"]:
         justification_type = "INFO"
         message = (
             "Project does not have open or unfixed vulnerabilities on the OSV service " "based on Security Scorecards"
         )
+        passed = "no-"
     else:
         justification_type = "WARNING"
         message = (
@@ -441,6 +481,7 @@ def _handle_vulnerabilities(
             package_name=project_name,
             type=justification_type,
             message=message,
+            tag=f"{passed}unfixed-vulnerabilities",
         ),
         commit_message=f"Vulnerabilities Security Scorecards update for {project_name!r}",
     )
@@ -464,12 +505,15 @@ def _handle_packaging(
     prescription_name = "Packaging"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
+    passed = ""
+
     if scorecards_entry["Pass"]:
         justification_type = "INFO"
         message = "Project is published as a package based on Security Scorecards"
     else:
         justification_type = "WARNING"
         message = "Project is NOT published as a package based on Security Scorecards"
+        passed = "no-"
 
     prescriptions.create_prescription(
         project_name,
@@ -479,6 +523,7 @@ def _handle_packaging(
             package_name=project_name,
             type=justification_type,
             message=message,
+            tag=f"{passed}published-package",
         ),
         commit_message=f"Packaging Security Scorecards update for {project_name!r}",
     )
@@ -502,9 +547,12 @@ def _handle_binary_artifacts(
     prescription_name = "BinaryArtifacts"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
+    passed = ""
+
     if scorecards_entry["Pass"]:
         justification_type = "INFO"
         message = "Project does not have binary artifacts in the source repository"
+        passed = "no-"
     else:
         justification_type = "WARNING"
         message = "Project has binary artifacts in the source repository"
@@ -517,6 +565,7 @@ def _handle_binary_artifacts(
             package_name=project_name,
             type=justification_type,
             message=message,
+            tag=f"{passed}binary-artifacts",
         ),
         commit_message=f"Binary-Artifacts Security Scorecards update for {project_name!r}",
     )
@@ -540,12 +589,15 @@ def _handle_cii_best_practices(
     prescription_name = "CIIBestPractices"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
+    passed = ""
+
     if scorecards_entry["Pass"]:
         justification_type = "INFO"
         message = "Project honours CII Best Practices based on Security Scorecards"
     else:
         justification_type = "WARNING"
         message = "Project does NOT honour CII Best Practices based on Security Scorecards"
+        passed = "no-"
 
     prescriptions.create_prescription(
         project_name,
@@ -555,6 +607,7 @@ def _handle_cii_best_practices(
             package_name=project_name,
             type=justification_type,
             message=message,
+            tag=f"{passed}cii",
         ),
         commit_message=f"CII-Best-Practices Security Scorecards update for {project_name!r}",
     )
@@ -578,12 +631,15 @@ def _handle_pinned_dependencies(
     prescription_name = "PinnedDependencies"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
+    passed = ""
+
     if scorecards_entry["Pass"]:
         justification_type = "INFO"
         message = "Project uses pinned dependencies based on Security Scorecards"
     else:
         justification_type = "WARNING"
         message = "Project does NOT use pinned dependencies based on Security Scorecards"
+        passed = "no-"
 
     prescriptions.create_prescription(
         project_name,
@@ -593,6 +649,7 @@ def _handle_pinned_dependencies(
             package_name=project_name,
             type=justification_type,
             message=message,
+            tag=f"{passed}pinned-dependencies",
         ),
         commit_message=f"Pinned-Dependencies Security Scorecards update for {project_name!r}",
     )
@@ -616,12 +673,15 @@ def _handle_contributors(
     prescription_name = "Contributors"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
+    passed = ""
+
     if scorecards_entry["Pass"]:
         justification_type = "INFO"
         message = "Project has a set of contributors from multiple companies based on Security Scorecards"
     else:
         justification_type = "WARNING"
         message = "Project does NOT have a set of contributors from multiple companies based on Security Scorecards"
+        passed = "no-"
 
     prescriptions.create_prescription(
         project_name,
@@ -631,6 +691,7 @@ def _handle_contributors(
             package_name=project_name,
             type=justification_type,
             message=message,
+            tag=f"{passed}multiple-companies-contributors",
         ),
         commit_message=f"Contributors Security Scorecards update for {project_name!r}",
     )
@@ -654,12 +715,15 @@ def _handle_ci_tests(
     prescription_name = "CITests"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
+    passed = ""
+
     if scorecards_entry["Pass"]:
         justification_type = "INFO"
         message = "Project runs CI tests before pull requests are merged based on Security Scorecards"
     else:
         justification_type = "WARNING"
         message = "Project does NOT run CI tests before pull requests are merged based on Security Scorecards"
+        passed = "no-"
 
     prescriptions.create_prescription(
         project_name,
@@ -669,6 +733,7 @@ def _handle_ci_tests(
             package_name=project_name,
             type=justification_type,
             message=message,
+            tag=f"{passed}ci-tests",
         ),
         commit_message=f"CI-Tests Security Scorecards update for {project_name!r}",
     )
@@ -692,12 +757,15 @@ def _handle_sast(
     prescription_name = "SAST"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
+    passed = ""
+
     if scorecards_entry["Pass"]:
         justification_type = "INFO"
         message = "Project uses static source code analysis based on Security Scorecards"
     else:
         justification_type = "WARNING"
         message = "Project does NOT use static source code analysis based on Security Scorecards"
+        passed = "no-"
 
     prescriptions.create_prescription(
         project_name,
@@ -707,6 +775,7 @@ def _handle_sast(
             package_name=project_name,
             type=justification_type,
             message=message,
+            tag=f"{passed}static-analysis",
         ),
         commit_message=f"SAST Security Scorecards update for {project_name!r}",
     )
@@ -730,9 +799,12 @@ def _handle_dangerous_workflow(
     prescription_name = "DangerousWorkflow"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
+    passed = ""
+
     if scorecards_entry["Pass"]:
         justification_type = "INFO"
         message = "Project GitHub Action workflows do not have dangerous code patterns based on Security Scorecards"
+        passed = "no-"
     else:
         justification_type = "WARNING"
         message = "Project GitHub Action workflows have dangerous code patterns based on Security Scorecards"
@@ -745,6 +817,7 @@ def _handle_dangerous_workflow(
             package_name=project_name,
             type=justification_type,
             message=message,
+            tag=f"{passed}dangerous-patterns",
         ),
         commit_message=f"Dangerous-Workflow Security Scorecards update for {project_name!r}",
     )
@@ -768,12 +841,15 @@ def _handle_license(
     prescription_name = "License"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
+    passed = ""
+
     if scorecards_entry["Pass"]:
         justification_type = "INFO"
         message = "Project has published a license based on Security Scorecards"
     else:
         justification_type = "WARNING"
         message = "Project has NOT published a license based on Security Scorecards"
+        passed = "no-"
 
     prescriptions.create_prescription(
         project_name,
@@ -783,6 +859,7 @@ def _handle_license(
             package_name=project_name,
             type=justification_type,
             message=message,
+            tag=f"{passed}license",
         ),
         commit_message=f"Licence Security Scorecards update for {project_name!r}",
     )
@@ -806,6 +883,8 @@ def _handle_webhooks(
     prescription_name = "Webhooks"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
+    passed = ""
+
     if scorecards_entry["Pass"]:
         justification_type = "INFO"
         message = "The webhook defined in the project repository has a token configured "
@@ -814,6 +893,7 @@ def _handle_webhooks(
         justification_type = "WARNING"
         message = "The webhook defined in the project repository does NOT have a token configured "
         "to authenticate the origins of requests based on Security Scorecard"
+        passed = "no-"
 
     prescriptions.create_prescription(
         project_name,
@@ -823,6 +903,7 @@ def _handle_webhooks(
             package_name=project_name,
             type=justification_type,
             message=message,
+            tag=f"{passed}webhook-token",
         ),
         commit_message=f"Webhooks Security Scorecards update for {project_name!r}",
     )
