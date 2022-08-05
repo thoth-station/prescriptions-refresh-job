@@ -31,6 +31,7 @@ from typing import Tuple
 from collections import defaultdict
 from itertools import chain
 
+import thoth.prescriptions_refresh
 from thoth.prescriptions_refresh.prescriptions import Prescriptions
 from .common import get_ps_s2i_image_names
 from .common import get_image_containers
@@ -40,6 +41,8 @@ from .common import QUAY_URL
 from .common import CONFIGURED_IMAGES
 
 _LOGGER = logging.getLogger(__name__)
+_PRESCRIPTIONS_DEFAULT_REPO = Prescriptions.DEFAULT_PRESCRIPTIONS_REPO
+_PRESCRIPTIONS_VERSION = thoth.prescriptions_refresh.__version__
 
 _QUAY_SECURITY_BOOT = """\
   - name: {prescription_name}QuaySecurityErrorBoot
@@ -59,6 +62,9 @@ _QUAY_SECURITY_BOOT = """\
         link: {link}
       not_acceptable: >-
         The base image used has a CVE {cve_name} - see {link}
+        metadata:
+          - prescriptions_repository: {default_prescriptions_repository}
+            prescriptions_version: {prescriptions_version}
 """
 
 _QUAY_SECURITY_WRAP = """\
@@ -80,6 +86,9 @@ _QUAY_SECURITY_WRAP = """\
         message: >-
           {message}
         link: {link}
+        metadata:
+          - prescriptions_repository: {default_prescriptions_repository}
+            prescriptions_version: {prescriptions_version}
 """
 
 _QUAY_ALTERNATIVE_WRAP = """\
@@ -96,6 +105,9 @@ _QUAY_ALTERNATIVE_WRAP = """\
         message: >-
           Consider using {image_alternative!r} as vulnerability-free alternative to {image!r}
         link: {link}
+        metadata:
+          - prescriptions_repository: {default_prescriptions_repository}
+            prescriptions_version: {prescriptions_version}
 """
 
 _QUAY_SECURITY_TIMESTAMP = """\
@@ -117,6 +129,9 @@ units:
           Using security information for predictable stacks based on Quay
           scanners for {quay_url}/organization/{quay_namespace} as of {datetime!r}
         link: https://www.projectquay.io/
+        metadata:
+          - prescriptions_repository: {default_prescriptions_repository}
+            prescriptions_version: {prescriptions_version}
 """
 
 
@@ -181,6 +196,8 @@ def _create_vulnerability_prescriptions(image: str, tag: str, vulnerabilities: L
             message=message,
             link=vulnerability_link,
             cve_name=vulnerability["Name"],
+            default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+            prescriptions_version=_PRESCRIPTIONS_VERSION,
         )
 
     cve_seen.clear()
@@ -195,6 +212,8 @@ def _create_vulnerability_prescriptions(image: str, tag: str, vulnerabilities: L
             image=f"{QUAY_URL}/{QUAY_NAMESPACE_NAME}/{image}:{tag}",
             message=f"Found vulnerability {vulnerability['Name']!r} in the base image used",
             link=vulnerability["Link"],
+            default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+            prescriptions_version=_PRESCRIPTIONS_VERSION,
         )
 
     return boot_units, wrap_units
@@ -285,6 +304,8 @@ def quay_security(prescriptions: "Prescriptions") -> None:
             quay_namespace=QUAY_NAMESPACE_NAME,
             quay_url=QUAY_URL,
             datetime=datetime,
+            default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+            prescriptions_version=_PRESCRIPTIONS_VERSION,
         ),
         commit_message=f"Security scans from Quay.io has been successfully updated for {QUAY_NAMESPACE_NAME}",
     )

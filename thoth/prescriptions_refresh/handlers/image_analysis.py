@@ -23,8 +23,8 @@ import logging
 from itertools import chain
 from typing import Dict, Any, Optional, Tuple
 
+import thoth.prescriptions_refresh
 from thoth.python import Pipfile, PipfileLock
-
 from thoth.prescriptions_refresh.prescriptions import Prescriptions
 from .quay.common import get_ps_s2i_image_names
 from .quay.common import get_image_containers
@@ -59,6 +59,9 @@ _THOTH_IMAGE_ANALYSIS_WRAP = """\
         message: >-
           Found predictive stack image that can be used with these dependencies
         link: {link}
+        metadata:
+        - prescriptions_repository: {default_prescriptions_repository}
+          prescriptions_version: {prescriptions_version}
       advised_manifest_changes:
       - file: .thoth.yaml
         patch:
@@ -219,6 +222,8 @@ def thoth_image_analysis(prescriptions: "Prescriptions") -> None:
                         image=image_url,
                         resolved_dependencies=resolved_dependencies,
                         link=image_url,
+                        default_prescriptions_repository=Prescriptions.DEFAULT_PRESCRIPTIONS_REPO,
+                        prescriptions_version=thoth.prescriptions_refresh.__version__,
                     ),
                     commit_message=f"Created prescriptions from predictable stack image: {image_url}",
                 )

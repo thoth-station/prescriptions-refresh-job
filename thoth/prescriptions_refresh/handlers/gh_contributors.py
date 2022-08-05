@@ -21,15 +21,15 @@ import logging
 import os
 import requests
 import sys
-from typing import TYPE_CHECKING
 
+import thoth.prescriptions_refresh
+from thoth.prescriptions_refresh.prescriptions import Prescriptions
 from .gh_link import iter_gh_info
 
 
-if TYPE_CHECKING:
-    from thoth.prescriptions_refresh.prescriptions import Prescriptions
-
 _LOGGER = logging.getLogger(__name__)
+_PRESCRIPTIONS_DEFAULT_REPO = Prescriptions.DEFAULT_PRESCRIPTIONS_REPO
+_PRESCRIPTIONS_VERSION = thoth.prescriptions_refresh.__version__
 
 _CONTRIBUTORS_COUNT = int(os.getenv("THOTH_PRESCRIPTIONS_REFRESH_GH_CONTRIBUTORS_COUNT", 5))
 _GH_LINK_PRESCRIPTION_NAME = "gh_contributors.yaml"
@@ -50,6 +50,9 @@ units:
         message: Package '{package_name}' has less than {contributors} contributors on GitHub
         link: {gh_link}
         package_name: {package_name}
+        metadata:
+        - prescriptions_repository: {default_prescriptions_repository}
+          prescriptions_version: {prescriptions_version}
 """
 
 
@@ -101,6 +104,8 @@ def gh_contributors(prescriptions: "Prescriptions") -> None:
                     prescription_name=prescription_name,
                     gh_link=gh_link,
                     contributors=_CONTRIBUTORS_COUNT,
+                    default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+                    prescriptions_version=_PRESCRIPTIONS_VERSION,
                 ),
                 commit_message=f"Project {project_name!r} has less than {_CONTRIBUTORS_COUNT} contributors on GitHub",
             )

@@ -20,15 +20,16 @@
 import logging
 import requests
 import sys
-from typing import TYPE_CHECKING
 
+import thoth.prescriptions_refresh
+from thoth.prescriptions_refresh.prescriptions import Prescriptions
 from .gh_link import iter_gh_info
 
 
-if TYPE_CHECKING:
-    from thoth.prescriptions_refresh.prescriptions import Prescriptions
-
 _LOGGER = logging.getLogger(__name__)
+_PRESCRIPTIONS_DEFAULT_REPO = Prescriptions.DEFAULT_PRESCRIPTIONS_REPO
+_PRESCRIPTIONS_VERSION = thoth.prescriptions_refresh.__version__
+
 _GH_LINK_PRESCRIPTION_NAME = "gh_archived.yaml"
 _GH_LINK_PRESCRIPTION_CONTENT = """\
 units:
@@ -47,6 +48,9 @@ units:
         message: Package '{package_name}' is marked as archived on GitHub
         link: {gh_link}
         package_name: {package_name}
+        metadata:
+        - prescriptions_repository: {default_prescriptions_repository}
+          prescriptions_version: {prescriptions_version}
 """
 
 
@@ -96,6 +100,8 @@ def gh_archived(prescriptions: "Prescriptions") -> None:
                     package_name=project_name,
                     prescription_name=prescription_name,
                     gh_link=gh_link,
+                    default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+                    prescriptions_version=_PRESCRIPTIONS_VERSION,
                 ),
                 commit_message=f"Repository for {project_name!r} is marked as archived on GitHub",
             )

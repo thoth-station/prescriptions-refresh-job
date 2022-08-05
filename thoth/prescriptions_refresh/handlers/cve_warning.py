@@ -19,14 +19,16 @@
 
 import logging
 import os
-from typing import TYPE_CHECKING
 
+import thoth.prescriptions_refresh
 from thoth.storages import GraphDatabase
+from thoth.prescriptions_refresh.prescriptions import Prescriptions
 
-if TYPE_CHECKING:
-    from thoth.prescriptions_refresh.prescriptions import Prescriptions
 
 _LOGGER = logging.getLogger(__name__)
+_PRESCRIPTIONS_DEFAULT_REPO = Prescriptions.DEFAULT_PRESCRIPTIONS_REPO
+_PRESCRIPTIONS_VERSION = thoth.prescriptions_refresh.__version__
+
 _CVE_WARNING_COUNT = int(os.getenv("THOTH_PRESCRIPTIONS_REFRESH_CVE_WARNING_COUNT", 3))
 _CVE_WARNING_PRESCRIPTION_NAME = "cve_warning.yaml"
 _CVE_WARNING_PRESCRIPTION_CONTENT = """\
@@ -47,6 +49,11 @@ units:
           Package '{package_name}' is known to have at least {cve_warning_count} vulnerabilities reported in releases
         link: cve_warning
         package_name: {package_name}
+        metadata:
+        - prescriptions_repository: {default_prescriptions_repository}
+          prescriptions_version: {prescriptions_version}
+          last_cve_database_update: {last_cve_database_update}
+
 """
 
 
@@ -54,6 +61,8 @@ def cve_warning(prescriptions: "Prescriptions") -> None:
     """Warn if projects are known to have a lot of vulnerabilities.."""
     graph = GraphDatabase()
     graph.connect()
+
+    cve_timestamp = graph.get_cve_timestamp()
 
     for project_name in prescriptions.iter_projects():
         if len(graph.get_python_cve_records_all(project_name)) >= _CVE_WARNING_COUNT:
@@ -63,7 +72,12 @@ def cve_warning(prescriptions: "Prescriptions") -> None:
                 project_name=project_name,
                 prescription_name=_CVE_WARNING_PRESCRIPTION_NAME,
                 content=_CVE_WARNING_PRESCRIPTION_CONTENT.format(
-                    package_name=project_name, prescription_name=prescription_name, cve_warning_count=_CVE_WARNING_COUNT
+                    package_name=project_name,
+                    prescription_name=prescription_name,
+                    cve_warning_count=_CVE_WARNING_COUNT,
+                    default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+                    prescriptions_version=_PRESCRIPTIONS_VERSION,
+                    last_cve_database_update=cve_timestamp,
                 ),
                 commit_message=f"Project {project_name!r} has at least {_CVE_WARNING_COUNT} vulnerabilities reported",
             )
