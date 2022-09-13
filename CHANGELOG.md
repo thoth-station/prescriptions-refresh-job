@@ -1,5 +1,9 @@
 # Changelog for Thoth's prescriptions refresh job
 
+## Release 0.7.4 (2022-09-13T13:34:25)
+* fcef75d :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
+* dff3353 Add prescriptions metadata in handlers
+
 ## Release 0.7.3 (2022-07-29T17:12:10)
 * b07003d Add tags to scorecards prescriptions
 * 235369e :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
