@@ -1,5 +1,11 @@
 # Changelog for Thoth's prescriptions refresh job
 
+## Release 0.7.5 (2022-09-26T08:06:53)
+* 0d9660c :ship: Bump up base image initialized in CI.
+* 2bae5ed :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
+* ee4ad68 :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
+* 51ed2fc :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
+
 ## Release 0.7.4 (2022-09-13T13:34:25)
 * fcef75d :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
 * dff3353 Add prescriptions metadata in handlers
