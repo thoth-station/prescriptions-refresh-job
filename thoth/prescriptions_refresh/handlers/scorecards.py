@@ -21,6 +21,7 @@ import logging
 import os
 from typing import Any
 from typing import Dict
+from typing import Optional
 
 from google.cloud import bigquery
 
@@ -51,6 +52,9 @@ units:
         message: {message}
         link: https://github.com/ossf/scorecard/blob/main/docs/checks.md
         package_name: {package_name}
+        project_url: {project_url}
+        project_revision: {project_revision}
+        scorecard_score: {scorecard_score}
         tag: {tag}
         metadata:
         - prescriptions_repository: {default_prescriptions_repository}
@@ -62,33 +66,32 @@ _THOTH_PRESCRIPTIONS_REFRESH_SCORECARD_FRESHNESS_WEEKS = int(
 )
 
 
+def _get_justification_type(scorecard_score: Optional[int]) -> str:
+    """Get the justification type based on Scorecard check score."""
+    # Taking a look at the scorecard-v2 dataset, strict scoring of projects seems to be applied,
+    # on a scale from -1 (entry not found) / 0 (worst score) to 10 (best score).
+    if not scorecard_score or scorecard_score < 10:
+        return "WARNING"
+    return "INFO"
+
+
 def _handle_code_review(
     prescriptions: "Prescriptions",
     project_name: str,
+    project_revision: str,
+    project_url: str,
     scorecards_entry: Dict[str, Any],
 ) -> None:
     """Handle Code-Review scorecards."""
-    if int(scorecards_entry["Confidence"]) == 0:
-        prescriptions.delete_prescription(
-            project_name,
-            prescription_name="scorecards_code_review.yaml",
-            commit_message=f"Code-Review Security Scorecards for {project_name!r} have low confidence",
-            nonexisting_ok=True,
-        )
-        return
-
     prescription_name = "CodeReview"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
-    passed = ""
-
-    if scorecards_entry["Pass"]:
-        justification_type = "INFO"
-        message = "Project requires code review before the code is merged based on Security Scorecards"
-    else:
-        justification_type = "WARNING"
-        message = "Project does NOT require code review before the code is merged based on Security Scorecards"
+    scorecard_score = scorecards_entry.get("score")
+    justification_type = _get_justification_type(scorecard_score)
+    if justification_type == "WARNING":
         passed = "no-"
+
+    message = scorecards_entry.get("reason")
 
     prescriptions.create_prescription(
         project_name,
@@ -96,9 +99,14 @@ def _handle_code_review(
         content=_SCORECARDS_WRAP_GENERIC_UNIT.format(
             prescription_name=prescription_name,
             package_name=project_name,
+            project_url=project_url,
+            project_revision=project_revision,
+            scorecard_score=scorecard_score,
             type=justification_type,
             message=message,
             tag=f"{passed}code-review",
+            default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+            prescriptions_version=_PRESCRIPTIONS_VERSION,
         ),
         commit_message=f"Code-Review Security Scorecards update for {project_name!r}",
     )
@@ -107,28 +115,21 @@ def _handle_code_review(
 def _handle_active(
     prescriptions: "Prescriptions",
     project_name: str,
+    project_revision: str,
+    project_url: str,
     scorecards_entry: Dict[str, Any],
 ) -> None:
     """Handle Active scorecards."""
-    if int(scorecards_entry["Confidence"]) == 0:
-        prescriptions.delete_prescription(
-            project_name,
-            prescription_name="scorecards_active.yaml",
-            commit_message=f"Active Security Scorecards for {project_name!r} have low confidence",
-            nonexisting_ok=True,
-        )
-        return
-
     prescription_name = "Active"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
     passed = ""
 
-    if scorecards_entry["Pass"]:
-        justification_type = "INFO"
+    scorecard_score = scorecards_entry.get("score")
+    justification_type = _get_justification_type(scorecard_score)
+    if justification_type == "INFO":
         message = "Project is actively maintained based on Security Scorecards"
     else:
-        justification_type = "WARNING"
         message = "Project is NOT actively maintained based on Security Scorecards"
         passed = "no-"
 
@@ -138,6 +139,9 @@ def _handle_active(
         content=_SCORECARDS_WRAP_GENERIC_UNIT.format(
             prescription_name=prescription_name,
             package_name=project_name,
+            project_url=project_url,
+            project_revision=project_revision,
+            scorecard_score=scorecard_score,
             type=justification_type,
             message=message,
             tag=f"{passed}actively-maintained",
@@ -151,28 +155,21 @@ def _handle_active(
 def _handle_automatic_dependency_update(
     prescriptions: "Prescriptions",
     project_name: str,
+    project_revision: str,
+    project_url: str,
     scorecards_entry: Dict[str, Any],
 ) -> None:
     """Handle Automatic-Dependency-Update scorecards."""
-    if int(scorecards_entry["Confidence"]) == 0:
-        prescriptions.delete_prescription(
-            project_name,
-            prescription_name="scorecards_automatic_dependency_update.yaml",
-            commit_message=f"Automatic-Dependency-Update Security Scorecards for {project_name!r} have low confidence",
-            nonexisting_ok=True,
-        )
-        return
-
     prescription_name = "AutomaticDependencyUpdate"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
     passed = ""
 
-    if scorecards_entry["Pass"]:
-        justification_type = "INFO"
+    scorecard_score = scorecards_entry.get("score")
+    justification_type = _get_justification_type(scorecard_score)
+    if justification_type == "INFO":
         message = "Project uses tools for automatic dependency updates based on Security Scorecards"
     else:
-        justification_type = "WARNING"
         message = "Project does NOT use tools for automatic dependency updates based on Security Scorecards"
         passed = "no-"
 
@@ -182,9 +179,14 @@ def _handle_automatic_dependency_update(
         content=_SCORECARDS_WRAP_GENERIC_UNIT.format(
             prescription_name=prescription_name,
             package_name=project_name,
+            project_url=project_url,
+            project_revision=project_revision,
+            scorecard_score=scorecard_score,
             type=justification_type,
             message=message,
             tag=f"{passed}automatic-updates",
+            default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+            prescriptions_version=_PRESCRIPTIONS_VERSION,
         ),
         commit_message=f"Automatic-Dependency-Update Security Scorecards update for {project_name!r}",
     )
@@ -193,28 +195,21 @@ def _handle_automatic_dependency_update(
 def _handle_branch_protection(
     prescriptions: "Prescriptions",
     project_name: str,
+    project_revision: str,
+    project_url: str,
     scorecards_entry: Dict[str, Any],
 ) -> None:
     """Handle Branch-Protection scorecards."""
-    if int(scorecards_entry["Confidence"]) == 0:
-        prescriptions.delete_prescription(
-            project_name,
-            prescription_name="scorecards_branch_protection.yaml",
-            commit_message=f"Branch-Protection Security Scorecards for {project_name!r} have low confidence",
-            nonexisting_ok=True,
-        )
-        return
-
     prescription_name = "BranchProtection"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
     passed = ""
 
-    if scorecards_entry["Pass"]:
-        justification_type = "INFO"
+    scorecard_score = scorecards_entry.get("score")
+    justification_type = _get_justification_type(scorecard_score)
+    if justification_type == "INFO":
         message = "Project has branch protection setup based on Security Scorecards"
     else:
-        justification_type = "WARNING"
         message = "Project does NOT have branch protection setup based on Security Scorecards"
         passed = "no-"
 
@@ -224,9 +219,14 @@ def _handle_branch_protection(
         content=_SCORECARDS_WRAP_GENERIC_UNIT.format(
             prescription_name=prescription_name,
             package_name=project_name,
+            project_url=project_url,
+            project_revision=project_revision,
+            scorecard_score=scorecard_score,
             type=justification_type,
             message=message,
             tag=f"{passed}branch-protection",
+            default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+            prescriptions_version=_PRESCRIPTIONS_VERSION,
         ),
         commit_message=f"Branch-Protection Security Scorecards update for {project_name!r}",
     )
@@ -235,28 +235,21 @@ def _handle_branch_protection(
 def _handle_token_permissions(
     prescriptions: "Prescriptions",
     project_name: str,
+    project_revision: str,
+    project_url: str,
     scorecards_entry: Dict[str, Any],
 ) -> None:
     """Handle Token-Permissions scorecards."""
-    if int(scorecards_entry["Confidence"]) == 0:
-        prescriptions.delete_prescription(
-            project_name,
-            prescription_name="scorecards_token_permissions.yaml",
-            commit_message=f"Token-Permissions Security Scorecards for {project_name!r} have low confidence",
-            nonexisting_ok=True,
-        )
-        return
-
     prescription_name = "TokenPermissions"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
     passed = ""
 
-    if scorecards_entry["Pass"]:
-        justification_type = "INFO"
+    scorecard_score = scorecards_entry.get("score")
+    justification_type = _get_justification_type(scorecard_score)
+    if justification_type == "INFO":
         message = "Project follows the principle of least privileged in GitHub workflows based on Security Scorecards"
     else:
-        justification_type = "WARNING"
         message = (
             "Project does NOT follow the principle of least privileged in GitHub workflows "
             "based on Security Scorecards"
@@ -269,9 +262,14 @@ def _handle_token_permissions(
         content=_SCORECARDS_WRAP_GENERIC_UNIT.format(
             prescription_name=prescription_name,
             package_name=project_name,
+            project_url=project_url,
+            project_revision=project_revision,
+            scorecard_score=scorecard_score,
             type=justification_type,
             message=message,
             tag=f"{passed}least-privileged-workflow",
+            default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+            prescriptions_version=_PRESCRIPTIONS_VERSION,
         ),
         commit_message=f"Token-Permissions Security Scorecards update for {project_name!r}",
     )
@@ -280,28 +278,21 @@ def _handle_token_permissions(
 def _handle_security_policy(
     prescriptions: "Prescriptions",
     project_name: str,
+    project_revision: str,
+    project_url: str,
     scorecards_entry: Dict[str, Any],
 ) -> None:
     """Handle Security-Policy scorecards."""
-    if int(scorecards_entry["Confidence"]) == 0:
-        prescriptions.delete_prescription(
-            project_name,
-            prescription_name="scorecards_security_policy.yaml",
-            commit_message=f"Security-Policy Security Scorecards for {project_name!r} have low confidence",
-            nonexisting_ok=True,
-        )
-        return
-
     prescription_name = "SecurityPolicy"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
     passed = ""
 
-    if scorecards_entry["Pass"]:
-        justification_type = "INFO"
+    scorecard_score = scorecards_entry.get("score")
+    justification_type = _get_justification_type(scorecard_score)
+    if justification_type == "INFO":
         message = "Project has a security policy published based on Security Scorecards"
     else:
-        justification_type = "WARNING"
         message = "Project does not have any security policy published based on Security Scorecards"
         passed = "no-"
 
@@ -311,6 +302,9 @@ def _handle_security_policy(
         content=_SCORECARDS_WRAP_GENERIC_UNIT.format(
             prescription_name=prescription_name,
             package_name=project_name,
+            project_url=project_url,
+            project_revision=project_revision,
+            scorecard_score=scorecard_score,
             type=justification_type,
             message=message,
             tag=f"{passed}security-policy",
@@ -324,28 +318,21 @@ def _handle_security_policy(
 def _handle_signed_releases(
     prescriptions: "Prescriptions",
     project_name: str,
+    project_revision: str,
+    project_url: str,
     scorecards_entry: Dict[str, Any],
 ) -> None:
     """Handle Signed-Releases scorecards."""
-    if int(scorecards_entry["Confidence"]) == 0:
-        prescriptions.delete_prescription(
-            project_name,
-            prescription_name="scorecards_signed_releases.yaml",
-            commit_message=f"Signed-Releases Security Scorecards for {project_name!r} have low confidence",
-            nonexisting_ok=True,
-        )
-        return
-
     prescription_name = "SignedReleases"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
     passed = ""
 
-    if scorecards_entry["Pass"]:
-        justification_type = "INFO"
+    scorecard_score = scorecards_entry.get("score")
+    justification_type = _get_justification_type(scorecard_score)
+    if justification_type == "INFO":
         message = "Project cryptographically signs released artifacts based on Security Scorecards"
     else:
-        justification_type = "WARNING"
         message = "Project does NOT cryptographically sign released artifacts based on Security Scorecards"
         passed = "no-"
 
@@ -355,6 +342,9 @@ def _handle_signed_releases(
         content=_SCORECARDS_WRAP_GENERIC_UNIT.format(
             prescription_name=prescription_name,
             package_name=project_name,
+            project_url=project_url,
+            project_revision=project_revision,
+            scorecard_score=scorecard_score,
             type=justification_type,
             message=message,
             tag=f"{passed}signed-releases",
@@ -368,28 +358,21 @@ def _handle_signed_releases(
 def _handle_signed_tags(
     prescriptions: "Prescriptions",
     project_name: str,
+    project_revision: str,
+    project_url: str,
     scorecards_entry: Dict[str, Any],
 ) -> None:
     """Handle Signed-Tags scorecards."""
-    if int(scorecards_entry["Confidence"]) == 0:
-        prescriptions.delete_prescription(
-            project_name,
-            prescription_name="scorecards_signed_tags.yaml",
-            commit_message=f"Signed-Tags Security Scorecards for {project_name!r} have low confidence",
-            nonexisting_ok=True,
-        )
-        return
-
     prescription_name = "SignedTags"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
     passed = ""
 
-    if scorecards_entry["Pass"]:
-        justification_type = "INFO"
+    scorecard_score = scorecards_entry.get("score")
+    justification_type = _get_justification_type(scorecard_score)
+    if justification_type == "INFO":
         message = "Project cryptographically signs tags based on Security Scorecards"
     else:
-        justification_type = "WARNING"
         message = "Project does NOT cryptographically sign tags based on Security Scorecards"
         passed = "no-"
 
@@ -399,6 +382,9 @@ def _handle_signed_tags(
         content=_SCORECARDS_WRAP_GENERIC_UNIT.format(
             prescription_name=prescription_name,
             package_name=project_name,
+            project_url=project_url,
+            project_revision=project_revision,
+            scorecard_score=scorecard_score,
             type=justification_type,
             message=message,
             tag=f"{passed}cryptographically-signed",
@@ -412,28 +398,21 @@ def _handle_signed_tags(
 def _handle_fuzzing(
     prescriptions: "Prescriptions",
     project_name: str,
+    project_revision: str,
+    project_url: str,
     scorecards_entry: Dict[str, Any],
 ) -> None:
     """Handle Fuzzing scorecards."""
-    if int(scorecards_entry["Confidence"]) == 0:
-        prescriptions.delete_prescription(
-            project_name,
-            prescription_name="scorecards_fuzzing.yaml",
-            commit_message=f"Fuzzing Security Scorecards for {project_name!r} have low confidence",
-            nonexisting_ok=True,
-        )
-        return
-
     prescription_name = "Fuzzing"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
     passed = ""
 
-    if scorecards_entry["Pass"]:
-        justification_type = "INFO"
+    scorecard_score = scorecards_entry.get("score")
+    justification_type = _get_justification_type(scorecard_score)
+    if justification_type == "INFO":
         message = "Project uses fuzzing based on Security Scorecards"
     else:
-        justification_type = "WARNING"
         message = "Project does not use fuzzing based on Security Scorecards"
         passed = "no-"
 
@@ -443,6 +422,9 @@ def _handle_fuzzing(
         content=_SCORECARDS_WRAP_GENERIC_UNIT.format(
             prescription_name=prescription_name,
             package_name=project_name,
+            project_url=project_url,
+            project_revision=project_revision,
+            scorecard_score=scorecard_score,
             type=justification_type,
             message=message,
             tag=f"{passed}fuzzing",
@@ -456,31 +438,24 @@ def _handle_fuzzing(
 def _handle_vulnerabilities(
     prescriptions: "Prescriptions",
     project_name: str,
+    project_revision: str,
+    project_url: str,
     scorecards_entry: Dict[str, Any],
 ) -> None:
     """Handle Vulnerabilities scorecards."""
-    if int(scorecards_entry["Confidence"]) == 0:
-        prescriptions.delete_prescription(
-            project_name,
-            prescription_name="scorecards_vulnerabilities.yaml",
-            commit_message=f"Vulnerabilities Security Scorecards for {project_name!r} have low confidence",
-            nonexisting_ok=True,
-        )
-        return
-
     prescription_name = "Vulnerabilities"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
     passed = ""
 
-    if scorecards_entry["Pass"]:
-        justification_type = "INFO"
+    scorecard_score = scorecards_entry.get("score")
+    justification_type = _get_justification_type(scorecard_score)
+    if justification_type == "INFO":
         message = (
             "Project does not have open or unfixed vulnerabilities on the OSV service " "based on Security Scorecards"
         )
         passed = "no-"
     else:
-        justification_type = "WARNING"
         message = (
             "Project has open or unfixed vulnerabilities on the Open Source Vulnerabilities "
             "based on Security Scorecards"
@@ -492,6 +467,9 @@ def _handle_vulnerabilities(
         content=_SCORECARDS_WRAP_GENERIC_UNIT.format(
             prescription_name=prescription_name,
             package_name=project_name,
+            project_url=project_url,
+            project_revision=project_revision,
+            scorecard_score=scorecard_score,
             type=justification_type,
             message=message,
             tag=f"{passed}unfixed-vulnerabilities",
@@ -505,28 +483,21 @@ def _handle_vulnerabilities(
 def _handle_packaging(
     prescriptions: "Prescriptions",
     project_name: str,
+    project_revision: str,
+    project_url: str,
     scorecards_entry: Dict[str, Any],
 ) -> None:
     """Handle Packaging scorecards."""
-    if int(scorecards_entry["Confidence"]) == 0:
-        prescriptions.delete_prescription(
-            project_name,
-            prescription_name="scorecards_packaging.yaml",
-            commit_message=f"Packaging Security Scorecards for {project_name!r} have low confidence",
-            nonexisting_ok=True,
-        )
-        return
-
     prescription_name = "Packaging"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
     passed = ""
 
-    if scorecards_entry["Pass"]:
-        justification_type = "INFO"
+    scorecard_score = scorecards_entry.get("score")
+    justification_type = _get_justification_type(scorecard_score)
+    if justification_type == "INFO":
         message = "Project is published as a package based on Security Scorecards"
     else:
-        justification_type = "WARNING"
         message = "Project is NOT published as a package based on Security Scorecards"
         passed = "no-"
 
@@ -536,6 +507,9 @@ def _handle_packaging(
         content=_SCORECARDS_WRAP_GENERIC_UNIT.format(
             prescription_name=prescription_name,
             package_name=project_name,
+            project_url=project_url,
+            project_revision=project_revision,
+            scorecard_score=scorecard_score,
             type=justification_type,
             message=message,
             tag=f"{passed}published-package",
@@ -549,29 +523,22 @@ def _handle_packaging(
 def _handle_binary_artifacts(
     prescriptions: "Prescriptions",
     project_name: str,
+    project_revision: str,
+    project_url: str,
     scorecards_entry: Dict[str, Any],
 ) -> None:
     """Handle Binary-Artifacts scorecards."""
-    if int(scorecards_entry["Confidence"]) == 0:
-        prescriptions.delete_prescription(
-            project_name,
-            prescription_name="scorecards_binary_artifacts.yaml",
-            commit_message=f"Binary-Artifacts Security Scorecards for {project_name!r} have low confidence",
-            nonexisting_ok=True,
-        )
-        return
-
     prescription_name = "BinaryArtifacts"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
     passed = ""
 
-    if scorecards_entry["Pass"]:
-        justification_type = "INFO"
+    scorecard_score = scorecards_entry.get("score")
+    justification_type = _get_justification_type(scorecard_score)
+    if justification_type == "INFO":
         message = "Project does not have binary artifacts in the source repository"
         passed = "no-"
     else:
-        justification_type = "WARNING"
         message = "Project has binary artifacts in the source repository"
 
     prescriptions.create_prescription(
@@ -580,6 +547,9 @@ def _handle_binary_artifacts(
         content=_SCORECARDS_WRAP_GENERIC_UNIT.format(
             prescription_name=prescription_name,
             package_name=project_name,
+            project_url=project_url,
+            project_revision=project_revision,
+            scorecard_score=scorecard_score,
             type=justification_type,
             message=message,
             tag=f"{passed}binary-artifacts",
@@ -593,28 +563,21 @@ def _handle_binary_artifacts(
 def _handle_cii_best_practices(
     prescriptions: "Prescriptions",
     project_name: str,
+    project_revision: str,
+    project_url: str,
     scorecards_entry: Dict[str, Any],
 ) -> None:
     """Handle CII-Best-Practices scorecards."""
-    if int(scorecards_entry["Confidence"]) == 0:
-        prescriptions.delete_prescription(
-            project_name,
-            prescription_name="scorecards_cii_best_practices.yaml",
-            commit_message=f"CII-Best-Practices Security Scorecards for {project_name!r} have low confidence",
-            nonexisting_ok=True,
-        )
-        return
-
     prescription_name = "CIIBestPractices"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
     passed = ""
 
-    if scorecards_entry["Pass"]:
-        justification_type = "INFO"
+    scorecard_score = scorecards_entry.get("score")
+    justification_type = _get_justification_type(scorecard_score)
+    if justification_type == "INFO":
         message = "Project honours CII Best Practices based on Security Scorecards"
     else:
-        justification_type = "WARNING"
         message = "Project does NOT honour CII Best Practices based on Security Scorecards"
         passed = "no-"
 
@@ -624,6 +587,9 @@ def _handle_cii_best_practices(
         content=_SCORECARDS_WRAP_GENERIC_UNIT.format(
             prescription_name=prescription_name,
             package_name=project_name,
+            project_url=project_url,
+            project_revision=project_revision,
+            scorecard_score=scorecard_score,
             type=justification_type,
             message=message,
             tag=f"{passed}cii",
@@ -637,28 +603,21 @@ def _handle_cii_best_practices(
 def _handle_pinned_dependencies(
     prescriptions: "Prescriptions",
     project_name: str,
+    project_revision: str,
+    project_url: str,
     scorecards_entry: Dict[str, Any],
 ) -> None:
     """Handle Pinned-Dependencies scorecards."""
-    if int(scorecards_entry["Confidence"]) == 0:
-        prescriptions.delete_prescription(
-            project_name,
-            prescription_name="scorecards_pinned_dependencies.yaml",
-            commit_message=f"Pinned-Dependencies Security Scorecards for {project_name!r} have low confidence",
-            nonexisting_ok=True,
-        )
-        return
-
     prescription_name = "PinnedDependencies"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
     passed = ""
 
-    if scorecards_entry["Pass"]:
-        justification_type = "INFO"
+    scorecard_score = scorecards_entry.get("score")
+    justification_type = _get_justification_type(scorecard_score)
+    if justification_type == "INFO":
         message = "Project uses pinned dependencies based on Security Scorecards"
     else:
-        justification_type = "WARNING"
         message = "Project does NOT use pinned dependencies based on Security Scorecards"
         passed = "no-"
 
@@ -668,6 +627,9 @@ def _handle_pinned_dependencies(
         content=_SCORECARDS_WRAP_GENERIC_UNIT.format(
             prescription_name=prescription_name,
             package_name=project_name,
+            project_url=project_url,
+            project_revision=project_revision,
+            scorecard_score=scorecard_score,
             type=justification_type,
             message=message,
             tag=f"{passed}pinned-dependencies",
@@ -681,28 +643,21 @@ def _handle_pinned_dependencies(
 def _handle_contributors(
     prescriptions: "Prescriptions",
     project_name: str,
+    project_revision: str,
+    project_url: str,
     scorecards_entry: Dict[str, Any],
 ) -> None:
     """Handle Contributors scorecards."""
-    if int(scorecards_entry["Confidence"]) == 0:
-        prescriptions.delete_prescription(
-            project_name,
-            prescription_name="scorecards_contributors.yaml",
-            commit_message=f"Contributors Security Scorecards for {project_name!r} have low confidence",
-            nonexisting_ok=True,
-        )
-        return
-
     prescription_name = "Contributors"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
     passed = ""
 
-    if scorecards_entry["Pass"]:
-        justification_type = "INFO"
+    scorecard_score = scorecards_entry.get("score")
+    justification_type = _get_justification_type(scorecard_score)
+    if justification_type == "INFO":
         message = "Project has a set of contributors from multiple companies based on Security Scorecards"
     else:
-        justification_type = "WARNING"
         message = "Project does NOT have a set of contributors from multiple companies based on Security Scorecards"
         passed = "no-"
 
@@ -712,6 +667,9 @@ def _handle_contributors(
         content=_SCORECARDS_WRAP_GENERIC_UNIT.format(
             prescription_name=prescription_name,
             package_name=project_name,
+            project_url=project_url,
+            project_revision=project_revision,
+            scorecard_score=scorecard_score,
             type=justification_type,
             message=message,
             tag=f"{passed}multiple-companies-contributors",
@@ -725,28 +683,21 @@ def _handle_contributors(
 def _handle_ci_tests(
     prescriptions: "Prescriptions",
     project_name: str,
+    project_revision: str,
+    project_url: str,
     scorecards_entry: Dict[str, Any],
 ) -> None:
     """Handle CI-Tests scorecards."""
-    if int(scorecards_entry["Confidence"]) == 0:
-        prescriptions.delete_prescription(
-            project_name,
-            prescription_name="scorecards_ci_tests.yaml",
-            commit_message=f"CI-Tests Security Scorecards for {project_name!r} have low confidence",
-            nonexisting_ok=True,
-        )
-        return
-
     prescription_name = "CITests"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
     passed = ""
 
-    if scorecards_entry["Pass"]:
-        justification_type = "INFO"
+    scorecard_score = scorecards_entry.get("score")
+    justification_type = _get_justification_type(scorecard_score)
+    if justification_type == "INFO":
         message = "Project runs CI tests before pull requests are merged based on Security Scorecards"
     else:
-        justification_type = "WARNING"
         message = "Project does NOT run CI tests before pull requests are merged based on Security Scorecards"
         passed = "no-"
 
@@ -756,6 +707,9 @@ def _handle_ci_tests(
         content=_SCORECARDS_WRAP_GENERIC_UNIT.format(
             prescription_name=prescription_name,
             package_name=project_name,
+            project_url=project_url,
+            project_revision=project_revision,
+            scorecard_score=scorecard_score,
             type=justification_type,
             message=message,
             tag=f"{passed}ci-tests",
@@ -769,28 +723,21 @@ def _handle_ci_tests(
 def _handle_sast(
     prescriptions: "Prescriptions",
     project_name: str,
+    project_revision: str,
+    project_url: str,
     scorecards_entry: Dict[str, Any],
 ) -> None:
     """Handle SAST scorecards."""
-    if int(scorecards_entry["Confidence"]) == 0:
-        prescriptions.delete_prescription(
-            project_name,
-            prescription_name="scorecards_sast.yaml",
-            commit_message=f"SAST Security Scorecards for {project_name!r} have low confidence",
-            nonexisting_ok=True,
-        )
-        return
-
     prescription_name = "SAST"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
     passed = ""
 
-    if scorecards_entry["Pass"]:
-        justification_type = "INFO"
+    scorecard_score = scorecards_entry.get("score")
+    justification_type = _get_justification_type(scorecard_score)
+    if justification_type == "INFO":
         message = "Project uses static source code analysis based on Security Scorecards"
     else:
-        justification_type = "WARNING"
         message = "Project does NOT use static source code analysis based on Security Scorecards"
         passed = "no-"
 
@@ -800,6 +747,9 @@ def _handle_sast(
         content=_SCORECARDS_WRAP_GENERIC_UNIT.format(
             prescription_name=prescription_name,
             package_name=project_name,
+            project_url=project_url,
+            project_revision=project_revision,
+            scorecard_score=scorecard_score,
             type=justification_type,
             message=message,
             tag=f"{passed}static-analysis",
@@ -813,29 +763,22 @@ def _handle_sast(
 def _handle_dangerous_workflow(
     prescriptions: "Prescriptions",
     project_name: str,
+    project_revision: str,
+    project_url: str,
     scorecards_entry: Dict[str, Any],
 ) -> None:
     """Handle Dangerous-Workflow scorecards."""
-    if int(scorecards_entry["Confidence"]) == 0:
-        prescriptions.delete_prescription(
-            project_name,
-            prescription_name="scorecards_dangerous_workflow.yaml",
-            commit_message=f"Dangerous-Workflow Security Scorecards for {project_name!r} have low confidence",
-            nonexisting_ok=True,
-        )
-        return
-
     prescription_name = "DangerousWorkflow"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
     passed = ""
 
-    if scorecards_entry["Pass"]:
-        justification_type = "INFO"
+    scorecard_score = scorecards_entry.get("score")
+    justification_type = _get_justification_type(scorecard_score)
+    if justification_type == "INFO":
         message = "Project GitHub Action workflows do not have dangerous code patterns based on Security Scorecards"
         passed = "no-"
     else:
-        justification_type = "WARNING"
         message = "Project GitHub Action workflows have dangerous code patterns based on Security Scorecards"
 
     prescriptions.create_prescription(
@@ -844,9 +787,14 @@ def _handle_dangerous_workflow(
         content=_SCORECARDS_WRAP_GENERIC_UNIT.format(
             prescription_name=prescription_name,
             package_name=project_name,
+            project_url=project_url,
+            project_revision=project_revision,
+            scorecard_score=scorecard_score,
             type=justification_type,
             message=message,
             tag=f"{passed}dangerous-patterns",
+            default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+            prescriptions_version=_PRESCRIPTIONS_VERSION,
         ),
         commit_message=f"Dangerous-Workflow Security Scorecards update for {project_name!r}",
     )
@@ -855,28 +803,21 @@ def _handle_dangerous_workflow(
 def _handle_license(
     prescriptions: "Prescriptions",
     project_name: str,
+    project_revision: str,
+    project_url: str,
     scorecards_entry: Dict[str, Any],
 ) -> None:
     """Handle License scorecards."""
-    if int(scorecards_entry["Confidence"]) == 0:
-        prescriptions.delete_prescription(
-            project_name,
-            prescription_name="scorecards_license.yaml",
-            commit_message=f"License Security Scorecards for {project_name!r} have low confidence",
-            nonexisting_ok=True,
-        )
-        return
-
     prescription_name = "License"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
     passed = ""
 
-    if scorecards_entry["Pass"]:
-        justification_type = "INFO"
+    scorecard_score = scorecards_entry.get("score")
+    justification_type = _get_justification_type(scorecard_score)
+    if justification_type == "INFO":
         message = "Project has published a license based on Security Scorecards"
     else:
-        justification_type = "WARNING"
         message = "Project has NOT published a license based on Security Scorecards"
         passed = "no-"
 
@@ -886,9 +827,14 @@ def _handle_license(
         content=_SCORECARDS_WRAP_GENERIC_UNIT.format(
             prescription_name=prescription_name,
             package_name=project_name,
+            project_url=project_url,
+            project_revision=project_revision,
+            scorecard_score=scorecard_score,
             type=justification_type,
             message=message,
             tag=f"{passed}license",
+            default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+            prescriptions_version=_PRESCRIPTIONS_VERSION,
         ),
         commit_message=f"Licence Security Scorecards update for {project_name!r}",
     )
@@ -897,29 +843,22 @@ def _handle_license(
 def _handle_webhooks(
     prescriptions: "Prescriptions",
     project_name: str,
+    project_revision: str,
+    project_url: str,
     scorecards_entry: Dict[str, Any],
 ) -> None:
     """Handle Webhooks scorecards."""
-    if int(scorecards_entry["Confidence"]) == 0:
-        prescriptions.delete_prescription(
-            project_name,
-            prescription_name="scorecards_webhooks.yaml",
-            commit_message=f"Webhooks Security Scorecards for {project_name!r} have low confidence",
-            nonexisting_ok=True,
-        )
-        return
-
     prescription_name = "Webhooks"
     prescription_name += prescriptions.get_prescription_name("ScoreCardsWrap", project_name)
 
     passed = ""
 
-    if scorecards_entry["Pass"]:
-        justification_type = "INFO"
+    scorecard_score = scorecards_entry.get("score")
+    justification_type = _get_justification_type(scorecard_score)
+    if justification_type == "INFO":
         message = "The webhook defined in the project repository has a token configured "
         "to authenticate the origins of requests based on Security Scorecards"
     else:
-        justification_type = "WARNING"
         message = "The webhook defined in the project repository does NOT have a token configured "
         "to authenticate the origins of requests based on Security Scorecard"
         passed = "no-"
@@ -930,9 +869,14 @@ def _handle_webhooks(
         content=_SCORECARDS_WRAP_GENERIC_UNIT.format(
             prescription_name=prescription_name,
             package_name=project_name,
+            project_url=project_url,
+            project_revision=project_revision,
+            scorecard_score=scorecard_score,
             type=justification_type,
             message=message,
             tag=f"{passed}webhook-token",
+            default_prescriptions_repository=_PRESCRIPTIONS_DEFAULT_REPO,
+            prescriptions_version=_PRESCRIPTIONS_VERSION,
         ),
         commit_message=f"Webhooks Security Scorecards update for {project_name!r}",
     )
@@ -977,7 +921,7 @@ def scorecards(prescriptions: "Prescriptions") -> None:
 
     for project_name, organization, repository in iter_gh_info(prescriptions):
         query = f"""
-        SELECT * FROM openssf.scorecardcron.scorecard WHERE Repo="github.com/{organization}/{repository}"
+        SELECT * FROM `openssf.scorecardcron.scorecard-v2` WHERE repo.name="github.com/{organization}/{repository}"
         AND Date > DATE_ADD(CURRENT_DATE(),
                    interval-{_THOTH_PRESCRIPTIONS_REFRESH_SCORECARD_FRESHNESS_WEEKS} week)
         ORDER BY Date DESC LIMIT 1
@@ -989,17 +933,20 @@ def scorecards(prescriptions: "Prescriptions") -> None:
 
         else:
             _LOGGER.info(f"Scorecard found for project {project_name} at github.com/{organization}/{repository}")
-            checks = list(query_result)[0][0]
+            result_list = list(query_result)[0]
+            project_revision = result_list[1].get("commit")
+            project_url = result_list[1].get("name")
+            checks = result_list[3]
             for check in checks or []:
-                handler = _SCORECARDS_HANDLERS.get(check.get("Name"))
+                handler = _SCORECARDS_HANDLERS.get(check.get("name"))
                 if not handler:
                     _LOGGER.error(
                         "No scorecards handler registered for scorecard %r found for project %r (GitHub slug: %s/%s)",
-                        check.get("Name"),
+                        check.get("name"),
                         project_name,
                         organization,
                         repository,
                     )
                     continue
 
-                handler(prescriptions, project_name, check)
+                handler(prescriptions, project_name, project_revision, project_url, check)
