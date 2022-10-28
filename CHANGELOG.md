@@ -1,5 +1,10 @@
 # Changelog for Thoth's prescriptions refresh job
 
+## Release 0.8.0 (2022-10-28T14:58:13)
+* 81fae87 :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
+* 1b781fc Adapt Scorecards prescriptions to new dataset schema
+* 1083161 :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
+
 ## Release 0.7.5 (2022-09-26T08:06:53)
 * 0d9660c :ship: Bump up base image initialized in CI.
 * 2bae5ed :arrow_up: Automatic update of dependencies by Kebechet for the ubi8 environment
