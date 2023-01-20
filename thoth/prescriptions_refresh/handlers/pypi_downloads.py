@@ -62,9 +62,9 @@ units:
           The most downloaded package version is {most_downloaded_version} with {max_downloads} downloads.
         link: {package_link}
         package_name: {package_name}
-        metadata:
-        - prescriptions_repository: {default_prescriptions_repository}
-          prescriptions_version: {prescriptions_version}
+    metadata:
+    - prescriptions_repository: {default_prescriptions_repository}
+      prescriptions_version: {prescriptions_version}
 """
 _PACKAGE_DOWNLOADS_PRESCRIPTION_NAME_PER_VERSION = "pypi_downloads_per_version.yaml"
 _PACKAGE_DOWNLOADS_PER_VERSION_PRESCRIPTION_CONTENT = """\
@@ -87,9 +87,9 @@ units:
           on PyPI in the last {days} days, with {downloads_count} downloads.
         link: {package_link}
         package_name: {package_name}
-        metadata:
-        - prescriptions_repository: {default_prescriptions_repository}
-          prescriptions_version: {prescriptions_version}
+    metadata:
+    - prescriptions_repository: {default_prescriptions_repository}
+      prescriptions_version: {prescriptions_version}
 """
 
 

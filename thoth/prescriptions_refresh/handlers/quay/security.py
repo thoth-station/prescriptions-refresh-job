@@ -62,9 +62,9 @@ _QUAY_SECURITY_BOOT = """\
         link: {link}
       not_acceptable: >-
         The base image used has a CVE {cve_name} - see {link}
-        metadata:
-          - prescriptions_repository: {default_prescriptions_repository}
-            prescriptions_version: {prescriptions_version}
+    metadata:
+      - prescriptions_repository: {default_prescriptions_repository}
+        prescriptions_version: {prescriptions_version}
 """
 
 _QUAY_SECURITY_WRAP = """\
@@ -86,9 +86,9 @@ _QUAY_SECURITY_WRAP = """\
         message: >-
           {message}
         link: {link}
-        metadata:
-          - prescriptions_repository: {default_prescriptions_repository}
-            prescriptions_version: {prescriptions_version}
+    metadata:
+      - prescriptions_repository: {default_prescriptions_repository}
+        prescriptions_version: {prescriptions_version}
 """
 
 _QUAY_ALTERNATIVE_WRAP = """\
@@ -105,9 +105,9 @@ _QUAY_ALTERNATIVE_WRAP = """\
         message: >-
           Consider using {image_alternative!r} as vulnerability-free alternative to {image!r}
         link: {link}
-        metadata:
-          - prescriptions_repository: {default_prescriptions_repository}
-            prescriptions_version: {prescriptions_version}
+    metadata:
+      - prescriptions_repository: {default_prescriptions_repository}
+        prescriptions_version: {prescriptions_version}
 """
 
 _QUAY_SECURITY_TIMESTAMP = """\
@@ -129,9 +129,9 @@ units:
           Using security information for predictable stacks based on Quay
           scanners for {quay_url}/organization/{quay_namespace} as of {datetime!r}
         link: https://www.projectquay.io/
-        metadata:
-          - prescriptions_repository: {default_prescriptions_repository}
-            prescriptions_version: {prescriptions_version}
+    metadata:
+      - prescriptions_repository: {default_prescriptions_repository}
+        prescriptions_version: {prescriptions_version}
 """
 
 

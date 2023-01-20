@@ -60,9 +60,9 @@ units:
           number of projects on PyPI (less than {maintainer_projects_count})
         link: https://pypi.org/project/{package_name}/
         package_name: {package_name}
-        metadata:
-        - prescriptions_repository: {default_prescriptions_repository}
-          prescriptions_version: {prescriptions_version}
+    metadata:
+    - prescriptions_repository: {default_prescriptions_repository}
+      prescriptions_version: {prescriptions_version}
 """
 
 _PYPI_PROJECT_MAINTAINERS_PRESCRIPTION_NAME = "pypi_project_maintainers.yaml"
@@ -84,9 +84,9 @@ units:
         message: Project '{package_name}' has low number of maintainers on PyPI (less than {project_maintainers_count})
         link: https://pypi.org/project/{package_name}/
         package_name: {package_name}
-        metadata:
-        - prescriptions_repository: {default_prescriptions_repository}
-          prescriptions_version: {prescriptions_version}
+    metadata:
+    - prescriptions_repository: {default_prescriptions_repository}
+      prescriptions_version: {prescriptions_version}
 """
 
 
@@ -111,9 +111,9 @@ units:
           recently (less than {maintainers_join_days} days ago)
         link: https://pypi.org/project/{package_name}/
         package_name: {package_name}
-        metadata:
-        - prescriptions_repository: {default_prescriptions_repository}
-          prescriptions_version: {prescriptions_version}
+    metadata:
+    - prescriptions_repository: {default_prescriptions_repository}
+      prescriptions_version: {prescriptions_version}
 """
 
 

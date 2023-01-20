@@ -50,9 +50,9 @@ units:
         message: Package '{package_name}' has less than {contributors} contributors on GitHub
         link: {gh_link}
         package_name: {package_name}
-        metadata:
-        - prescriptions_repository: {default_prescriptions_repository}
-          prescriptions_version: {prescriptions_version}
+    metadata:
+    - prescriptions_repository: {default_prescriptions_repository}
+      prescriptions_version: {prescriptions_version}
 """
 
 

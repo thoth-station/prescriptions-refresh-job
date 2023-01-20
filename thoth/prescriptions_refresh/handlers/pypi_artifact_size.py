@@ -54,9 +54,9 @@ _PYPI_ARTIFACT_SIZE_PRESCRIPTION_CONTENT = """\
           '{package_version}' can have up to {artifact_size}
         link: https://pypi.org/project/{package_name}/{package_version}/#files
         package_name: {package_name}
-        metadata:
-        - prescriptions_repository: {default_prescriptions_repository}
-          prescriptions_version: {prescriptions_version}
+    metadata:
+    - prescriptions_repository: {default_prescriptions_repository}
+      prescriptions_version: {prescriptions_version}
 """
 
 

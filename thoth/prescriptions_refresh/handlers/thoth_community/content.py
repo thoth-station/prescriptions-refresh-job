@@ -35,9 +35,9 @@ units:
         message: Package '{package_name}' is popular within Thoth community
         link: thoth_community
         package_name: {package_name}
-        metadata:
-        - prescriptions_repository: {default_prescriptions_repository}
-          prescriptions_version: {prescriptions_version}
+    metadata:
+    - prescriptions_repository: {default_prescriptions_repository}
+      prescriptions_version: {prescriptions_version}
 """
 
 
@@ -60,9 +60,9 @@ units:
           Consider using '{package_name}' in version '{package_version}' which is popular within Thoth community
         link: thoth_community
         package_name: {package_name}
-        metadata:
-        - prescriptions_repository: {default_prescriptions_repository}
-          prescriptions_version: {prescriptions_version}
+    metadata:
+    - prescriptions_repository: {default_prescriptions_repository}
+      prescriptions_version: {prescriptions_version}
   - name: {prescription_name}TopPackageVersionsWrap
     type: wrap
     should_include:
@@ -79,9 +79,9 @@ units:
           Package '{package_name}' in version '{package_version}' is popular within Thoth community
         link: thoth_community
         package_name: {package_name}
-        metadata:
-        - prescriptions_repository: {default_prescriptions_repository}
-          prescriptions_version: {prescriptions_version}
+    metadata:
+    - prescriptions_repository: {default_prescriptions_repository}
+      prescriptions_version: {prescriptions_version}
 """
 
 
@@ -102,9 +102,9 @@ units:
         message: Package '{package_name}' is popular as a development dependency within Thoth community
         link: thoth_community
         package_name: {package_name}
-        metadata:
-        - prescriptions_repository: {default_prescriptions_repository}
-          prescriptions_version: {prescriptions_version}
+    metadata:
+    - prescriptions_repository: {default_prescriptions_repository}
+      prescriptions_version: {prescriptions_version}
 """
 
 
@@ -128,9 +128,9 @@ units:
           as a development dependency within Thoth community
         link: thoth_community
         package_name: {package_name}
-        metadata:
-        - prescriptions_repository: {default_prescriptions_repository}
-          prescriptions_version: {prescriptions_version}
+    metadata:
+    - prescriptions_repository: {default_prescriptions_repository}
+      prescriptions_version: {prescriptions_version}
   - name: {prescription_name}TopDevPackageVersionsWrap
     type: wrap
     should_include:
@@ -148,9 +148,9 @@ units:
           within Thoth community
         link: thoth_community
         package_name: {package_name}
-        metadata:
-        - prescriptions_repository: {default_prescriptions_repository}
-          prescriptions_version: {prescriptions_version}
+    metadata:
+    - prescriptions_repository: {default_prescriptions_repository}
+      prescriptions_version: {prescriptions_version}
 """
 
 
@@ -169,9 +169,9 @@ units:
       - type: INFO
         message: Container image '{base_image}' is popular within Thoth community
         link: thoth_community
-        metadata:
-        - prescriptions_repository: {default_prescriptions_repository}
-          prescriptions_version: {prescriptions_version}
+    metadata:
+    - prescriptions_repository: {default_prescriptions_repository}
+      prescriptions_version: {prescriptions_version}
 """
 
 
@@ -190,9 +190,9 @@ units:
       - type: INFO
         message: Container image '{base_image}' in tag '{base_image_version}' is popular within Thoth community
         link: thoth_community
-        metadata:
-        - prescriptions_repository: {default_prescriptions_repository}
-          prescriptions_version: {prescriptions_version}
+    metadata:
+    - prescriptions_repository: {default_prescriptions_repository}
+      prescriptions_version: {prescriptions_version}
 """
 
 
@@ -211,9 +211,9 @@ units:
         message: >-
           Python in version '{python_version}' is popular within Thoth community
         link: thoth_community
-        metadata:
-        - prescriptions_repository: {default_prescriptions_repository}
-          prescriptions_version: {prescriptions_version}
+    metadata:
+    - prescriptions_repository: {default_prescriptions_repository}
+      prescriptions_version: {prescriptions_version}
   - name: {prescription_name}ConsiderTopPythonVersionsBoot
     type: boot
     should_include:
@@ -226,9 +226,9 @@ units:
         message: >-
           Consider switching to Python in version '{python_version}' which is popular within Thoth community
         link: thoth_community
-        metadata:
-        - prescriptions_repository: {default_prescriptions_repository}
-          prescriptions_version: {prescriptions_version}
+    metadata:
+    - prescriptions_repository: {default_prescriptions_repository}
+      prescriptions_version: {prescriptions_version}
 """
 
 
@@ -249,9 +249,9 @@ units:
           Operating system '{operating_system_name}' in version '{operating_system_version}' is
           popular within Thoth community
         link: thoth_community
-        metadata:
-        - prescriptions_repository: {default_prescriptions_repository}
-          prescriptions_version: {prescriptions_version}
+    metadata:
+    - prescriptions_repository: {default_prescriptions_repository}
+      prescriptions_version: {prescriptions_version}
 """
 
 
@@ -268,7 +268,7 @@ units:
         message: >-
           Using Thoth community statistics computed at {thoth_community_timestamp}
         link: thoth_community
-        metadata:
-        - prescriptions_repository: {default_prescriptions_repository}
-          prescriptions_version: {prescriptions_version}
+    metadata:
+    - prescriptions_repository: {default_prescriptions_repository}
+      prescriptions_version: {prescriptions_version}
 """

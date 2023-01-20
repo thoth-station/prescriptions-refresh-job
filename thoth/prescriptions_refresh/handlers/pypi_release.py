@@ -51,9 +51,9 @@ units:
           Package '{package_name}' has no recent release, last release dates back to {last_release_datetime}
         link: https://pypi.org/project/{package_name}/#history
         package_name: {package_name}
-        metadata:
-        - prescriptions_repository: {default_prescriptions_repository}
-          prescriptions_version: {prescriptions_version}
+    metadata:
+    - prescriptions_repository: {default_prescriptions_repository}
+      prescriptions_version: {prescriptions_version}
 """
 
 
