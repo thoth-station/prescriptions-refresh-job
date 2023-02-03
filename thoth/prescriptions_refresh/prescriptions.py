@@ -36,6 +36,7 @@ from ogr.services.github import GithubProject
 from ogr.services.github import GithubService
 
 from .exceptions import PrescriptionNotFound
+from thoth.adviser.prescriptions.v1.schema import Prescription
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -304,6 +305,7 @@ Visit [thoth-station.ninja](https://thoth-station.ninja) for more info.
             commit_message = f"Add prescription {prescription_name!r} for {project_name!r}"
 
         prescription_content = yaml.safe_load(content)
+        Prescription(prescription_content)
 
         if _DRY_RUN:
             _LOGGER.info(f"\n{prescription_content}")
