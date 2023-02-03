@@ -55,9 +55,9 @@ units:
         message: Project '{package_name}' has {popularity_score} popularity on GitHub
         link: {gh_link}
         package_name: {package_name}
-        metadata:
-        - prescriptions_repository: {default_prescriptions_repository}
-          prescriptions_version: {prescriptions_version}
+    metadata:
+    - prescriptions_repository: {default_prescriptions_repository}
+      prescriptions_version: {prescriptions_version}
 """
 
 

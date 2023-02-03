@@ -48,9 +48,9 @@ _IMAGE_SIZE_BOOT = """\
         message: >-
           Container image {image!r} has a size of {size}
         link: {link}
-        metadata:
-        - prescriptions_repository: {default_prescriptions_repository}
-          prescriptions_version: {prescriptions_version}
+    metadata:
+    - prescriptions_repository: {default_prescriptions_repository}
+      prescriptions_version: {prescriptions_version}
 """
 
 

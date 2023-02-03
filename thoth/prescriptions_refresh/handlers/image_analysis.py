@@ -59,9 +59,9 @@ _THOTH_IMAGE_ANALYSIS_WRAP = """\
         message: >-
           Found predictive stack image that can be used with these dependencies
         link: {link}
-        metadata:
-        - prescriptions_repository: {default_prescriptions_repository}
-          prescriptions_version: {prescriptions_version}
+    metadata:
+    - prescriptions_repository: {default_prescriptions_repository}
+      prescriptions_version: {prescriptions_version}
       advised_manifest_changes:
       - file: .thoth.yaml
         patch:

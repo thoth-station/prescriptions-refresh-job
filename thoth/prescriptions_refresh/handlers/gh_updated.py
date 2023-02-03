@@ -51,9 +51,9 @@ units:
         message: Package '{package_name}' was last updated at {updated_at}
         link: {gh_link}
         package_name: {package_name}
-        metadata:
-        - prescriptions_repository: {default_prescriptions_repository}
-          prescriptions_version: {prescriptions_version}
+    metadata:
+    - prescriptions_repository: {default_prescriptions_repository}
+      prescriptions_version: {prescriptions_version}
 """
 
 

@@ -49,11 +49,10 @@ units:
           Package '{package_name}' is known to have at least {cve_warning_count} vulnerabilities reported in releases
         link: cve_warning
         package_name: {package_name}
-        metadata:
-        - prescriptions_repository: {default_prescriptions_repository}
-          prescriptions_version: {prescriptions_version}
-          last_cve_database_update: {last_cve_database_update}
-
+    metadata:
+    - prescriptions_repository: {default_prescriptions_repository}
+      prescriptions_version: {prescriptions_version}
+      last_cve_database_update: {last_cve_database_update}
 """
 
 

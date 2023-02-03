@@ -56,9 +56,9 @@ units:
         project_revision: {project_revision}
         scorecard_score: {scorecard_score}
         tag: {tag}
-        metadata:
-        - prescriptions_repository: {default_prescriptions_repository}
-          prescriptions_version: {prescriptions_version}
+    metadata:
+    - prescriptions_repository: {default_prescriptions_repository}
+      prescriptions_version: {prescriptions_version}
 """
 
 _THOTH_PRESCRIPTIONS_REFRESH_SCORECARD_FRESHNESS_WEEKS = int(
